@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+    --bg: hwb(0 100% 0%);
+    --radius: 12px;
+    --surface: #ffffff;
+    --surface-2: #f4f4f5;
+    --border: #e0e1e0;
+    --border-hi: #419a5b;
+    --text-1: #18181b;
+    --text-2: #090912ec;
+    --text-3: #040405;
+    --accent: #3d9b55;
+    --accent-dim: rgba(184, 208, 0, 0.08);
+    --accent-bdr: rgba(184, 208, 0, 0.35);
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+[data-theme='dark'] {
+    --bg: #16161a;
+    --surface: #111113;
+    --surface-2: #18181b;
+    --border: #1e221f;
+    --border-hi: #0bec13;
+    --text-1: #f4f4f5;
+    --text-2: #d1d1dc;
+    --text-3: #75757c;
+    --accent: #1be236;
+    --accent-dim: rgba(232, 255, 71, 0.08);
+    --accent-bdr: rgba(232, 255, 71, 0.25);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text-2);
+    font-family: var(--sans);
+    transition: background 0.2s ease, color 0.2s ease;
+}
