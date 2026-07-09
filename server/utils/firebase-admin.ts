@@ -1,16 +1,59 @@
 import { initializeApp, cert, getApps } from 'firebase-admin/app'
-import { getFirestore } from 'firebase-admin/firestore'
+import { getFirestore, type Firestore } from 'firebase-admin/firestore'
 
-if (getApps().length === 0) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  })
+let dbInstance: Firestore | null = null
+let initError: Error | null = null
+
+function init(): Firestore {
+  if (dbInstance) return dbInstance
+  if (initError) throw initError
+
+  const projectId = process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
+
+  const missing = [
+    !projectId && 'NUXT_PUBLIC_FIREBASE_PROJECT_ID',
+    !clientEmail && 'FIREBASE_CLIENT_EMAIL',
+    !privateKey && 'FIREBASE_PRIVATE_KEY',
+  ].filter(Boolean)
+
+  if (missing.length > 0) {
+    initError = new Error(`Firebase Admin is missing required env vars: ${missing.join(', ')}`)
+    console.error('[firebase-admin]', initError.message)
+    throw initError
+  }
+
+  try {
+    if (getApps().length === 0) {
+      initializeApp({
+        credential: cert({ projectId, clientEmail, privateKey } as {
+          projectId: string
+          clientEmail: string
+          privateKey: string
+        }),
+      })
+    }
+    dbInstance = getFirestore()
+    dbInstance.settings({ ignoreUndefinedProperties: true })
+    return dbInstance
+  } catch (err) {
+    initError = err instanceof Error ? err : new Error(String(err))
+    console.error('[firebase-admin] Failed to initialize:', initError.message)
+    throw initError
+  }
 }
 
-export const db = getFirestore()
-
-db.settings({ ignoreUndefinedProperties: true })
+/**
+ * Same `db` export every other route already imports — unchanged behavior
+ * for working credentials. Initialization is deferred until the first real
+ * Firestore call (e.g. db.collection(...)), instead of running at module
+ * import time, so a missing/bad credential only breaks the specific route
+ * that touches Firestore instead of crashing the entire server.
+ */
+export const db: Firestore = new Proxy({} as Firestore, {
+  get(_target, prop, receiver) {
+    const instance = init()
+    return Reflect.get(instance, prop, receiver)
+  },
+})

@@ -136,7 +136,6 @@ const filteredReports = computed(() => {
   display: inline-flex; align-items: center; gap: 8px;
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.92);
   margin-bottom: 16px;
 }
 .eyebrow-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; }

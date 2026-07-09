@@ -1,5 +1,5 @@
 // server/api/community/breakdowns.ts
-import { getFirestore } from 'firebase-admin/firestore'
+import { db } from '../../utils/firebase-admin'
 import type { ScamBreakdown } from '~/types/community'
 
 const DEFAULT_LIMIT = 8
@@ -13,8 +13,6 @@ export default defineEventHandler(async (event): Promise<ScamBreakdown[]> => {
       Number.isFinite(requestedLimit) && requestedLimit > 0
         ? Math.min(requestedLimit, MAX_LIMIT)
         : DEFAULT_LIMIT
-
-    const db = getFirestore()
 
     const snapshot = await db
       .collection('scamBreakdowns')
