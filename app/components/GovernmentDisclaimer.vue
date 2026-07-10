@@ -24,7 +24,7 @@ withDefaults(defineProps<{ variant?: 'banner' | 'full' }>(), {
         <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
         <path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
-      <h2 class="section-title">FRNG is not a government agency</h2>
+      <h2 class="section-title">FRNG is not a government agency. <br/> FRNG is a community signal, not a legal authority </h2>
     </div>
 
     <div class="disclaimer-card fade-in" style="--delay: 0s">

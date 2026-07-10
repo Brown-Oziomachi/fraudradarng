@@ -1,8 +1,9 @@
-<!-- app/components/FlaggedAccountsList.vue -->
 <script setup lang="ts">
 import type { Report } from '#shared/types/report'
 
-const props = defineProps<{ reports: Report[] }>()
+const props = withDefaults(defineProps<{ reports: Report[] }>(), {
+  reports: () => []
+})
 
 function displayName(r: Report) {
   if (r.targetType === 'company') return r.companyName ?? 'Unknown company'
@@ -25,12 +26,15 @@ function firstReported(r: Report) {
 }
 
 const sortedReports = computed(() =>
-  [...props.reports].sort((a, b) => {
+  [...(props.reports ?? [])].sort((a, b) => {
     const aFlagged = a.status === 'flagged' ? 1 : 0
     const bFlagged = b.status === 'flagged' ? 1 : 0
     return bFlagged - aFlagged
   })
 )
+
+const displayedReports = computed(() => sortedReports.value.slice(0, 5))
+const hasMore = computed(() => sortedReports.value.length > 5)
 </script>
 
 <template>
@@ -64,7 +68,7 @@ const sortedReports = computed(() =>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(r, i) in sortedReports" :key="r.id">
+            <tr v-for="(r, i) in displayedReports" :key="r.id">
               <td class="col-num">{{ i + 1 }}.</td>
               <td>
                 <NuxtLink :to="`/reports/${r.id}`" class="row-name">
@@ -82,12 +86,16 @@ const sortedReports = computed(() =>
                 </span>
               </td>
             </tr>
-            <tr v-if="!sortedReports.length">
+            <tr v-if="!displayedReports.length">
               <td colspan="5" class="empty-row">No flagged accounts yet.</td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <NuxtLink v-if="hasMore" to="/reports" class="view-all-link">
+        View all {{ sortedReports.length }} reports →
+      </NuxtLink>
     </div>
   </section>
 </template>
@@ -97,6 +105,13 @@ const sortedReports = computed(() =>
   max-width: 920px;
   margin: 0 auto;
   padding: 24px;
+}
+
+@media (min-width: 1024px) {
+  .flagged-section {
+    max-width: 1180px;
+    padding: 24px 32px;
+  }
 }
 
 .section-title-row {
@@ -213,5 +228,19 @@ const sortedReports = computed(() =>
   font-family: var(--mono);
   font-size: 12px;
   padding: 24px 0;
+}
+
+.view-all-link {
+  display: inline-block;
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--text-2);
+  text-decoration: none;
+}
+.view-all-link:hover {
+  color: var(--text-1);
+  text-decoration: underline;
 }
 </style>

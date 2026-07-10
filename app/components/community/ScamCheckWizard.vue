@@ -167,7 +167,7 @@ const verdictLabel = computed(() => {
         </div>
 
         <NuxtLink v-if="result.verdict === 'high-risk'" :to="REPORT_FORM_ROUTE" class="report-btn">
-          Report this now
+          Report to FRNG
         </NuxtLink>
 
         <button type="button" class="restart-btn" @click="restart">Run another check</button>

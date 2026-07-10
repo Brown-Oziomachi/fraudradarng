@@ -32,7 +32,7 @@ const testimonials = [
 
 const stats = [
   { value: '1,240+', label: 'Reports filed' },
-  { value: '38', label: 'States covered' },
+  { value: '36', label: 'States covered' },
   { value: 'Live', label: 'Updated as reports come in' }
 ]
 

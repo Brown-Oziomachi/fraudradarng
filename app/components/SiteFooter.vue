@@ -3,7 +3,6 @@ const currentYear = new Date().getFullYear()
 const isSubscribeOpen = ref(false)
 
 const aboutLinks = [
-  { label: 'About FRNG', to: '/about-FRNG' },
   { label: 'How it works', to: '/how-it-works' },
   { label: 'Trust & moderation', to: '/trust' },
   { label: 'Partnership', to: '/partnership_FRNG' },
@@ -20,12 +19,14 @@ const reportsLinks = [
   { label: 'Fraud categories', to: '/categories' },
   { label: 'Flag a reports on FRNG', to: '/flag/report' },
   { label: 'Most flagged Accounts', to: '/most-flagged' },
+  { label: 'Check Before You Pay', to: '/lookupsearch' },
 ]
 
 const quickLinks = [
+  { label: 'About FRNG', to: '/about-FRNG' },
+  { label: 'Contact', to: '/contact' },
   { label: 'Privacy Notice', to: '/privacy-notice' },
   { label: 'Terms & Conditions', to: '/terms' },
-  { label: 'Contact', to: '/contact' },
 ]
 
 const emergencyContacts = [

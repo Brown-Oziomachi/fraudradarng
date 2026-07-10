@@ -1,3 +1,68 @@
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+
+interface Props {
+  modelValue: boolean
+  privacyNoticeUrl?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  privacyNoticeUrl: '',
+})
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void
+  (e: 'subscribed', email: string): void
+}>()
+
+const email = ref('')
+const loading = ref(false)
+const error = ref('')
+const submitted = ref(false)
+
+function close() {
+  emit('update:modelValue', false)
+}
+
+async function handleSubmit() {
+  if (loading.value) return
+  error.value = ''
+  loading.value = true
+
+  try {
+    const res = await $fetch('/api/subscribe', {
+      method: 'POST',
+      body: { email: email.value },
+    })
+
+    submitted.value = true
+    emit('subscribed', email.value)
+
+    setTimeout(() => {
+      close()
+    }, 2500)
+  } catch (e: any) {
+    error.value =
+      e?.data?.message || 'Something went wrong. Please try again.'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Reset state whenever the modal is reopened
+watch(
+  () => props.modelValue,
+  (isOpen) => {
+    if (isOpen) {
+      email.value = ''
+      error.value = ''
+      submitted.value = false
+      loading.value = false
+    }
+  }
+)
+</script>
+
 <template>
   <Teleport to="body">
     <Transition name="overlay-fade">
@@ -66,7 +131,7 @@
                   communications at the email address you provided.
                   <template v-if="privacyNoticeUrl">
                     Your personal data will be processed following
-                    <NuxtLink :to="privacyNoticeUrl" class="privacy-link">
+                    <NuxtLink :to="privacyNoticeUrl" class="privacy-link" v-on:click="close">
                       the Privacy Notice
                     </NuxtLink>.
                   </template>
@@ -100,70 +165,7 @@
   </Teleport>
 </template>
 
-<script setup lang="ts">
-import { ref, watch } from 'vue'
 
-interface Props {
-  modelValue: boolean
-  privacyNoticeUrl?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  privacyNoticeUrl: '',
-})
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void
-  (e: 'subscribed', email: string): void
-}>()
-
-const email = ref('')
-const loading = ref(false)
-const error = ref('')
-const submitted = ref(false)
-
-function close() {
-  emit('update:modelValue', false)
-}
-
-async function handleSubmit() {
-  if (loading.value) return
-  error.value = ''
-  loading.value = true
-
-  try {
-    const res = await $fetch('/api/subscribe', {
-      method: 'POST',
-      body: { email: email.value },
-    })
-
-    submitted.value = true
-    emit('subscribed', email.value)
-
-    setTimeout(() => {
-      close()
-    }, 2500)
-  } catch (e: any) {
-    error.value =
-      e?.data?.message || 'Something went wrong. Please try again.'
-  } finally {
-    loading.value = false
-  }
-}
-
-// Reset state whenever the modal is reopened
-watch(
-  () => props.modelValue,
-  (isOpen) => {
-    if (isOpen) {
-      email.value = ''
-      error.value = ''
-      submitted.value = false
-      loading.value = false
-    }
-  }
-)
-</script>
 
 <style scoped>
 .modal-overlay {

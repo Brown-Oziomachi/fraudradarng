@@ -98,6 +98,13 @@ const images = computed(() => {
   return legacy ? [legacy] : []
 })
 
+const reportForShare = computed<Report | null>(() => {
+  const r = report.value
+  if (!r) return null
+  // ensure non-optional fields expected by ShareableWarningCard
+  return ({ ...r, bankName: r.bankName ?? '' }) as Report
+})
+
 const sharedFields = computed(() => {
   const r = report.value
   if (!r) return []
@@ -317,7 +324,19 @@ useHead(() => ({
 
       <div class="share-panel">
         <h2 class="details-heading">Warn others</h2>
-        <ShareableWarningCard v-if="report" :report="{ ...report, bankName: report.bankName ?? '' }" />
+        <ShareableWarningCard
+          v-if="report"
+          :report="({
+            ...(report as any),
+            bankName: report.bankName ?? '',
+            accountName: report.accountName ?? '',
+            accountNumber: report.accountNumber ?? '',
+            companyName: (report as any).companyName ?? '',
+            companyAddress: (report as any).companyAddress ?? '',
+            websiteUrl: (report as any).websiteUrl ?? '',
+            websiteName: (report as any).websiteName ?? ''
+          } as any)"
+        />
       </div>
     </article>
 
@@ -554,7 +573,7 @@ useHead(() => ({
 .badge-popover {
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
+  right: 5;
   left: auto;
   z-index: 20;
   width: min(260px, calc(100vw - 40px));

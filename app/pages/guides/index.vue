@@ -179,7 +179,6 @@ useSeoMeta({
   flex-direction: column;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
   overflow: hidden;
   text-decoration: none;
   transition: border-color 0.2s ease, transform 0.2s ease;

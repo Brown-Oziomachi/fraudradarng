@@ -296,13 +296,12 @@ onUnmounted(() => {
 
 .actions {
   display: flex;
+  flex-direction: column;   /* was: no direction set (defaults to row) */
   gap: 10px;
-  flex-wrap: wrap;
 }
 
 .btn-share, .btn-download {
-  flex: 1;
-  min-width: 140px;
+  width: 100%;              /* was: flex: 1 + min-width: 140px, which let them share a row */
   font-family: var(--mono);
   font-size: 12.5px;
   font-weight: 600;

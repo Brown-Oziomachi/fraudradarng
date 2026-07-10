@@ -1,8 +1,15 @@
-export type TargetType = 'bank_account' | 'company' | 'website'
+// #shared/types/report.ts
+
+export type TargetType =
+  | 'bank_account'
+  | 'company'
+  | 'website'
+  | 'phone_number'   
+  | 'digital_wallet' 
+
 export type ScamCategory = 'fintech_ussd' | 'social_commerce' | 'visa_travel' | 'job_ponzi' | 'other'
 
-// NEW — Pending until enough distinct reporters corroborate it
-export type ReportStatus = 'pending' | 'flagged'
+export type ReportStatus = 'pending' | 'flagged' | 'pending_review'
 
 export interface ReportSubmission {
   description: string
@@ -26,23 +33,26 @@ export interface Report {
   websiteUrl?: string
   websiteName?: string
 
+  // NEW LOOKUP — phone_number target type
+  phoneNumber?: string
+
+  // NEW LOOKUP — digital_wallet target type (OPay/PalmPay/Moniepoint tags)
+  walletProvider?: 'opay' | 'palmpay' | 'moniepoint' | 'other'
+  walletTag?: string
+
   description: string
   reason?: 'fake_transfer' | 'romance_scam' | 'job_scam' | 'investment_scam' | 'other'
   amountInvolved?: number
   contactPlatform?: string
   evidenceUrls?: string[]
-  sourceUrl?: string          
+  sourceUrl?: string
   additionalReports?: ReportSubmission[]
 
   reportCount?: number
-  status?: ReportStatus          // NEW
-  distinctReporterCount?: number // NEW
+  status?: ReportStatus
+  distinctReporterCount?: number
   createdAt?: string
   updatedAt?: string
-
-  // NOTE: reporterFingerprints is intentionally NOT in this type.
-  // It's stored server-side only and stripped before any Report
-  // ever reaches the client — see toPublicReport() in db.ts.
 }
 
 export type NewReportInput = Pick<
@@ -51,5 +61,34 @@ export type NewReportInput = Pick<
   | 'bankName' | 'accountName' | 'accountNumber'
   | 'companyName' | 'companyAddress'
   | 'websiteUrl' | 'websiteName'
+  | 'phoneNumber'                    // NEW LOOKUP
+  | 'walletProvider' | 'walletTag'   // NEW LOOKUP
   | 'description' | 'reason' | 'amountInvolved' | 'contactPlatform' | 'evidenceUrls'
 >
+
+// ---------------------------------------------------------------------------
+// NEW LOOKUP — types for the "check before you pay" search feature
+// ---------------------------------------------------------------------------
+
+export type LookupIdentifierType =
+  | 'bank_account'
+  | 'phone_number'
+  | 'wallet_tag'
+  | 'company_name'
+  | 'website'
+
+export type LookupRiskLevel = 'none' | 'caution' | 'high-risk'
+
+export interface LookupResult {
+  query: string
+  normalizedIdentifier: string
+  identifierType: LookupIdentifierType
+  matchFound: boolean
+  riskLevel: LookupRiskLevel
+  reportCount: number
+  distinctReporterCount: number
+  firstReportedAt: string | null
+  lastReportedAt: string | null
+  categoriesInvolved: ScamCategory[]
+  sampleDescriptions: string[] // redacted, capped, no reporter PII
+}

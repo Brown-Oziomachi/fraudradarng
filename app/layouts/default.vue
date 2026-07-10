@@ -149,6 +149,7 @@ const mobileSections = [
       { label: 'Help Center', to: '/help' },
       { label: 'Naira Recovery Pipeline', to: '/recovery' },
       { label: 'Community Awareness', to: '/community' },
+      { label: 'Check Before You Pay', to: '/lookupsearch' },
     ]
   },
 ]
@@ -412,39 +413,96 @@ const mobileSections = [
 .brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   text-decoration: none;
+  position: relative;
 }
+
 .brand-logo {
   width: 64px;
   height: 64px;
   object-fit: cover;
   border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(9, 229, 90, 0.807);
-}
-.brand-name {
-  font-family: var(--mono);
-  font-size: 48px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--text-1);
   position: relative;
-  display: inline-block;
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 3.5px var(--accent),
+    0 6px 18px rgba(232, 255, 71, 0.35);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.brand:hover .brand-logo {
+  transform: scale(1.04);
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 3.5px var(--accent),
+    0 8px 24px rgba(232, 255, 71, 0.55);
 }
 
 .brand-text {
   display: flex;
   flex-direction: column;
   line-height: 1;
+  position: relative;
+}
+
+.brand-name {
+  font-family: var(--mono);
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(100deg, var(--text-1) 30%, var(--accent) 55%, var(--text-1) 80%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: brandShine 5s ease-in-out infinite;
+}
+
+@keyframes brandShine {
+  0%   { background-position: 0% 0%; }
+  50%  { background-position: 100% 0%; }
+  100% { background-position: 0% 0%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-name {
+    animation: none;
+    background-position: 0% 0%;
+  }
 }
 
 .brand-subtext {
   font-family: var(--mono);
   font-size: 10px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-3);
   margin-top: 2px;
+  position: relative;
+  padding-bottom: 4px;
+}
+
+/* accent underline that draws in beneath the subtext */
+.brand-subtext::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1.5px;
+  width: 100%;
+  background: var(--accent);
+  transform: scaleX(0.3);
+  transform-origin: left;
+  opacity: 0.6;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.brand:hover .brand-subtext::after {
+  transform: scaleX(1);
+  opacity: 1;
 }
 
 @media (max-width: 720px) {
@@ -730,7 +788,10 @@ const mobileSections = [
   width: 36px;
   height: 36px;
   object-fit: contain;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--accent);
 }
+
 .mobile-brand-text {
   display: flex;
   flex-direction: column;
@@ -742,7 +803,11 @@ const mobileSections = [
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: var(--text-1);
+  background: linear-gradient(100deg, var(--text-1) 30%, var(--accent) 55%, var(--text-1) 80%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .mobile-brand-subtext {

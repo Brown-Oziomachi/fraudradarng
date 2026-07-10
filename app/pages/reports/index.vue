@@ -3,12 +3,52 @@ import type { Report } from '#shared/types/report'
 
 useHead({ title: 'Browse Reports — Fraud Radar NG' })
 
-const { data: reports, pending } = await useLazyFetch<Report[]>('/api/reports')
+const allReports = ref<Report[]>([])
+const cursor = ref<string | null>(null)
+const initialPending = ref(true)
+const loadingMore = ref(false)
 
-const validReports = computed(() => (reports.value ?? []).filter(Boolean))
+const totalReports = ref(0)
+const highRiskCount = ref(0)
 
-const totalReports = computed(() => validReports.value.length)
+async function fetchPage(afterCursor?: string) {
+  const query = afterCursor ? `?cursor=${afterCursor}` : ''
+  return await $fetch<{ reports: Report[]; nextCursor: string | null }>(`/api/reports${query}`)
+}
 
+async function fetchStats() {
+  return await $fetch<{ totalReports: number; highRiskCount: number }>('/api/reports/stats')
+}
+
+onMounted(async () => {
+  try {
+    const [firstPage, stats] = await Promise.all([fetchPage(), fetchStats()])
+    allReports.value = firstPage.reports
+    cursor.value = firstPage.nextCursor
+    totalReports.value = stats.totalReports
+    highRiskCount.value = stats.highRiskCount
+  } finally {
+    initialPending.value = false
+  }
+})
+
+async function loadMore() {
+  if (!cursor.value || loadingMore.value) return
+  loadingMore.value = true
+  try {
+    const { reports, nextCursor } = await fetchPage(cursor.value)
+    allReports.value.push(...reports)
+    cursor.value = nextCursor
+  } finally {
+    loadingMore.value = false
+  }
+}
+
+const validReports = computed(() => allReports.value.filter(Boolean))
+
+// Unique targets is computed from currently-loaded reports only, since
+// true platform-wide uniqueness would require reading every document.
+// See note below for a scalable alternative if this needs to be exact.
 const uniqueTargets = computed(() => {
   const identifiers = validReports.value
     .map(r => {
@@ -19,10 +59,6 @@ const uniqueTargets = computed(() => {
     .filter(Boolean)
   return new Set(identifiers).size
 })
-
-const highRiskCount = computed(() =>
-  validReports.value.filter(r => (r.reportCount ?? 1) >= 3).length
-)
 
 const CATEGORY_LABELS: Record<string, string> = {
   fintech_ussd: 'Fintech & USSD',
@@ -75,6 +111,10 @@ const filteredReports = computed(() => {
     </section>
 
     <div class="page-body">
+      <Teleport to="body">
+        <ReportsLoader v-if="initialPending" />
+      </Teleport>
+
       <div v-if="Object.keys(categoryCounts).length" class="category-filter-row">
         <button
           type="button"
@@ -114,19 +154,30 @@ const filteredReports = computed(() => {
       <div class="section-header">
         <div class="eyebrow">
           <span class="eyebrow-dot" />
-          All reports
+          All Community reports
         </div>
         <SearchBar />
       </div>
 
-      <p v-if="pending" class="loading-text">Loading Fraud reports...</p>
-      <p v-else-if="!validReports.length" class="empty-text">
+      <p v-if="!initialPending && !validReports.length" class="empty-text">
         No reports yet — be the first to flag a suspicious account.
       </p>
-      <p v-else-if="!filteredReports.length" class="empty-text">
+      <p v-else-if="!initialPending && !filteredReports.length" class="empty-text">
         No reports match this category yet.
       </p>
+
       <ReportCard v-for="report in filteredReports" :key="report.id" :report="report" />
+
+      <div v-if="cursor && !categoryFilter" class="load-more-row">
+        <button
+          type="button"
+          class="load-more-btn"
+          :disabled="loadingMore"
+          @click="loadMore"
+        >
+          {{ loadingMore ? 'Loading…' : 'Load more reports' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -134,7 +185,7 @@ const filteredReports = computed(() => {
 <style scoped>
 .eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+  font-family: var(--mono); font-size: 20px; letter-spacing: 0.12em; font-weight: 400;
   text-transform: uppercase;
   margin-bottom: 16px;
 }
@@ -276,4 +327,26 @@ const filteredReports = computed(() => {
   font-family: var(--mono); font-size: 12px; color: var(--text-3);
   padding: 24px 0;
 }
+
+.load-more-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+  padding-bottom: 20px;
+}
+
+.load-more-btn {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  background: var(--surface);
+  color: var(--text-1);
+  border: 1px solid var(--border-hi);
+  border-radius: 8px;
+  padding: 12px 28px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.load-more-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--surface-2); }
+.load-more-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 </style>

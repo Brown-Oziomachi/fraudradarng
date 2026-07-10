@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-    --bg: hwb(0 100% 0%);
+    --bg: hwb(120 98% 1%);
     --radius: 12px;
     --surface: #ffffff;
     --surface-2: #f4f4f5;
@@ -19,7 +19,7 @@
 }
 
 [data-theme='dark'] {
-    --bg: #16161a;
+    --bg: #161a18;
     --surface: #111113;
     --surface-2: #18181b;
     --border: #1e221f;

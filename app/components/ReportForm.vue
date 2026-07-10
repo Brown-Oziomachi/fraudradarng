@@ -12,6 +12,11 @@ interface FormState {
   companyAddress: string
   websiteUrl: string
   websiteName: string
+  // Cross-identifiers — collected regardless of targetType, since the same
+  // scammer often reuses one phone number or wallet/payment tag across
+  // different bank accounts, companies, or sites.
+  phoneNumber: string
+  walletTag: string
   reason: '' | 'fake_transfer' | 'romance_scam' | 'job_scam' | 'investment_scam' | 'other'
   description: string
   amountInvolved: string
@@ -47,6 +52,8 @@ function buildForm(report?: Report | null): FormState {
     companyAddress: report?.companyAddress ?? '',
     websiteUrl: report?.websiteUrl ?? '',
     websiteName: report?.websiteName ?? '',
+    phoneNumber: report?.phoneNumber ?? '',
+    walletTag: report?.walletTag ?? '',
     reason: (report?.reason as FormState['reason']) ?? '',
     description: report?.description ?? '',
     amountInvolved: report?.amountInvolved != null ? String(report.amountInvolved) : '',
@@ -287,6 +294,8 @@ async function submitReport() {
     companyAddress: form.companyAddress || undefined,
     websiteUrl: form.websiteUrl || undefined,
     websiteName: form.websiteName || undefined,
+    phoneNumber: form.phoneNumber || undefined,
+    walletTag: form.walletTag || undefined,
     description: form.description,
     reason: form.reason,
     amountInvolved: form.amountInvolved ? Number(form.amountInvolved) : undefined,
@@ -296,13 +305,13 @@ async function submitReport() {
 
   try {
     if (isEditMode.value && props.report) {
-      const updated = await $fetch(`/api/reports/${props.report.id}`, {
+      const updated = await $fetch<Report>(`/api/reports/${props.report.id}`, {
         method: 'PATCH' as any,
         body
       })
       emit('submitted', updated.id ?? props.report.id)
     } else {
-      const report = await $fetch('/api/reports', {
+      const report = await $fetch<Report>('/api/reports', {
         method: 'POST',
         body
       })
@@ -314,8 +323,8 @@ async function submitReport() {
       } catch {
       }
 
-    successReport.value = report as Report
-showSuccessModal.value = true
+      successReport.value = report
+      showSuccessModal.value = true
     }
   } catch (err: any) {
     if (err?.statusCode === 429) {
@@ -430,6 +439,17 @@ function finishSuccess() {
                 <input id="websiteName" v-model="form.websiteName" class="input" />
               </div>
             </template>
+
+            <div class="field-grid">
+              <div class="form-group">
+                <label for="phoneNumber">Phone number used (optional)</label>
+                <input id="phoneNumber" v-model="form.phoneNumber" class="input" placeholder="e.g. 08012345678" />
+              </div>
+              <div class="form-group">
+                <label for="walletTag">Wallet / payment tag (optional)</label>
+                <input id="walletTag" v-model="form.walletTag" class="input" placeholder="e.g. @quickcash, OPay tag" />
+              </div>
+            </div>
           </section>
 
           <section class="section-block">
@@ -682,6 +702,20 @@ function finishSuccess() {
               </div>
             </template>
 
+            <!-- Cross-identifiers: captured no matter which target type was
+                 picked above, since these are often the detail that links
+                 this scam to another report under a different account. -->
+            <div class="field-grid">
+              <div class="form-group">
+                <label for="phoneNumberWizard">Phone number used (optional)</label>
+                <input id="phoneNumberWizard" v-model="form.phoneNumber" class="input" placeholder="e.g. 08012345678" />
+              </div>
+              <div class="form-group">
+                <label for="walletTagWizard">Wallet / payment tag (optional)</label>
+                <input id="walletTagWizard" v-model="form.walletTag" class="input" placeholder="e.g. @quickcash, OPay tag" />
+              </div>
+            </div>
+
             <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
 
             <div class="form-actions">
@@ -797,6 +831,14 @@ function finishSuccess() {
               <div v-if="form.targetType === 'website'" class="review-row">
                 <span class="review-label">Website</span>
                 <span class="review-value">{{ form.websiteUrl }}</span>
+              </div>
+              <div v-if="form.phoneNumber" class="review-row">
+                <span class="review-label">Phone number</span>
+                <span class="review-value">{{ form.phoneNumber }}</span>
+              </div>
+              <div v-if="form.walletTag" class="review-row">
+                <span class="review-label">Wallet / payment tag</span>
+                <span class="review-value">{{ form.walletTag }}</span>
               </div>
               <div v-if="formattedAmount" class="review-row">
                 <span class="review-label">Amount involved</span>
@@ -1431,21 +1473,32 @@ select.input {
   position: fixed;
   inset: 0;
   background: rgba(10, 10, 11, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 300;
   padding: 20px;
+  display: flex;
+  align-items: flex-start;   /* was: center — flex-start avoids the clip-with-no-scroll bug */
+  justify-content: center;
+  overflow-y: auto;          /* was missing — this is what actually lets it scroll */
 }
+
 .success-modal {
   background: var(--surface);
   border: 1px solid var(--border-hi);
   border-radius: var(--radius);
   padding: 36px 32px;
-  max-width: 380px;
+  max-width: 380px;   /* mobile default stays narrow */
   width: 100%;
   text-align: center;
+  margin: auto 20;
 }
+
+@media (min-width: 640px) {
+  .success-modal {
+    max-width: 780px;   /* a bit more breathing room on desktop, not a big jump */
+    padding: 10px 70px;
+  }
+}
+
 .success-icon {
   width: 52px;
   height: 52px;
