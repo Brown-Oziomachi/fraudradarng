@@ -573,7 +573,7 @@ useHead(() => ({
 .badge-popover {
   position: absolute;
   top: calc(100% + 8px);
-  right: 5;
+  right: 0;
   left: auto;
   z-index: 20;
   width: min(260px, calc(100vw - 40px));
