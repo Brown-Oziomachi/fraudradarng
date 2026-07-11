@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /chat-messages/{message} {
+      allow read: if request.auth != null
+                  && request.auth.token.email == "browncemmanuel@gmail.com";
+      allow create: if request.auth != null
+                    && request.resource.data.keys().hasOnly([
+                        'text', 'userName', 'userId', 'timestamp',
+                        'userTimestamp', 'isAdmin', 'isIdentityInjection',
+                        'replyTo', 'targetUserId'
+                    ])
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 500
+                    && request.resource.data.userName is string
+                    && request.resource.data.userName.size() > 0
+                    && request.resource.data.userName.size() <= 100
+                    && request.resource.data.isAdmin == false;
+      allow delete: if request.auth != null
+                    && request.auth.token.email == "browncemmanuel@gmail.com";
+      allow update: if false;
+    }
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if
+                    request.resource.data.keys().hasOnly([
+                      'articleSlug', 'authorName', 'text', 'createdAt', 'brownReplied'
+                    ])
+                    && request.resource.data.articleSlug is string
+                    && request.resource.data.articleSlug.size() > 0
+                    && request.resource.data.articleSlug.size() <= 200
+                    && request.resource.data.authorName is string
+                    && request.resource.data.authorName.size() > 0
+                    && request.resource.data.authorName.size() <= 100
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 1000
+                    && request.resource.data.createdAt is timestamp
+                    && request.resource.data.brownReplied == false;
+      allow update, delete: if request.auth != null
+                            && request.auth.token.email == "browncemmanuel@gmail.com";
+      match /private/{doc} {
+        allow read, write: if false;
+      }
+    }
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false;
+    }
+    match /likes/{slug} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['count'])
+                    && request.resource.data.count is int
+                    && request.resource.data.count == 1;
+      allow update: if request.resource.data.keys().hasOnly(['count'])
+                    && request.resource.data.count is int
+                    && request.resource.data.count >= 0
+                    && (
+                      request.resource.data.count == resource.data.count + 1 ||
+                      request.resource.data.count == resource.data.count - 1
+                    );
+      allow delete: if request.auth != null
+                    && request.auth.token.email == "browncemmanuel@gmail.com";
+    }
+
+    match /reports/{reportId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /subscribers/{subscriberId} {
+      allow read, write: if false;
+    }
+    match /rate_limits/{id} {
+      allow read, write: if false;
+    }
+    match /report_flags/{flagId} {
+      allow read, write: if false;
+    }
+    match /contact_messages/{messageId} {
+      allow read, write: if false;
+    }
+  }
+}

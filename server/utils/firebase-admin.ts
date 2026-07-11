@@ -43,17 +43,10 @@ function init(): Firestore {
     throw initError
   }
 }
-
-/**
- * Same `db` export every other route already imports — unchanged behavior
- * for working credentials. Initialization is deferred until the first real
- * Firestore call (e.g. db.collection(...)), instead of running at module
- * import time, so a missing/bad credential only breaks the specific route
- * that touches Firestore instead of crashing the entire server.
- */
 export const db: Firestore = new Proxy({} as Firestore, {
   get(_target, prop, receiver) {
     const instance = init()
-    return Reflect.get(instance, prop, receiver)
+    const value = Reflect.get(instance, prop, instance)
+    return typeof value === 'function' ? value.bind(instance) : value
   },
 })

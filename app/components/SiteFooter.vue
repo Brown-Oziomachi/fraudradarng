@@ -7,8 +7,8 @@ const aboutLinks = [
   { label: 'Trust & moderation', to: '/trust' },
   { label: 'Partnership', to: '/partnership_FRNG' },
   { label: 'FAQ', to: '/faq' },
-  { label: 'Vision & Mission', to: '/vision-mission-statement'},
-
+  { label: 'Vision & Mission', to: '/vision-mission-statement' },
+  { label: 'Follow FRNG', to: '/follow' },
 ]
 
 const reportsLinks = [

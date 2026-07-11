@@ -43,6 +43,73 @@ const officialChannels = [
     website: 'https://complaints.fccpc.gov.ng',
     when: 'You paid for a product or service that was fake, never delivered, or came from a predatory digital lender.',
   },
+  {
+    name: 'Securities and Exchange Commission',
+    shortName: 'SEC',
+    logo: '/SEC.png',
+    role: 'Regulates Nigeria\u2019s capital market and enforces the Investments and Securities Act 2025 against unregistered investment platforms and Ponzi schemes.',
+    phone: '+234 (0)209 462 1168',
+    phoneAlt: '+234 (0)916 772 3240 (WhatsApp)',
+    email: 'sec@sec.gov.ng',
+    website: 'https://sec.gov.ng/about/contact-us/',
+    when: 'An investment platform promised fixed daily or weekly returns and stopped paying, or you suspect an unregistered scheme.',
+  },
+  {
+    name: 'Nigerian Communications Commission \u2014 Consumer Affairs Bureau',
+    shortName: 'NCC',
+    logo: '/NCC.jpeg',
+    role: 'Telecom regulator. Its Consumer Affairs Bureau handles SIM-swap, unauthorized porting, and telecom-linked fraud complaints, after your network operator has first failed to resolve it.',
+    phone: 'Toll-free 622',
+    phoneAlt: '+234-209-461-7000',
+    website: 'https://consumer.ncc.gov.ng/consumer-complaints/complaint-form',
+    when: 'Your SIM was swapped without your consent, or your line was used as part of a telecom-based fraud.',
+  },
+  {
+    name: 'Independent Corrupt Practices Commission',
+    shortName: 'ICPC',
+    logo: '/ICPC.jpeg',
+    role: 'Investigates corruption-linked offences, particularly cases involving a public official, public contract, or misuse of public funds.',
+    phone: '0803 123 0280',
+    phoneAlt: '0803 123 0281',
+    email: 'info@icpc.gov.ng',
+    website: 'https://icpc.gov.ng/petition',
+    when: 'The fraud involves a government official, a public contract, or the misuse of public funds.',
+  },
+  {
+    name: 'Nigeria Deposit Insurance Corporation',
+    shortName: 'NDIC',
+    logo: '/NDIC.png',
+    role: 'Protects bank depositors and manages payouts when a licensed bank, microfinance bank, or mortgage institution is closed or fails.',
+    phone: '0800 634 2 4357',
+    email: 'info@ndic.gov.ng',
+    website: 'https://ndic.gov.ng/',
+    when: 'A licensed bank or microfinance institution you had funds with was shut down and you\u2019re owed an insured payout.',
+  },
+  {
+    name: 'National Information Technology Development Agency',
+    shortName: 'NITDA',
+    logo: '/NITDA.jpg',
+    role: 'Oversees IT policy and data protection \u2014 relevant when a scam involved a data breach or the unlawful use of your personal information.',
+    email: 'info@nitda.gov.ng',
+    website: 'https://nitda.gov.ng/',
+    when: 'Your personal data was leaked, sold, or used without your consent as part of the scam.',
+  },
+  {
+    name: 'National Association of Nigeria Travel Agencies',
+    shortName: 'NANTA',
+    logo: '/NANTA.png',
+    role: 'Umbrella body for licensed travel agents. Runs the public member-verification portal used to confirm whether a travel or visa agent is genuine.',
+    website: 'https://nanta.org.ng/',
+    when: 'You\u2019re about to pay a travel or visa "agent" and want to verify they\u2019re a real, registered member before sending money.',
+  },
+  {
+    name: 'Nigerian Financial Intelligence Unit',
+    shortName: 'NFIU',
+    logo: '/NFIU.jpeg',
+    role: 'Receives suspicious-transaction reports from banks and other institutions as part of the national anti-money-laundering system. Not a walk-in complaints desk \u2014 most individual reports still go through your bank or the EFCC.',
+    website: 'https://www.nfiu.gov.ng/',
+    when: 'You suspect large-scale money laundering rather than a single fraud incident, and your bank has already been notified.',
+  },
 ]
 
 const steps = [
@@ -52,7 +119,7 @@ const steps = [
   },
   {
     title: 'File a report on Fraud Radar NG',
-    body: 'Add the account, number, or company involved so the next person searching sees your warning before they lose anything. This takes a few minutes and does not require formal proof.',
+    body: 'Add the account, website, number, or company involved so the next person searching sees your warning before they lose anything. This takes a few minutes and does not require formal proof.',
   },
   {
     title: 'Report to the relevant official agency',
@@ -181,13 +248,13 @@ onBeforeUnmount(() => {
               <p class="channel-role">{{ channel.role }}</p>
 
               <div class="channel-details">
-                <div class="detail-row">
+                <div v-if="channel.phone" class="detail-row">
                   <span class="detail-label">Phone</span>
                   <span class="detail-value">
                     {{ channel.phone }}<span v-if="channel.phoneAlt"> &middot; {{ channel.phoneAlt }}</span>
                   </span>
                 </div>
-                <div class="detail-row">
+                <div v-if="channel.email" class="detail-row">
                   <span class="detail-label">Email</span>
                   <a :href="`mailto:${channel.email}`" class="detail-value detail-link">{{ channel.email }}</a>
                 </div>
@@ -209,7 +276,7 @@ onBeforeUnmount(() => {
 
       <section :ref="setSectionRef" class="cta-strip reveal">
         <h3 class="cta-title">Already contacted the right agency?</h3>
-        <p class="cta-sub">File a report here too, so the next person searching this account or number sees your warning.</p>
+        <p class="cta-sub">File a report here on FRNG, so the next person searching this account or number sees your warning.</p>
         <NuxtLink to="/report/new" class="btn btn--accent">Report a scam</NuxtLink>
       </section>
     </div>
@@ -309,7 +376,7 @@ onBeforeUnmount(() => {
 }
 
 .hero-sub {
-  font-size: 20px;
+  font-size: 15px;
   color: rgba(230,230,230,0.92);
   line-height: 1.75;
   font-weight: 300;
@@ -421,7 +488,7 @@ onBeforeUnmount(() => {
   font-weight: 400;
 }
 
-/* ============ CHANNEL CARDS: side-by-side ============ */
+/* ============ CHANNEL CARDS: side-by-side, alternating left/right ============ */
 .channels-section { margin-top: 64px; }
 
 .channel-list {

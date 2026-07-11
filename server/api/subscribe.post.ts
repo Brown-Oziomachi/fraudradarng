@@ -9,7 +9,17 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 export default defineEventHandler(async (event) => {
   const ip = getRequestIP(event, { xForwardedFor: true }) ?? 'unknown'
 
-  const allowed = await checkRateLimit(ip, 'subscribe')
+  let allowed: boolean
+  try {
+    allowed = await checkRateLimit(ip, 'subscribe')
+  } catch (err) {
+    console.error('Rate limit check failed:', err)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Something went wrong. Please try again.'
+    })
+  }
+
   if (!allowed) {
     throw createError({
       statusCode: 429,

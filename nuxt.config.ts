@@ -9,7 +9,7 @@ export default defineNuxtConfig({
       firebaseProjectId: process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID,
       firebaseStorageBucket: process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
       firebaseAppId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID
-    }
+    } 
   },
   app: {
     head: {

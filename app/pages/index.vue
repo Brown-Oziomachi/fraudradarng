@@ -2,12 +2,24 @@
 import { computed, onMounted } from 'vue'
 
 useSeoMeta({
-  title: 'Report a Scam — Fraud Radar NG',
+  title: 'Fraud Radar NG',
   description: 'Help protect citizens by flagging ongoing internet fraud immediately.',
-  ogTitle: 'Alert: Active Phishing Campign Flagged',
+  
+  ogTitle: 'Alert: Active Phishing Campaign Flagged',
   ogDescription: 'Read the structural breakdown of this scam on Fraud Radar.',
   ogImage: 'https://fraudradar.ng/FRLOGO.png',
-  twitterCard: 'summary_large_image'
+  ogType: 'website',
+  ogSiteName: 'Fraud Radar NG',
+  ogLocale: 'en_NG', 
+
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'Alert: Active Phishing Campaign Flagged — FRNG',
+  twitterDescription: 'Help protect citizens by flagging ongoing internet fraud immediately.',
+  twitterImage: 'https://fraudradar.ng/FRLOGO.png',
+  twitterCreator: '@FraudRadarNG',
+
+  robots: 'index, follow', 
+  author: 'Fraud Radar NG Security Team'
 })
 
 const lessons = [
@@ -164,7 +176,7 @@ onMounted(() => {
     <div class="hero-content">
       <div class="hero-copy">
         <h1 class="hero-title">
-          <span class="hero-title-line hero-anim hero-anim--1">Know Before You Send</span>
+          <span class="hero-title-line hero-anim hero-anim--1">FRNG</span>
           <span class="hero-title-line hero-title-line--accent hero-anim hero-anim--2">Report. Check. Protect.</span>
         </h1>
 

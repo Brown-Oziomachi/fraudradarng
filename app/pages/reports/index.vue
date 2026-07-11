@@ -154,7 +154,7 @@ const filteredReports = computed(() => {
       <div class="section-header">
         <div class="eyebrow">
           <span class="eyebrow-dot" />
-          All Community reports
+          PUBLIC CITIZEN REPORT
         </div>
         <SearchBar />
       </div>

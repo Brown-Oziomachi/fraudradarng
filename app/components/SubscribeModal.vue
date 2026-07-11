@@ -19,6 +19,7 @@ const email = ref('')
 const loading = ref(false)
 const error = ref('')
 const submitted = ref(false)
+const alreadySubscribed = ref(false)
 
 function close() {
   emit('update:modelValue', false)
@@ -30,11 +31,15 @@ async function handleSubmit() {
   loading.value = true
 
   try {
-    const res = await $fetch('/api/subscribe', {
-      method: 'POST',
-      body: { email: email.value },
-    })
+    const res = await $fetch<{ success: boolean; alreadySubscribed: boolean; message: string }>(
+      '/api/subscribe',
+      {
+        method: 'POST',
+        body: { email: email.value },
+      }
+    )
 
+    alreadySubscribed.value = res.alreadySubscribed
     submitted.value = true
     emit('subscribed', email.value)
 
@@ -57,6 +62,7 @@ watch(
       email.value = ''
       error.value = ''
       submitted.value = false
+      alreadySubscribed.value = false
       loading.value = false
     }
   }
@@ -137,6 +143,26 @@ watch(
                   </template>
                 </p>
               </form>
+            </template>
+
+            <template v-else-if="alreadySubscribed">
+              <div class="success-state">
+                <div class="success-icon already-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M12 8v4m0 4h.01M12 3l9 16H3L12 3z"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </div>
+                <h2 class="modal-title success-title">You're already subscribed</h2>
+                <p class="modal-subtitle">
+                  This email is already on our list — keep an eye on your inbox for fraud alerts and safety tips.
+                </p>
+              </div>
             </template>
 
             <template v-else>
@@ -321,6 +347,11 @@ watch(
   border-radius: 50%;
   background: #e7f8ee;
   color: #1e9e5a;
+}
+
+.success-icon.already-icon {
+  background: #fdf3e0;
+  color: #b8791f;
 }
 
 .success-title {

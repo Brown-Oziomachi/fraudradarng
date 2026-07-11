@@ -4,7 +4,8 @@ useHead({ title: 'Fraud Categories — Fraud Radar NG' })
 const stats = [
   { value: 'TIRMS', label: 'CBN/NCC SIM-swap check, live since April 2026' },
   { value: 'SEC', label: 'Now enforces jail time for Ponzi operators' },
-  { value: 'NANTA', label: 'Has a public visa-agent verification portal' }
+  { value: 'NANTA', label: 'Has a public visa-agent verification portal' },
+  { value: 'FCCPC', label: 'Fined Meta $220M over data & consumer breaches' }
 ]
 
 const categories = [
@@ -25,7 +26,13 @@ const categories = [
       'A link asking you to "verify" or "upgrade" your account outside the official app'
     ],
     doThis: 'If your phone loses signal unexpectedly, contact your bank immediately to freeze transactions before contacting your telecom provider. Banks can now check a number\u2019s SIM-swap status in real time through the CBN/NCC\u2019s TIRMS portal before authorizing large transfers \u2014 ask your bank if this check was run.',
-    agency: { name: 'CBN Consumer Protection Department', href: '/help' }
+    agency: {
+      name: 'CBN Consumer Protection Department',
+      href: 'https://www.cbn.gov.ng/supervision/cpdcomgt.html',
+      url: 'https://www.cbn.gov.ng/supervision/cpdfraudandscam.html',
+      domain: 'cbn.gov.ng',
+      also: { name: 'NCC Consumer Affairs (for SIM-swap complaints)', url: 'https://consumer.ncc.gov.ng/', domain: 'consumer.ncc.gov.ng' }
+    }
   },
   {
     id: 'social_commerce',
@@ -44,7 +51,13 @@ const categories = [
       'Every "review" lives only in the seller\u2019s own comment section, with nothing independent to confirm them'
     ],
     doThis: 'Reverse-search product photos and the seller\u2019s name before paying. For any order above a small amount, insist on part-payment on delivery, or use an escrow arrangement you choose yourselves \u2014 never one the seller proposes and controls.',
-    agency: { name: 'FCCPC — for vendor & product complaints', href: '/help' }
+    agency: {
+      name: 'FCCPC — vendor & product complaints',
+      href: '/https://complaints.fccpc.gov.ng/Home/login',
+      url: 'https://fccpc.gov.ng/',
+      domain: 'fccpc.gov.ng',
+      also: { name: 'EFCC (for the underlying fraud)', url: 'https://www.efcc.gov.ng/', domain: 'efcc.gov.ng' }
+    }
   },
   {
     id: 'visa_travel',
@@ -63,7 +76,13 @@ const categories = [
       'No physical office, and all communication happens only through WhatsApp DMs'
     ],
     doThis: 'Verify any travel agent against NANTA\u2019s member portal before paying anything. For the visa itself, apply directly through the embassy\u2019s own listed visa application centre (VFS Global, TLScontact, etc.) \u2014 the fee is fixed regardless of who you go through, so a "discount" from an unofficial agent has no basis.',
-    agency: { name: 'NANTA member verification, plus EFCC for the fraud itself', href: '/help' }
+    agency: {
+      name: 'NANTA member verification',
+      href: '/https://nanta.org.ng/membership',
+      url: 'https://nanta.org.ng/',
+      domain: 'nanta.org.ng',
+      also: { name: 'EFCC (for the fraud itself)', url: 'https://www.efcc.gov.ng/', domain: 'efcc.gov.ng' }
+    }
   },
   {
     id: 'job_ponzi',
@@ -82,7 +101,89 @@ const categories = [
       'The platform isn\u2019t on the SEC\u2019s public list of registered capital market operators'
     ],
     doThis: 'Verify any investment platform against the SEC\u2019s public register before depositing anything \u2014 Nigeria\u2019s Investments and Securities Act 2025 now makes running an unregistered Ponzi scheme a criminal offence with real prison time, precisely because of losses like CBEX.',
-    agency: { name: 'Securities and Exchange Commission (SEC)', href: '/help' }
+    agency: {
+      name: 'Securities and Exchange Commission (SEC)',
+      href: '/https://sec.gov.ng/about/contact-us/',
+      url: 'https://sec.gov.ng/',
+      domain: 'sec.gov.ng',
+      also: { name: 'EFCC (for prosecution)', url: 'https://www.efcc.gov.ng/', domain: 'efcc.gov.ng' }
+    }
+  }
+]
+
+// A wider directory of Nigerian regulatory and enforcement bodies —
+// shown below the four main categories, since a report can involve
+// more than one of these depending on what actually happened.
+const regulators = [
+  {
+    name: 'EFCC',
+    full: 'Economic and Financial Crimes Commission',
+    desc: 'Nigeria\u2019s lead agency for investigating and prosecuting fraud, advance-fee scams, and money laundering. Reporting is free — through efccnigeria.org or the Eagle Eye App.',
+    url: 'https://www.efcc.gov.ng/',
+    domain: 'efcc.gov.ng'
+  },
+  {
+    name: 'CBN',
+    full: 'Central Bank of Nigeria',
+    desc: 'Regulates banks and fintechs, and runs consumer-protection and fraud-awareness programs for the financial sector.',
+    url: 'https://www.cbn.gov.ng/',
+    domain: 'cbn.gov.ng'
+  },
+  {
+    name: 'SEC',
+    full: 'Securities and Exchange Commission',
+    desc: 'Regulates the capital market and enforces the Investments and Securities Act 2025 against unregistered investment and Ponzi schemes.',
+    url: 'https://sec.gov.ng/',
+    domain: 'sec.gov.ng'
+  },
+  {
+    name: 'FCCPC',
+    full: 'Federal Competition & Consumer Protection Commission',
+    desc: 'Handles complaints against merchants, vendors, and digital platforms for unfair or deceptive business practices.',
+    url: 'https://fccpc.gov.ng/',
+    domain: 'fccpc.gov.ng'
+  },
+  {
+    name: 'NCC',
+    full: 'Nigerian Communications Commission',
+    desc: 'Regulates telecoms and SIM registration. Its Consumer Affairs Bureau handles SIM-swap and telecom-fraud complaints.',
+    url: 'https://consumer.ncc.gov.ng/',
+    domain: 'consumer.ncc.gov.ng'
+  },
+  {
+    name: 'NITDA',
+    full: 'National Information Technology Development Agency',
+    desc: 'Oversees IT policy and data protection — relevant when a scam involves a data breach or unlawful use of personal data.',
+    url: 'https://nitda.gov.ng/',
+    domain: 'nitda.gov.ng'
+  },
+  {
+    name: 'NPF',
+    full: 'Nigeria Police Force',
+    desc: 'Its cybercrime unit investigates online fraud reported through local police divisions or the force\u2019s official channels.',
+    url: 'https://npf.gov.ng/',
+    domain: 'npf.gov.ng'
+  },
+  {
+    name: 'NDIC',
+    full: 'Nigeria Deposit Insurance Corporation',
+    desc: 'Protects bank depositors and manages claims when a licensed deposit-taking institution is closed or fails.',
+    url: 'https://ndic.gov.ng/',
+    domain: 'ndic.gov.ng'
+  },
+  {
+    name: 'ICPC',
+    full: 'Independent Corrupt Practices Commission',
+    desc: 'Investigates corruption-linked fraud, particularly where a public official or public funds are involved.',
+    url: 'https://icpc.gov.ng/',
+    domain: 'icpc.gov.ng'
+  },
+  {
+    name: 'NFIU',
+    full: 'Nigerian Financial Intelligence Unit',
+    desc: 'Receives suspicious-transaction reports from banks and other institutions as part of the national anti-money-laundering system.',
+    url: 'https://nfiu.gov.ng/',
+    domain: 'nfiu.gov.ng'
   }
 ]
 </script>
@@ -142,9 +243,29 @@ const categories = [
               <p>{{ cat.doThis }}</p>
             </div>
 
-            <NuxtLink :to="cat.agency.href" class="agency-link">
-              Report to: {{ cat.agency.name }} →
-            </NuxtLink>
+            <div class="agency-block">
+              <NuxtLink :to="cat.agency.href" class="agency-link">
+                Report to: {{ cat.agency.name }} →
+              </NuxtLink>
+              <a
+                :href="cat.agency.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="agency-external"
+              >
+                <span class="agency-external-dot" />
+                {{ cat.agency.domain }} ↗
+              </a>
+              <a
+                v-if="cat.agency.also"
+                :href="cat.agency.also.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="agency-external agency-external--secondary"
+              >
+                Also: {{ cat.agency.also.name }} — {{ cat.agency.also.domain }} ↗
+              </a>
+            </div>
           </div>
         </div>
 
@@ -152,6 +273,40 @@ const categories = [
           Report a {{ cat.tag.toLowerCase() }} scam →
         </NuxtLink>
       </article>
+    </section>
+
+    <!-- ===================== REGULATOR DIRECTORY ===================== -->
+    <section class="regulators-section">
+      <div class="regulators-inner">
+        <div class="regulators-head">
+          <p class="hero-eyebrow"><span class="dot" /> Verified official channels</p>
+          <h2 class="regulators-title">Who actually handles this in Nigeria</h2>
+          <p class="regulators-sub">
+            These are the real federal bodies with jurisdiction over fraud, scams, and the sectors
+            they happen in — not a generic "contact your local authority" list. Every link goes
+            straight to the agency's own official site.
+          </p>
+        </div>
+
+        <ul class="regulator-grid">
+          <li v-for="r in regulators" :key="r.name" class="regulator-card">
+            <div class="regulator-top">
+              <span class="regulator-name">{{ r.name }}</span>
+              <span class="regulator-verified" title="Official .gov.ng or recognized national body">✓ verified</span>
+            </div>
+            <span class="regulator-full">{{ r.full }}</span>
+            <p class="regulator-desc">{{ r.desc }}</p>
+            <a :href="r.url" target="_blank" rel="noopener noreferrer" class="regulator-link">
+              {{ r.domain }} ↗
+            </a>
+          </li>
+        </ul>
+
+        <p class="regulators-note">
+          Links point to each agency's own official website. FRNG has no affiliation with any of
+          these bodies — we simply route reports to the right place.
+        </p>
+      </div>
     </section>
 
     <!-- ===================== CONTACT CTA ===================== -->
@@ -239,14 +394,19 @@ const categories = [
 }
 
 /* ============ STATS STRIP ============ */
-.stats-strip { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--border); }
-@media (max-width: 640px) { .stats-strip { grid-template-columns: 1fr; } }
+.stats-strip { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--border); }
+@media (max-width: 900px) { .stats-strip { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .stats-strip { grid-template-columns: 1fr; } }
 .stat-block {
-  display: flex; flex-direction: column; gap: 6px; padding: 28px 44px;
+  display: flex; flex-direction: column; gap: 6px; padding: 28px 32px;
   border-right: 1px solid var(--border);
 }
 .stat-block:last-child { border-right: none; }
-@media (max-width: 640px) {
+@media (max-width: 900px) {
+  .stat-block:nth-child(2n) { border-right: none; }
+  .stat-block { border-bottom: 1px solid var(--border); }
+}
+@media (max-width: 520px) {
   .stat-block { border-right: none; border-bottom: 1px solid var(--border); }
   .stat-block:last-child { border-bottom: none; }
 }
@@ -315,13 +475,40 @@ const categories = [
 }
 .do-this-box p { font-size: 13px; color: var(--text-2); line-height: 1.65; font-weight: 300; }
 
+.agency-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 16px;
+}
+
 .agency-link {
   display: inline-block;
-  margin-top: 16px;
   font-family: var(--mono); font-size: 12.5px;
   color: var(--text-1); text-decoration: underline;
 }
 .agency-link:hover { color: var(--accent); }
+
+.agency-external {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text-3);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.agency-external:hover { color: var(--accent); }
+.agency-external-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #3fae6a; flex-shrink: 0;
+}
+.agency-external--secondary {
+  color: var(--text-3);
+  opacity: 0.85;
+}
 
 .report-this-btn {
   display: inline-flex; align-items: center;
@@ -330,6 +517,109 @@ const categories = [
   padding: 14px 22px; border-radius: var(--radius); text-decoration: none;
 }
 .report-this-btn:hover { background: #d4eb3c; }
+
+/* ============ REGULATOR DIRECTORY ============ */
+.regulators-section {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  padding: 72px 44px;
+}
+@media (max-width: 720px) { .regulators-section { padding: 48px 20px; } }
+
+.regulators-inner { max-width: 1120px; margin: 0 auto; }
+.regulators-head { max-width: 620px; margin-bottom: 40px; }
+.regulators-title {
+  font-family: var(--serif);
+  font-size: clamp(24px, 3.2vw, 32px);
+  color: var(--text-1);
+  margin-bottom: 12px;
+  line-height: 1.25;
+}
+.regulators-sub {
+  font-size: 14.5px;
+  color: var(--text-2);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+.regulator-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 900px) { .regulator-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .regulator-grid { grid-template-columns: 1fr; } }
+
+.regulator-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.15s;
+}
+.regulator-card:hover { border-color: var(--border-hi); }
+
+.regulator-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.regulator-name {
+  font-family: var(--serif);
+  font-size: 17px;
+  color: var(--text-1);
+}
+.regulator-verified {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.03em;
+  color: #3fae6a;
+  border: 1px solid rgba(63,174,106,0.35);
+  background: rgba(63,174,106,0.08);
+  border-radius: 999px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+.regulator-full {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-3);
+  letter-spacing: 0.01em;
+}
+.regulator-desc {
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.6;
+  font-weight: 300;
+  flex: 1;
+}
+.regulator-link {
+  align-self: flex-start;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.regulator-link:hover { border-bottom-color: var(--accent); }
+
+.regulators-note {
+  margin-top: 28px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-3);
+  line-height: 1.6;
+  max-width: 620px;
+}
 
 /* ============ CONTACT SECTION ============ */
 .contact-section { border-top: 1px solid var(--border); padding: 80px 44px; }

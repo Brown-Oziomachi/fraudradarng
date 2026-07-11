@@ -228,7 +228,7 @@ async function submitFlag() {
 
       <button type="button" class="action-btn" @click="showFlagModal = true">
         <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M4 2v20h2v-7h13l-2.5-5L19 5H6V2z"/></svg>
-        Report
+        Dispute
       </button>
 
       <button type="button" class="action-btn" @click="shareReport">
@@ -242,7 +242,7 @@ async function submitFlag() {
       <div v-if="showFlagModal" class="modal-overlay" @click.self="showFlagModal = false">
         <div class="modal">
           <template v-if="!flagSubmitted">
-            <h3 class="modal-title">Report this evidence</h3>
+            <h3 class="modal-title">Dispute this evidence</h3>
             <p class="modal-sub">
               Tell us why you think this report is inaccurate or misleading.
             </p>

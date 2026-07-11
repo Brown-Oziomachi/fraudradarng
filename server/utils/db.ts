@@ -256,16 +256,27 @@ export async function searchReports(query: string): Promise<Report[]> {
   const lowerQuery = query.toLowerCase()
   const { reports } = await getAllReports(1000)
 
-  return reports.filter(report =>
-    (report.accountName?.toLowerCase().includes(lowerQuery) ?? false) ||
-    (report.accountNumber?.includes(query) ?? false) ||
-    (report.bankName?.toLowerCase().includes(lowerQuery) ?? false) ||
-    (report.companyName?.toLowerCase().includes(lowerQuery) ?? false) ||
-    (report.websiteName?.toLowerCase().includes(lowerQuery) ?? false) ||
-    (report.websiteUrl?.toLowerCase().includes(lowerQuery) ?? false) ||
-    (report.phoneNumber?.includes(query) ?? false) ||
-    (report.walletTag?.toLowerCase().includes(lowerQuery) ?? false)
-  )
+  return reports.filter(report => {
+    const additional = (report as any).additionalReports as Array<{ description?: string; reason?: string }> | undefined
+    const additionalText = (additional ?? [])
+      .map(a => `${a.description ?? ''} ${a.reason ?? ''}`)
+      .join(' ')
+      .toLowerCase()
+
+    return (
+      (report.accountName?.toLowerCase().includes(lowerQuery) ?? false) ||
+      (report.accountNumber?.includes(query) ?? false) ||
+      (report.bankName?.toLowerCase().includes(lowerQuery) ?? false) ||
+      (report.companyName?.toLowerCase().includes(lowerQuery) ?? false) ||
+      (report.websiteName?.toLowerCase().includes(lowerQuery) ?? false) ||
+      (report.websiteUrl?.toLowerCase().includes(lowerQuery) ?? false) ||
+      (report.phoneNumber?.includes(query) ?? false) ||
+      (report.walletTag?.toLowerCase().includes(lowerQuery) ?? false) ||
+      ((report as any).description?.toLowerCase().includes(lowerQuery) ?? false) ||
+      ((report as any).reason?.toLowerCase().includes(lowerQuery) ?? false) ||
+      additionalText.includes(lowerQuery)
+    )
+  })
 }
 
 export async function getReportById(id: string): Promise<Report | null> {
@@ -338,14 +349,14 @@ export async function addContactMessage(data: { name: string; email: string; mes
 const subscribersRef = db.collection('subscribers')
 
 export async function addSubscriber(email: string): Promise<{ alreadySubscribed: boolean }> {
-  // Avoid adding the same email twice.
-  const existing = await subscribersRef.where('email', '==', email).limit(1).get()
+  const docRef = subscribersRef.doc(email)
+  const existing = await docRef.get()
 
-  if (!existing.empty) {
+  if (existing.exists) {
     return { alreadySubscribed: true }
   }
 
-  await subscribersRef.add({
+  await docRef.set({
     email,
     subscribedAt: new Date().toISOString()
   })
@@ -390,4 +401,48 @@ export async function getReportStats(): Promise<{
     totalReports: totalSnapshot.data().count,
     highRiskCount: highRiskSnapshot.data().count
   }
+}
+
+export async function deleteReport(id: string): Promise<void> {
+  await reportsRef.doc(id).delete()
+  // Clean up any flags pointing at this report too, so the review
+  // panel doesn't keep showing flags for a report that no longer exists
+  const relatedFlags = await flagsRef.where('reportId', '==', id).get()
+  const batch = db.batch()
+  relatedFlags.docs.forEach(doc => batch.delete(doc.ref))
+  if (!relatedFlags.empty) await batch.commit()
+}
+
+export async function getPendingFlags(limit = 30): Promise<Array<Record<string, unknown>>> {
+  const snapshot = await flagsRef
+    .where('status', '==', 'pending')
+    .orderBy('createdAt', 'desc')
+    .limit(limit)
+    .get()
+
+  // Join each flag with its report's display name, so the review panel
+  // doesn't need a second round-trip per row
+  const flags = await Promise.all(
+    snapshot.docs.map(async (doc) => {
+      const flag = doc.data()
+      let entityName = flag.reportName ?? null
+      if (!entityName && flag.reportId) {
+        const reportDoc = await reportsRef.doc(flag.reportId).get()
+        if (reportDoc.exists) {
+          const r = reportDoc.data()!
+          entityName = r.companyName ?? r.websiteName ?? r.accountName ?? r.accountNumber ?? 'Unknown'
+        }
+      }
+      return { id: doc.id, ...flag, entityName: entityName ?? 'Report no longer exists' }
+    })
+  )
+
+  return flags
+}
+
+export async function resolveFlag(flagId: string, action: 'dismiss' | 'resolved'): Promise<void> {
+  await flagsRef.doc(flagId).update({
+    status: action,
+    resolvedAt: new Date().toISOString(),
+  })
 }

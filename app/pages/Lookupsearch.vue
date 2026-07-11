@@ -1,4 +1,5 @@
 <script setup lang="ts">
+useHead({title: 'Look-up-search'})
 import { ref } from 'vue'
 import type { LookupResult } from '#shared/types/report'
 

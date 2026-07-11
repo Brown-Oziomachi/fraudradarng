@@ -10,7 +10,7 @@
     --text-1: #18181b;
     --text-2: #090912ec;
     --text-3: #040405;
-    --accent: #3d9b55;
+    --accent: #0c9f30;
     --accent-dim: rgba(184, 208, 0, 0.08);
     --accent-bdr: rgba(184, 208, 0, 0.35);
     --serif: 'DM Serif Display', Georgia, serif;
@@ -27,7 +27,7 @@
     --text-1: #f4f4f5;
     --text-2: #d1d1dc;
     --text-3: #75757c;
-    --accent: #1be236;
+    --accent: #128e23;
     --accent-dim: rgba(232, 255, 71, 0.08);
     --accent-bdr: rgba(232, 255, 71, 0.25);
 }

@@ -11,6 +11,8 @@ logs
 .fleet
 .idea
 .env
+
 .env.*
 !.env.example
 firebase-service-account.json
+firebase-debug.log
