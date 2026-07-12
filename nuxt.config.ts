@@ -11,6 +11,11 @@ export default defineNuxtConfig({
       firebaseAppId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID
     } 
   },
+  nitro: {
+    externals: {
+      inline: ['jose']
+    }
+  },
   app: {
     head: {
       link: [
