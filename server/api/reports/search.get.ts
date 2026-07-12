@@ -1,5 +1,4 @@
-// server/api/search.get.ts
-import { searchReports } from '../utils/db'
+﻿import { searchReports } from '../../utils/db'
 import { getReportDisplayName, getTypeLabel, getCategoryLabel, getDetailFields, getSharedFields } from '~~/shared/utils/reportDisplay'
 
 export default defineEventHandler(async (event) => {

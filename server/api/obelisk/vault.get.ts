@@ -33,18 +33,19 @@ export default defineEventHandler(async (event) => {
     .limit(200)
     .get()
 
-  const entries = snapshot.docs.map((d) => {
-    const r = d.data()
-    return {
-      id: d.id,
-      entity: entityName(r),
-      category: r.category ?? '—',
-      platform: r.contactPlatform ?? '—',
-      reportCount: r.reportCount ?? 1,
-      distinctReporterCount: r.distinctReporterCount ?? 1,
-      when: timeAgo(r.createdAt),
-    }
-  })
+ const entries = snapshot.docs.map((d) => {
+  const r = d.data()
+  return {
+    id: d.id,
+    entity: entityName(r),
+    category: r.category ?? '—',
+    platform: r.contactPlatform ?? '—',
+    reportCount: r.reportCount ?? 1,
+    distinctReporterCount: r.distinctReporterCount ?? 1,
+    when: timeAgo(r.createdAt),
+    reporterMeta: r.reporterMeta ?? [],   // ← new line
+  }
+})
 
   return {
     total: entries.length,

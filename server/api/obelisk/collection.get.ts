@@ -1,5 +1,6 @@
 // server/api/obelisk/collection.get.ts
 import { db } from '../../utils/firebase-admin'
+import { requireAdmin } from "~~/server/utils/require-admin"
 
 // Hard allowlist — comments, likes, and _connection_test belong to the
 // portfolio site (browncode.name.ng) and must never be reachable from
@@ -7,13 +8,12 @@ import { db } from '../../utils/firebase-admin'
 const ALLOWED_COLLECTIONS = new Set([
   'contact_messages',
   'subscribers',
-  'ad_payments',
-  'scamBreakdowns',
   'report_flags',
+  'partnershipApplications',  
 ])
 
 export default defineEventHandler(async (event) => {
-  // requireAdmin(event)
+  await requireAdmin(event)
 
   const query = getQuery(event)
   const name = String(query.name ?? '')

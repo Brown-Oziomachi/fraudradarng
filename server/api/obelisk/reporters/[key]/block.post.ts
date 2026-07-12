@@ -1,8 +1,8 @@
-// server/api/obelisk/reporters/[key]/block.post.ts
 import { db } from '../../../../utils/firebase-admin'
+import { requireAdmin } from "~~/server/utils/require-admin"
 
 export default defineEventHandler(async (event) => {
-  requireAdmin(event)
+  await requireAdmin(event)
 
   const key = getRouterParam(event, 'key')
   if (!key || !key.includes('__')) {
@@ -11,12 +11,13 @@ export default defineEventHandler(async (event) => {
   const [fingerprint, ipHash] = key.split('__')
 
   const body = await readBody<{ durationDays?: number | null }>(event)
-  const durationDays = body?.durationDays ?? null // null = indefinite
+  const durationDays = body?.durationDays ?? null
 
   await db.collection('reporter_blocks').doc(key).set({
     fingerprint,
     ipHash,
-    strikeCount: null, // manual block, not strike-count-driven
+    deviceId: null, 
+    strikeCount: null,
     blockedUntil: durationDays ? new Date(Date.now() + durationDays * 86400000).toISOString() : null,
     createdAt: new Date().toISOString(),
     manual: true,

@@ -64,6 +64,7 @@ export async function getAllReports(
 interface ReporterMetaEntry {
   fingerprint: string
   ipHash: string
+  deviceId?: string
   submittedAt: string
 }
 
@@ -136,7 +137,8 @@ async function findExistingReport(
 export async function createReport(
   input: NewReportInput,
   reporterFingerprint: string,
-  reporterIpHash: string
+  reporterIpHash: string,
+  reporterDeviceId?: string
 ): Promise<Report> {
 
   const normalized = normalizeInput(input)
@@ -165,7 +167,7 @@ export async function createReport(
     const meetsThreshold = newDistinctCount >= ESCALATION_THRESHOLD
 
     const updatedMeta: ReporterMetaEntry[] = isNewReporter
-      ? [...existingMeta, { fingerprint: reporterFingerprint, ipHash: reporterIpHash, submittedAt: new Date().toISOString() }]
+      ? [...existingMeta, { fingerprint: reporterFingerprint, ipHash: reporterIpHash, deviceId: reporterDeviceId, submittedAt: new Date().toISOString() }]
       : existingMeta
 
     let nextStatus: string = existingData.status ?? 'pending'
@@ -220,7 +222,12 @@ export async function createReport(
     status: 'pending' as const,
     distinctReporterCount: 1,
     reporterFingerprints: [reporterFingerprint],
-    reporterMeta: [{ fingerprint: reporterFingerprint, ipHash: reporterIpHash, submittedAt: createdAt }] as ReporterMetaEntry[],
+    reporterMeta: [{
+      fingerprint: reporterFingerprint,
+      ipHash: reporterIpHash,
+      deviceId: reporterDeviceId,
+      submittedAt: createdAt
+    }] as ReporterMetaEntry[],
     createdAt
   }
 
@@ -404,7 +411,25 @@ export async function getReportStats(): Promise<{
 }
 
 export async function deleteReport(id: string): Promise<void> {
-  await reportsRef.doc(id).delete()
+  console.log('[deleteReport] called with id:', JSON.stringify(id))
+
+  const docRef = reportsRef.doc(id)
+  const snap = await docRef.get()
+
+  console.log('[deleteReport] document exists before delete?', snap.exists)
+
+  if (!snap.exists) {
+    // Firestore's .delete() on a non-existent doc resolves successfully
+    // with no error — that's exactly what was making this look like it
+    // "worked" while nothing was actually removed. Fail loudly instead.
+    throw new Error(`deleteReport: no report found with id "${id}"`)
+  }
+
+  await docRef.delete()
+
+  const verify = await docRef.get()
+  console.log('[deleteReport] document exists after delete?', verify.exists)
+
   // Clean up any flags pointing at this report too, so the review
   // panel doesn't keep showing flags for a report that no longer exists
   const relatedFlags = await flagsRef.where('reportId', '==', id).get()

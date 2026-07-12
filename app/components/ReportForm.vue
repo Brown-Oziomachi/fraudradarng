@@ -96,6 +96,7 @@ function selectPlatform(value: (typeof PLATFORM_OPTIONS)[number]) {
 
 const showSuccessModal = ref(false)
 const successReport = ref<Report | null>(null)
+const warningBanner = ref('')
 
 const isSubmitting = ref(false)
 const errorMessage = ref('')
@@ -329,6 +330,8 @@ async function submitReport() {
   } catch (err: any) {
     if (err?.statusCode === 429) {
       errorMessage.value = 'You\'ve submitted too many reports recently. Please try again in an hour.'
+    } else if (err?.statusCode === 403) {
+      errorMessage.value = err?.data?.statusMessage || 'You are currently restricted from submitting reports.'
     } else {
       errorMessage.value = err?.data?.statusMessage || 'Something went wrong. Please try again.'
     }
@@ -875,6 +878,7 @@ function finishSuccess() {
   <div class="success-modal">
     <div class="success-icon">✓</div>
     <h3 class="success-title">Report submitted</h3>
+    <div v-if="warningBanner" class="warning-banner">{{ warningBanner }}</div>
     <p class="success-body">
       Thanks — this is now public and searchable. It could help someone else avoid the same thing.
     </p>
@@ -1524,5 +1528,17 @@ select.input {
   line-height: 1.6;
   font-weight: 300;
   margin-bottom: 22px;
+}
+
+.warning-banner {
+  background: rgba(217, 155, 63, 0.1);
+  border: 1px solid rgba(217, 155, 63, 0.35);
+  color: #d99b3f;
+  font-size: 12.5px;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  text-align: left;
+  line-height: 1.5;
 }
 </style>

@@ -154,7 +154,7 @@ const filteredReports = computed(() => {
       <div class="section-header">
         <div class="eyebrow">
           <span class="eyebrow-dot" />
-          PUBLIC CITIZEN REPORT
+          PUBLIC CITIZEN REPORTS
         </div>
         <SearchBar />
       </div>

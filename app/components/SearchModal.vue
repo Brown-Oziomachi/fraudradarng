@@ -1,6 +1,17 @@
 <script setup lang="ts">
 import { guides } from '~/data/guides'
-import type { Report } from '#shared/types/report'
+
+interface SearchReportResult {
+  id: string
+  name: string
+  typeLabel: string
+  category: string
+  excerpt?: string
+  dateReported?: string
+  status: string
+  reportCount: number
+  thumbnail?: string | null
+}
 
 const props = defineProps<{ modelValue: boolean }>()
 const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()
@@ -9,52 +20,38 @@ const query = ref('')
 const inputRef = ref<HTMLInputElement | null>(null)
 const activeIndex = ref(0)
 
-const reports = ref<Report[]>([])
-const reportsLoaded = ref(false)
-const reportsLoading = ref(false)
+const reportResults = ref<SearchReportResult[]>([])
+const searching = ref(false)
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+let requestId = 0
 
-async function loadReportsOnce() {
-  if (reportsLoaded.value || reportsLoading.value) return
-  reportsLoading.value = true
+async function runSearch(term: string) {
+  const q = term.trim()
+  if (!q) {
+    reportResults.value = []
+    return
+  }
+  const thisRequest = ++requestId
+  searching.value = true
   try {
-    const data = await $fetch<Report[]>('/api/reports')
-    reports.value = (data ?? []).filter(Boolean)
-    reportsLoaded.value = true
+    const data = await $fetch<SearchReportResult[]>('/api/reports/search', { query: { q } })
+    // Guard against out-of-order responses (e.g. a slow earlier keystroke
+    // resolving after a faster later one) overwriting fresher results.
+    if (thisRequest === requestId) {
+      reportResults.value = data ?? []
+    }
   } catch {
-    reports.value = []
+    if (thisRequest === requestId) reportResults.value = []
   } finally {
-    reportsLoading.value = false
+    if (thisRequest === requestId) searching.value = false
   }
 }
 
-function reportLabel(r: Report) {
-  if (r.targetType === 'company') return r.companyName || 'Unnamed company'
-  if (r.targetType === 'website') return r.websiteUrl || 'Unnamed website'
-  return r.accountName || r.bankName || 'Unnamed account'
-}
-
-function reportSub(r: Report) {
-  if (r.targetType === 'bank_account') {
-    return [r.bankName, r.accountNumber].filter(Boolean).join(' · ')
-  }
-  if (r.targetType === 'company') return r.companyAddress || 'Company'
-  return r.websiteName || r.websiteUrl || ''
-}
-
-const matchedReports = computed(() => {
-  const q = query.value.trim().toLowerCase()
-  if (!q) return []
-  return reports.value.filter(r => {
-    const haystack = [
-      r.bankName, r.accountName, r.accountNumber,
-      r.companyName, r.companyAddress,
-      r.websiteUrl, r.websiteName,
-      r.description
-    ].filter(Boolean).join(' ').toLowerCase()
-    return haystack.includes(q)
-  }).slice(0, 8)
+watch(query, (val) => {
+  activeIndex.value = 0
+  if (debounceTimer) clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(() => runSearch(val), 250)
 })
-
 
 const matchedGuides = computed(() => {
   const q = query.value.trim().toLowerCase()
@@ -67,25 +64,24 @@ const matchedGuides = computed(() => {
 
 // Flat list purely for keyboard navigation across both groups
 const flatResults = computed(() => [
-  ...matchedReports.value.map(r => ({ kind: 'report' as const, item: r })),
+  ...reportResults.value.map(r => ({ kind: 'report' as const, item: r })),
   ...matchedGuides.value.map(g => ({ kind: 'guide' as const, item: g }))
 ])
 
 const hasQuery = computed(() => query.value.trim().length > 0)
 const hasResults = computed(() => flatResults.value.length > 0)
 
-watch(query, () => { activeIndex.value = 0 })
-
 watch(() => props.modelValue, async (open) => {
   if (open) {
     query.value = ''
+    reportResults.value = []
     activeIndex.value = 0
     document.body.style.overflow = 'hidden'
-    await loadReportsOnce()
     await nextTick()
     inputRef.value?.focus()
   } else {
     document.body.style.overflow = ''
+    if (debounceTimer) clearTimeout(debounceTimer)
   }
 })
 
@@ -126,10 +122,11 @@ onMounted(() => document.addEventListener('keydown', handleKeydown))
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeydown)
   document.body.style.overflow = ''
+  if (debounceTimer) clearTimeout(debounceTimer)
 })
 
 function isActive(kind: 'report' | 'guide', index: number) {
-  const offset = kind === 'guide' ? matchedReports.value.length : 0
+  const offset = kind === 'guide' ? reportResults.value.length : 0
   return activeIndex.value === offset + index
 }
 
@@ -172,23 +169,28 @@ function formatDate(dateString: string) {
 
   <!-- Empty state — no query yet -->
   <div v-if="!hasQuery" class="search-idle">
-    <p class="idle-line">Searching across <strong>{{ reportsLoaded ? reports.length : '…' }}</strong> filed reports and <strong>{{ guides.length }}</strong> safety guides.</p>
+    <p class="idle-line">Search across every filed report and <strong>{{ guides.length }}</strong> safety guides.</p>
     <p class="idle-line idle-line--muted">Try a bank name, an account number, or a phrase like "romance scam".</p>
+  </div>
+
+  <!-- Searching -->
+  <div v-else-if="searching && !hasResults" class="search-idle">
+    <p class="idle-line idle-line--muted">Searching…</p>
   </div>
 
   <!-- No matches -->
   <div v-else-if="!hasResults" class="search-empty">
     <span class="empty-code">NO_MATCH</span>
     <p class="empty-text">Nothing on file for "<strong>{{ query }}</strong>".</p>
-    <NuxtLink to="/report/form" class="empty-cta" @click="close">Report this yourself →</NuxtLink>
+    <NuxtLink to="/report/new" class="empty-cta" @click="close">Report this yourself →</NuxtLink>
   </div>
 
   <!-- Results -->
   <template v-else>
-    <div v-if="matchedReports.length" class="result-group">
-      <p class="group-label">Reports · {{ matchedReports.length }}</p>
+    <div v-if="reportResults.length" class="result-group">
+      <p class="group-label">Reports · {{ reportResults.length }}</p>
       <button
-        v-for="(r, i) in matchedReports"
+        v-for="(r, i) in reportResults"
         :key="r.id"
         type="button"
         class="result-row"
@@ -196,21 +198,19 @@ function formatDate(dateString: string) {
         @click="goToResult({ kind: 'report', item: r })"
         @mouseenter="activeIndex = i"
       >
-        <span class="result-index">R-{{ String(i + 1).padStart(3, '0') }}</span>
+        <img v-if="r.thumbnail" :src="r.thumbnail" alt="" class="result-thumb" />
+        <span v-else class="result-index">R-{{ String(i + 1).padStart(3, '0') }}</span>
         <span class="result-text">
-          <span class="result-title">{{ reportLabel(r) }}</span>
-          <span class="result-sub">{{ reportSub(r) }}</span>
+          <span class="result-title">{{ r.name }}</span>
+          <span class="result-sub">{{ r.category || r.typeLabel }}</span>
           <span v-if="r.status === 'flagged'" class="result-risk result-risk--high">
             🚨 High Risk: {{ r.reportCount }} reports match this entity.
           </span>
-          <span v-else-if="r.reportCount === 1" class="result-risk result-risk--low">
-            ⚠️ 1 unverified report filed recently. Proceed with caution.
-          </span>
           <span v-else class="result-risk result-risk--low">
-            ⚠️ {{ r.reportCount }} unverified reports filed recently. Proceed with caution.
+            ⚠️ {{ r.reportCount }} unverified report{{ r.reportCount === 1 ? '' : 's' }} filed. Proceed with caution.
           </span>
         </span>
-        <span class="result-tag result-tag--report">{{ r.targetType?.replace('_', ' ') }}</span>
+        <span class="result-tag result-tag--report">{{ r.typeLabel }}</span>
       </button>
     </div>
 
@@ -223,7 +223,7 @@ function formatDate(dateString: string) {
         class="result-row"
         :class="{ 'result-row--active': isActive('guide', i) }"
         @click="goToResult({ kind: 'guide', item: g })"
-        @mouseenter="activeIndex = matchedReports.length + i"
+        @mouseenter="activeIndex = reportResults.length + i"
       >
         <span class="result-index">G-{{ String(i + 1).padStart(3, '0') }}</span>
         <span class="result-text">
@@ -459,6 +459,15 @@ function formatDate(dateString: string) {
   color: var(--text-3);
   flex-shrink: 0;
   width: 42px;
+}
+
+.result-thumb {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid var(--border);
 }
 
 .result-text {

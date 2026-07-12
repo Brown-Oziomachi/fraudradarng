@@ -5,7 +5,7 @@ import { FieldValue } from 'firebase-admin/firestore'
 import { requireAdmin } from "~~/server/utils/require-admin"
 
 export default defineEventHandler(async (event) => {
-  requireAdmin(event)
+  await requireAdmin(event)
 
   const reportId = getRouterParam(event, 'reportId')
   const index = Number(getRouterParam(event, 'index'))

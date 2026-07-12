@@ -200,7 +200,7 @@ const regulators = [
         <p class="hero-eyebrow"><span class="dot" /> Fraud categories</p>
         <h1 class="hero-title">Scams don't look<br />the same everywhere.<br />Here's what they<br />look like here.</h1>
         <p class="hero-sub">
-          Four patterns account for a large share of what Nigerians actually report right now \u2014
+          Four patterns account for a large share of what Nigerians actually report right now
           not generic "online scam" advice, but the specific mechanics, red flags, and the exact
           agency that handles each one.
         </p>

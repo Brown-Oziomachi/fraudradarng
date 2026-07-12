@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAnnouncementBar, ANNOUNCEMENT_BAR_HEIGHT } from '~/composables/useAnnouncementBar'
+
 const route = useRoute()
 const { theme, toggleTheme, initTheme } = useTheme()
 const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()
@@ -8,6 +10,7 @@ const isMobileMenuOpen = ref(false)
 const openAccordion = ref<string | null>(null)
 
 const isSearchOpen = ref(false)
+const { isAnnouncementVisible } = useAnnouncementBar()
 
 function handleGlobalKeydown(e: KeyboardEvent) {
   const isCmdK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'
@@ -220,7 +223,9 @@ function close() {
 
 <template>
   <div class="page">
-    <header class="site-header">
+        <AnnouncementBar />
+
+    <header class="site-header" :class="{ 'has-announcement': isAnnouncementVisible }">
       <NuxtLink to="/" class="brand">
   <img src="/FRLOGO.png" alt="Fraud Radar NG" class="brand-logo" />
   <span class="brand-text">
@@ -440,7 +445,7 @@ function close() {
       </div>
     </Transition>
 
-    <main class="content">
+    <main class="content" :class="{ 'has-announcement': isAnnouncementVisible }">
       <slot />
     </main>
 
@@ -472,20 +477,29 @@ function close() {
   background: color-mix(in srgb, var(--bg) 85%, transparent);
 
 }
+.site-header.has-announcement {
+  top: 34px; /* ANNOUNCEMENT_BAR_HEIGHT — offset only while the bar is actually shown */
+}
 
 @media (max-width: 720px) {
+  .nav { display: none; }
+  .hamburger-btn { display: flex; }
+  .mobile-search-btn { display: flex; }
   .site-header {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     width: 100%;
+    padding: 10px 20px;
   }
-
-  /* Push page content down so it doesn't hide under the now-fixed header */
-  .content {
-    padding-top: 68px; /* adjust to match your actual mobile header height */
+  .site-header.has-announcement {
+    top: 34px;
   }
+  .brand-logo { width: 44px; height: 44px; }
+  .brand-name { font-size: 35px; }
+  .content { padding-top: 68px; }
+  .content.has-announcement { padding-top: 102px; }
 }
 
 .brand {
@@ -1129,5 +1143,26 @@ function close() {
 }
 @media (max-width: 720px) {
   .search-trigger { display: none; }
+}
+@media (max-width: 720px) {
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
+
+  .site-header.has-announcement {
+    top: 34px; /* ANNOUNCEMENT_BAR_HEIGHT */
+  }
+
+  .content {
+    padding-top: 68px;
+  }
+
+  .content.has-announcement {
+    padding-top: 102px; /* 68px header + 34px bar */
+  }
 }
 </style>

@@ -1,16 +1,28 @@
 import { createReport, checkRateLimit, recordSubmission } from '../utils/db'
-import { getReporterFingerprint, getReporterIpHash } from '../utils/reporterFingerprint'
+import { getReporterFingerprint, getReporterIpHash, getReporterDeviceId } from '../utils/reporterFingerprint'
+import { checkBlocked, getStrikeCount, WARN_AT } from '../utils/abuse-tracking'
 import type { NewReportInput } from '#shared/types/report'
 
 export default defineEventHandler(async (event) => {
   const ip = getRequestIP(event, { xForwardedFor: true }) ?? 'unknown'
 
-  const allowed = await checkRateLimit(ip)
+  const allowed = await checkRateLimit(ip, 'partnership')
   if (!allowed) {
     throw createError({
       statusCode: 429,
-      statusMessage: 'Too many reports submitted. Please try again later.'
+      statusMessage: 'Too many applications submitted. Please try again later.',
     })
+  }
+
+  const identity = {
+    fingerprint: getReporterFingerprint(event),
+    ipHash: getReporterIpHash(event),
+    deviceId: getReporterDeviceId(event),
+  }
+
+  const blockStatus = await checkBlocked(identity)
+  if (blockStatus.blocked) {
+    throw createError({ statusCode: 403, statusMessage: blockStatus.reason })
   }
 
   const body = await readBody<Partial<NewReportInput>>(event)
@@ -38,9 +50,6 @@ export default defineEventHandler(async (event) => {
   const MAX_IMAGES = 5
   const evidenceUrls = body.evidenceUrls?.slice(0, MAX_IMAGES)
 
-  const reporterFingerprint = getReporterFingerprint(event)
-  const reporterIpHash = getReporterIpHash(event)
-
   const report = await createReport(
     {
       targetType: body.targetType,
@@ -56,14 +65,25 @@ export default defineEventHandler(async (event) => {
       reason: body.reason,
       amountInvolved: body.amountInvolved,
       contactPlatform: body.contactPlatform,
-      evidenceUrls
+      evidenceUrls,
     },
-    reporterFingerprint,
-    reporterIpHash
+    identity.fingerprint,
+    identity.ipHash,
+    identity.deviceId
   )
 
   await recordSubmission(ip)
 
+  const strikeCount = await getStrikeCount(identity)
+  const warned = strikeCount >= WARN_AT
+
   setResponseStatus(event, 201)
-  return report
+  return {
+    ...report,
+    warned,
+    strikeCount,
+    ...(warned && {
+      warningMessage: `You've received ${strikeCount} strike${strikeCount === 1 ? '' : 's'} for past inaccurate or misleading reports. Continued violations may restrict your ability to submit reports.`
+    })
+  }
 })

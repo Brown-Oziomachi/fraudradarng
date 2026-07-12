@@ -11,7 +11,9 @@ export async function uploadEvidenceImage(dataUrl: string, reportId: string): Pr
   const match = dataUrl.match(/^data:(image\/\w+);base64,(.+)$/)
   if (!match) throw new Error('Invalid image data URL')
 
-  const [, mimeType, base64Data] = match
+  const mimeType = match[1]
+  const base64Data = match[2]
+  if (!mimeType || !base64Data) throw new Error('Invalid image data URL')
   const buffer = Buffer.from(base64Data, 'base64')
   const ext = mimeType.split('/')[1] ?? 'bin'
   const filePath = `evidence/${reportId}/${randomUUID()}.${ext}`

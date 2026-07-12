@@ -140,13 +140,16 @@ function copyEmail() {
           </p>
 
           <div class="contact-actions">
-            <a :href="`mailto:${emailAddress}`" class="btn-primary">
-              Email {{ emailAddress }}
-            </a>
-            <button type="button" class="btn-secondary" @click="copyEmail">
-              {{ copied ? 'Copied ✓' : 'Copy address' }}
-            </button>
-          </div>
+  <NuxtLink to="/partnership/apply" class="btn-primary">
+    Apply for Partnership
+  </NuxtLink>
+  <a :href="`mailto:${emailAddress}`" class="btn-secondary">
+    Email {{ emailAddress }}
+  </a>
+  <button type="button" class="btn-secondary" @click="copyEmail">
+    {{ copied ? 'Copied ✓' : 'Copy address' }}
+  </button>
+</div>
         </div>
 
         <div class="stamp-wrap" aria-hidden="true">

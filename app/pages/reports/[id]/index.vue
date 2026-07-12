@@ -140,21 +140,54 @@ const detailFields = computed(() => {
   ].filter(f => f.value)
 })
 
-const galleryClass = computed(() => {
-  const n = images.value.length
-  if (n === 1) return 'gallery-1'
-  if (n === 2) return 'gallery-2'
-  if (n === 3) return 'gallery-3'
-  return 'gallery-4plus'
-})
+const galleryScrollRef = ref<HTMLElement | null>(null)
 
-const activeImage = ref<string | null>(null)
-function openImage(src: string) {
-  activeImage.value = src
+// Main gallery images support prev/next navigation.
+// Additional-reporter evidence images (separate arrays) open standalone, no navigation.
+const activeGalleryIndex = ref<number | null>(null)
+const activeStandaloneImage = ref<string | null>(null)
+
+const lightboxOpen = computed(() => activeGalleryIndex.value !== null || activeStandaloneImage.value !== null)
+const lightboxSrc = computed(() => {
+  if (activeGalleryIndex.value !== null) return images.value[activeGalleryIndex.value]
+  return activeStandaloneImage.value
+})
+const canNavigate = computed(() => activeGalleryIndex.value !== null && images.value.length > 1)
+
+function openImage(index: number) {
+  activeGalleryIndex.value = index
+  activeStandaloneImage.value = null
+}
+function openStandaloneImage(src: string) {
+  activeStandaloneImage.value = src
+  activeGalleryIndex.value = null
 }
 function closeImage() {
-  activeImage.value = null
+  activeGalleryIndex.value = null
+  activeStandaloneImage.value = null
 }
+function nextImage() {
+  if (activeGalleryIndex.value === null) return
+  activeGalleryIndex.value = (activeGalleryIndex.value + 1) % images.value.length
+}
+function prevImage() {
+  if (activeGalleryIndex.value === null) return
+  activeGalleryIndex.value = (activeGalleryIndex.value - 1 + images.value.length) % images.value.length
+}
+function scrollGallery(direction: number) {
+  const el = galleryScrollRef.value
+  if (!el) return
+  el.scrollBy({ left: direction * el.clientWidth * 0.8, behavior: 'smooth' })
+}
+function handleLightboxKeydown(e: KeyboardEvent) {
+  if (!lightboxOpen.value) return
+  if (e.key === 'ArrowRight') nextImage()
+  else if (e.key === 'ArrowLeft') prevImage()
+  else if (e.key === 'Escape') closeImage()
+}
+
+onMounted(() => window.addEventListener('keydown', handleLightboxKeydown))
+onUnmounted(() => window.removeEventListener('keydown', handleLightboxKeydown))
 
 useHead(() => ({
   title: report.value ? `${displayTitle.value} — Fraud Radar NG` : 'Report — Fraud Radar NG'
@@ -229,18 +262,34 @@ useHead(() => ({
 
       <p class="post-desc">{{ report.description }}</p>
 
-      <div v-if="images.length" class="gallery" :class="galleryClass">
-        <div
-          v-for="(img, index) in images.slice(0, 4)"
-          :key="index"
-          class="gallery-cell"
-          @click="openImage(img)"
-        >
-          <img :src="img" :alt="`Evidence ${index + 1}`" />
-          <span v-if="index === 3 && images.length > 4" class="gallery-more-overlay">
-            +{{ images.length - 4 }}
-          </span>
+     <div v-if="images.length" class="gallery-carousel-wrap">
+        <button
+          v-if="images.length > 1"
+          type="button"
+          class="gallery-arrow gallery-arrow--left"
+          aria-label="Scroll images left"
+          @click="scrollGallery(-1)"
+        >‹</button>
+
+        <div ref="galleryScrollRef" class="gallery-scroll">
+          <div
+            v-for="(img, index) in images"
+            :key="index"
+            class="gallery-thumb"
+            @click="openImage(index)"
+          >
+            <img :src="img" :alt="`Evidence ${index + 1}`" />
+            <span class="gallery-thumb-index">{{ index + 1 }}/{{ images.length }}</span>
+          </div>
         </div>
+
+        <button
+          v-if="images.length > 1"
+          type="button"
+          class="gallery-arrow gallery-arrow--right"
+          aria-label="Scroll images right"
+          @click="scrollGallery(1)"
+        >›</button>
       </div>
 
       <div v-if="detailFields.length" class="details-panel">
@@ -296,7 +345,7 @@ useHead(() => ({
             </dl>
 
             <div v-if="sub.evidenceUrls?.length" class="additional-evidence">
-              <img
+             <img
                 v-for="(img, i) in sub.evidenceUrls"
                 :key="i"
                 :src="img"
@@ -340,8 +389,30 @@ useHead(() => ({
       </div>
     </article>
 
-    <div v-if="activeImage" class="lightbox" @click="closeImage">
-      <img :src="activeImage" alt="Evidence full size" />
+  <div v-if="lightboxOpen" class="lightbox" @click="closeImage">
+      <button
+        v-if="canNavigate"
+        type="button"
+        class="lightbox-nav lightbox-nav--prev"
+        aria-label="Previous image"
+        @click.stop="prevImage"
+      >‹</button>
+
+      <img :src="lightboxSrc ?? ''" alt="Evidence full size" @click.stop />
+
+      <button
+        v-if="canNavigate"
+        type="button"
+        class="lightbox-nav lightbox-nav--next"
+        aria-label="Next image"
+        @click.stop="nextImage"
+      >›</button>
+
+      <span v-if="canNavigate" class="lightbox-counter">
+        {{ (activeGalleryIndex ?? 0) + 1 }} / {{ images.length }}
+      </span>
+
+      <button type="button" class="lightbox-close" aria-label="Close" @click.stop="closeImage">×</button>
     </div>
   </div>
 </template>
@@ -424,27 +495,6 @@ useHead(() => ({
   white-space: pre-wrap;
 }
 
-.gallery { margin: 14px 16px 0; border-radius: 10px; overflow: hidden; }
-.gallery-cell { position: relative; cursor: pointer; overflow: hidden; }
-.gallery-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-.gallery-1 { display: grid; }
-.gallery-1 .gallery-cell { aspect-ratio: 16 / 10; }
-
-.gallery-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
-.gallery-2 .gallery-cell { aspect-ratio: 1; }
-
-.gallery-3 { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; gap: 3px; height: 320px; }
-.gallery-3 .gallery-cell:first-child { grid-row: 1 / span 2; }
-
-.gallery-4plus { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 3px; height: 340px; }
-
-.gallery-more-overlay {
-  position: absolute; inset: 0;
-  background: rgba(10,10,11,0.6);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--mono); font-size: 20px; color: #fff;
-}
 
 .details-panel { margin: 18px 16px 0; padding: 14px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; }
 .details-heading {
@@ -462,12 +512,84 @@ useHead(() => ({
   font-family: var(--mono); font-size: 10px; color: var(--text-3);
 }
 
+.gallery-carousel-wrap { position: relative; margin: 14px 16px 0; }
+
+.gallery-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-hi) transparent;
+}
+.gallery-scroll::-webkit-scrollbar { height: 6px; }
+.gallery-scroll::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
+
+.gallery-thumb {
+  position: relative;
+  flex: 0 0 auto;
+  width: 160px;
+  height: 160px;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  scroll-snap-align: start;
+  border: 1px solid var(--border);
+}
+.gallery-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.gallery-thumb-index {
+  position: absolute; bottom: 6px; right: 6px;
+  font-family: var(--mono); font-size: 10px; color: #fff;
+  background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 4px;
+}
+
+.gallery-arrow {
+  display: none;
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--border-hi);
+  color: var(--text-1); font-size: 18px;
+  align-items: center; justify-content: center;
+  cursor: pointer; z-index: 5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+.gallery-arrow--left { left: -14px; }
+.gallery-arrow--right { right: -14px; }
+@media (min-width: 640px) { .gallery-arrow { display: flex; } }
+
 .lightbox {
   position: fixed; inset: 0; background: rgba(0,0,0,0.9);
   display: flex; align-items: center; justify-content: center;
   z-index: 100; cursor: zoom-out; padding: 24px;
 }
-.lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+.lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; cursor: default; }
+
+.lightbox-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25);
+  color: #fff; font-size: 24px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 101;
+}
+.lightbox-nav--prev { left: 20px; }
+.lightbox-nav--next { right: 20px; }
+.lightbox-nav:hover { background: rgba(255,255,255,0.18); }
+
+.lightbox-counter {
+  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 11px; color: #fff;
+  background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 999px;
+}
+
+.lightbox-close {
+  position: absolute; top: 20px; right: 20px;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25);
+  color: #fff; font-size: 18px; cursor: pointer; z-index: 101;
+}
 
 .additional-report-item {
   padding: 14px 0;

@@ -17,6 +17,7 @@ const navGroups = [
       { id: 'overview', label: 'Overview', icon: '◆' },
       { id: 'vault', label: 'Vault', icon: '▣' },
       { id: 'reporters', label: 'Reporters', icon: '◈' },
+      { id: 'announcement', label: 'Announcement', icon: '◈', link: '/fraud/announcements' },
     ],
   },
   {
@@ -24,6 +25,7 @@ const navGroups = [
     items: [
       { id: 'contact', label: 'Contact', icon: '✉' },
       { id: 'subscribers', label: 'Subscribers', icon: '☰' },
+      { id: 'partnerships', label: 'Partnerships', icon: '🤝' },   
     ],
   },
 ]
@@ -31,11 +33,20 @@ const navGroups = [
 const COLLECTION_MAP = {
   contact: 'contact_messages',
   subscribers: 'subscribers',
+  partnerships: 'partnershipApplications',   
 }
 
 async function handleLogout() {
   await logout()
   await navigateTo('/login')
+}
+
+function handleNavClick(item) {
+  if (item.link) {
+    navigateTo(item.link)
+    return
+  }
+  activeTab.value = item.id
 }
 
 // ---------- Overview tab ----------
@@ -207,18 +218,39 @@ const filteredReporters = computed(() => {
 
 // Full-screen report modal, shared by Overview / Reporters / "see all" grid.
 const selectedReport = ref(null)
-const selectedReportReporter = ref(null)
+
+// replace:  const selectedReportReporter = ref(null)
+const selectedReportReporters = ref([])
+
 function openReportModal(report, reporter = null) {
   selectedReport.value = report
-  selectedReportReporter.value = reporter
-}
-function closeReportModal() {
-  selectedReport.value = null
-  selectedReportReporter.value = null
+
+  if (reporter) {
+    selectedReportReporters.value = [reporter]
+    return
+  }
+  const metaList = report.reporterMeta ?? []
+  const seen = new Set()
+  selectedReportReporters.value = metaList
+    .map((m) =>
+      reportersData.value?.reporters?.find(
+        (r) =>
+          r.fingerprint === m.fingerprint ||
+          (r.linkedFingerprints ?? []).includes(m.fingerprint)
+      )
+    )
+    .filter((r) => {
+      if (!r || seen.has(r.key)) return false
+      seen.add(r.key)
+      return true
+    })
 }
 
-// Clicking a reported name jumps to that entity's public post.
-// NOTE: point this at your real route (e.g. /vault/[id] or /reports/[id]).
+function closeReportModal() {
+  selectedReport.value = null
+  selectedReportReporters.value = []
+}
+
 function goToReportPage(report) {
   if (!report?.id) return
   navigateTo(`/reports/${report.id}`)
@@ -366,6 +398,29 @@ async function handleDeleteDoc(collectionName, id) {
     deletingDoc.value = null
   }
 }
+
+const updatingStatus = ref(null)
+const PARTNERSHIP_STATUSES = ['new', 'contacted', 'approved', 'declined']
+
+async function handleUpdatePartnershipStatus(id, status) {
+  updatingStatus.value = id
+  try {
+    const headers = await getAuthHeader()
+    await $fetch(`/api/obelisk/partnerships/${id}`, { method: 'PATCH', body: { status }, headers })
+    if (collectionData.partnershipApplications?.docs) {
+      const doc = collectionData.partnershipApplications.docs.find((d) => d.id === id)
+      if (doc) doc.status = status
+    }
+  } catch (err) {
+    alert(`Failed to update status: ${err?.data?.statusMessage ?? err?.message ?? 'unknown error'}`)
+  } finally {
+    updatingStatus.value = null
+  }
+}
+
+function statusTonePartnership(status) {
+  return { new: 'tone-warn', contacted: 'tone-muted', approved: 'tone-success', declined: 'tone-muted' }[status] || 'tone-muted'
+}
 </script>
 
 <template>
@@ -383,7 +438,7 @@ async function handleDeleteDoc(collectionName, id) {
             v-for="item in group.items"
             :key="item.id"
             :class="['nav-item', { active: activeTab === item.id }]"
-            @click="activeTab = item.id"
+            @click="handleNavClick(item)"
           >
             <span class="nav-icon">{{ item.icon }}</span>
             <span>{{ item.label }}</span>
@@ -612,12 +667,20 @@ async function handleDeleteDoc(collectionName, id) {
         </section>
 
         <div v-for="r in filteredReporters" :key="r.key" class="dossier-card">
-          <div class="dossier-head">
+         <div class="dossier-head">
             <div class="dossier-ids">
               <span class="dossier-tag">FINGERPRINT</span>
               <code class="fingerprint">{{ r.fingerprint.slice(0, 20) }}…</code>
               <span class="dossier-tag">IP HASH</span>
               <code class="fingerprint">{{ r.ipHash.slice(0, 14) }}…</code>
+              <span
+                v-if="(r.linkedFingerprints?.length ?? 1) > 1 || (r.linkedIpHashes?.length ?? 1) > 1"
+                class="linked-note"
+                :title="`${r.linkedFingerprints.length} fingerprints, ${r.linkedIpHashes.length} IPs, ${r.linkedDeviceIds?.length ?? 0} devices linked to this identity`"
+              >
+                ⚠ linked to {{ r.linkedFingerprints.length - 1 }} other fingerprint{{ r.linkedFingerprints.length - 1 === 1 ? '' : 's' }}
+                <template v-if="r.linkedIpHashes.length > 1">· {{ r.linkedIpHashes.length }} IPs</template>
+              </span>
             </div>
             <div class="dossier-badges">
               <span v-if="r.strikeCount > 0" class="strike-badge">{{ r.strikeCount }} STRIKE{{ r.strikeCount === 1 ? '' : 'S' }}</span>
@@ -668,14 +731,26 @@ async function handleDeleteDoc(collectionName, id) {
             </button>
           </div>
           <div v-for="doc in collectionData.contact_messages?.docs ?? []" :key="doc.id" class="contact-card">
-            <div class="contact-head">
-              <span class="contact-name">{{ doc.name }}</span>
-              <a :href="`mailto:${doc.email}`" class="contact-email">{{ doc.email }}</a>
-              <span class="muted">{{ fmtDate(doc.createdAt) }}</span>
-              <button class="delete-btn" :disabled="deletingDoc === doc.id" @click="handleDeleteDoc('contact_messages', doc.id)">
-                {{ deletingDoc === doc.id ? 'Deleting…' : 'Delete' }}
-              </button>
-            </div>
+           <div class="contact-head">
+        <span class="contact-name">{{ doc.fullName }} — {{ doc.orgName }}</span>
+        <a :href="`mailto:${doc.email}`" class="contact-email">{{ doc.email }}</a>
+        <span class="status-pill tone-muted">{{ doc.partnerType }}</span>
+        <span class="status-pill" :class="statusTonePartnership(doc.status || 'new')">{{ doc.status || 'new' }}</span>
+        <span class="muted">{{ fmtDate(doc.createdAt) }}</span>
+
+        <select
+          class="status-select"
+          :value="doc.status || 'new'"
+          :disabled="updatingStatus === doc.id"
+          @change="handleUpdatePartnershipStatus(doc.id, $event.target.value)"
+        >
+          <option v-for="s in PARTNERSHIP_STATUSES" :key="s" :value="s">{{ s }}</option>
+        </select>
+
+        <button class="delete-btn" :disabled="deletingDoc === doc.id" @click="handleDeleteDoc('partnershipApplications', doc.id)">
+          {{ deletingDoc === doc.id ? 'Deleting…' : 'Delete' }}
+        </button>
+      </div>
             <p class="contact-message">{{ doc.message }}</p>
           </div>
           <p v-if="!collectionPending.contact_messages && !(collectionData.contact_messages?.docs ?? []).length" class="empty">No messages yet.</p>
@@ -709,6 +784,42 @@ async function handleDeleteDoc(collectionName, id) {
           </table>
         </section>
       </div>
+
+      <!-- ================= PARTNERSHIPS ================= -->
+<div v-show="activeTab === 'partnerships'">
+  <div v-if="collectionError.partnershipApplications" class="banner banner-error">Couldn't load partnership applications.</div>
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Partnership applications — {{ collectionData.partnershipApplications?.count ?? 0 }} entries</h2>
+      <button class="refresh" :disabled="collectionPending.partnershipApplications" @click="refreshCollection('partnershipApplications')">
+        <span :class="{ spin: collectionPending.partnershipApplications }">↻</span>
+      </button>
+    </div>
+
+    <div v-for="doc in collectionData.partnershipApplications?.docs ?? []" :key="doc.id" class="contact-card">
+      <div class="contact-head">
+        <span class="contact-name">{{ doc.fullName }} — {{ doc.orgName }}</span>
+        <a :href="`mailto:${doc.email}`" class="contact-email">{{ doc.email }}</a>
+        <span class="status-pill tone-muted">{{ doc.partnerType }}</span>
+        <span class="muted">{{ fmtDate(doc.createdAt) }}</span>
+        <button class="delete-btn" :disabled="deletingDoc === doc.id" @click="handleDeleteDoc('partnershipApplications', doc.id)">
+          {{ deletingDoc === doc.id ? 'Deleting…' : 'Delete' }}
+        </button>
+      </div>
+      <p v-if="doc.orgWebsite" class="contact-message">
+        <a :href="doc.orgWebsite" target="_blank" rel="noopener noreferrer" class="contact-email">{{ doc.orgWebsite }}</a>
+      </p>
+      <p v-if="doc.objectives?.length" class="contact-message">
+        <strong>Objectives:</strong> {{ doc.objectives.join(', ') }}
+      </p>
+      <p v-if="doc.message" class="contact-message">{{ doc.message }}</p>
+    </div>
+
+    <p v-if="!collectionPending.partnershipApplications && !(collectionData.partnershipApplications?.docs ?? []).length" class="empty">
+      No partnership applications yet.
+    </p>
+  </section>
+</div>
 
       <!-- ================= SEE-ALL-REPORTS MODAL (Overview) ================= -->
       <div v-if="showAllReportsModal" class="modal-overlay" @click.self="showAllReportsModal = false">
@@ -776,12 +887,54 @@ async function handleDeleteDoc(collectionName, id) {
             </a>
           </div>
 
-          <div v-if="selectedReportReporter" class="dossier-ids modal-reporter-block">
-            <span class="dossier-tag">FINGERPRINT</span>
-            <code class="fingerprint">{{ selectedReportReporter.fingerprint.slice(0, 20) }}…</code>
-            <span class="dossier-tag">IP HASH</span>
-            <code class="fingerprint">{{ selectedReportReporter.ipHash.slice(0, 14) }}…</code>
-          </div>
+        <div v-if="selectedReportReporters.length" class="modal-reporter-section">
+  <div class="modal-reporter-heading">
+    Reporter{{ selectedReportReporters.length > 1 ? 's' : '' }} on this report
+    <span v-if="selectedReportReporters.length > 1" class="muted">
+      ({{ selectedReportReporters.length }} distinct)
+    </span>
+  </div>
+
+  <div v-for="rep in selectedReportReporters" :key="rep.key" class="modal-reporter-row">
+   <div class="dossier-ids">
+      <span class="dossier-tag">FINGERPRINT</span>
+      <code class="fingerprint">{{ rep.fingerprint.slice(0, 20) }}…</code>
+      <span class="dossier-tag">IP HASH</span>
+      <code class="fingerprint">{{ rep.ipHash.slice(0, 14) }}…</code>
+      <span
+        v-if="(rep.linkedFingerprints?.length ?? 1) > 1"
+        class="linked-note"
+        :title="`${rep.linkedFingerprints.length} fingerprints linked to this identity`"
+      >
+        ⚠ {{ rep.linkedFingerprints.length }} linked identities
+      </span>
+    </div>
+
+    <div class="dossier-badges">
+      <span v-if="rep.strikeCount > 0" class="strike-badge">
+        {{ rep.strikeCount }} STRIKE{{ rep.strikeCount === 1 ? '' : 'S' }}
+      </span>
+      <span v-if="rep.blocked" class="blocked-badge">
+        {{ rep.blockedUntil ? `BLOCKED UNTIL ${new Date(rep.blockedUntil).toLocaleDateString('en-NG')}` : 'BLOCKED (INDEFINITE)' }}
+      </span>
+    </div>
+
+    <div class="dossier-actions">
+      <button class="action-btn warn" :disabled="acting === rep.key" @click="handleStrike(rep.key, 'admin_warning')">
+        Issue Warning
+      </button>
+      <button v-if="!rep.blocked" class="action-btn block" :disabled="acting === rep.key" @click="handleBlock(rep.key)">
+        Block Reporter
+      </button>
+      <button v-else class="action-btn unblock" :disabled="acting === rep.key" @click="handleUnblock(rep.key)">
+        Unblock
+      </button>
+    </div>
+  </div>
+</div>
+<div v-else-if="selectedReport?.reporterMeta === undefined" class="muted modal-reporter-fallback">
+  Reporter data isn't available for this report yet — this report may predate reporterMeta tracking, or the backend hasn't been updated to include it (see Step 1).
+</div>
 
           <div class="modal-actions">
             <button
@@ -899,6 +1052,7 @@ async function handleDeleteDoc(collectionName, id) {
 .tone-danger-strong { background: #d64545; color: #fff; }
 .tone-warn { background: color-mix(in srgb, #d99b3f 18%, transparent); color: #d99b3f; }
 .tone-muted { background: color-mix(in srgb, var(--text-3) 18%, transparent); color: var(--text-3); }
+.tone-success { background: color-mix(in srgb, #4ade80 18%, transparent); color: #4ade80; }
 
 .delete-btn { font-size: 11px; font-family: var(--mono, monospace); padding: 6px 12px; border-radius: 6px; cursor: pointer; background: color-mix(in srgb, #d64545 15%, transparent); color: #d64545; border: 1px solid color-mix(in srgb, #d64545 35%, transparent); white-space: nowrap; }
 .delete-btn:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -915,6 +1069,7 @@ async function handleDeleteDoc(collectionName, id) {
 .dossier-ids { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .dossier-tag { font-size: 10px; letter-spacing: 0.08em; color: var(--text-3); font-weight: 700; text-transform: uppercase; }
 .fingerprint { font-family: var(--mono, monospace); font-size: 12px; color: var(--text-2); background: var(--bg); padding: 2px 6px; border-radius: 4px; }
+.linked-note { font-size: 11px; color: #d99b3f; font-weight: 600; margin-left: 4px; cursor: help; }
 
 .dossier-badges { display: flex; gap: 6px; flex-wrap: wrap; }
 .strike-badge, .blocked-badge, .report-count-badge {
@@ -984,4 +1139,28 @@ async function handleDeleteDoc(collectionName, id) {
   .sidebar-logout { margin-top: 0; margin-left: auto; }
   .modal-panel { height: 95vh; padding: 20px; }
 }
+
+.modal-reporter-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.modal-reporter-heading {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-2);
+}
+.modal-reporter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.modal-reporter-row:last-child { border-bottom: none; }
+.modal-reporter-fallback { padding-top: 12px; }
 </style>

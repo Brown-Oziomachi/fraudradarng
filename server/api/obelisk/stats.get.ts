@@ -127,17 +127,18 @@ export default defineEventHandler(async (event) => {
     return r.accountName ?? r.accountNumber ?? 'Unknown account'
   }
 
-  const activity = activitySnapshot.docs.map(d => {
-    const r = d.data()
-    return {
-      id: d.id,
-      entity: entityName(r),
-      category: r.category ?? '—',
-      platform: r.contactPlatform ?? '—',
-      status: r.status ?? 'pending',
-      when: timeAgo(r.createdAt),
-    }
-  })
+const activity = activitySnapshot.docs.map(d => {
+  const r = d.data()
+  return {
+    id: d.id,
+    entity: entityName(r),
+    category: r.category ?? '—',
+    platform: r.contactPlatform ?? '—',
+    status: r.status ?? 'pending',
+    when: timeAgo(r.createdAt),
+    reporterMeta: r.reporterMeta ?? [],   
+  }
+})
 
   return {
     kpis: {
