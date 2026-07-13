@@ -2,9 +2,34 @@
 import type { Report, ScamCategory } from '#shared/types/report'
 
 const route = useRoute()
+const router = useRouter()
 const id = route.params.id as string
+const detailCache = useReportDetailCache()
 
-const { data: report, pending, error } = await useLazyFetch<Report>(`/api/reports/${id}`)
+const cached = detailCache.value[id]
+const report = ref<Report | null>(cached ?? null)
+const pending = ref(!cached)
+const error = ref<any>(null)
+
+if (!cached) {
+  const { data, pending: fetchPending, error: fetchError } = await useLazyFetch<Report>(`/api/reports/${id}`)
+  watch(data, (val) => {
+    if (val) {
+      report.value = val
+      detailCache.value[id] = val
+    }
+  }, { immediate: true })
+  watch(fetchPending, (val) => { pending.value = val }, { immediate: true })
+  watch(fetchError, (val) => { error.value = val }, { immediate: true })
+}
+
+function goBack() {
+  if (window.history.state?.back) {
+    router.back()
+  } else {
+    router.push('/reports')
+  }
+}
 
 const showUnverifiedInfo = ref(false)
 
@@ -196,7 +221,7 @@ useHead(() => ({
 
 <template>
   <div class="page-body">
-    <NuxtLink to="/reports" class="back-link">← Back to reports</NuxtLink>
+<a href="#" class="back-link" @click.prevent="goBack">← Back to reports</a>
 
     <p v-if="pending" class="loading-text">Loading report...</p>
     <p v-else-if="error || !report" class="empty-text">
@@ -224,9 +249,10 @@ useHead(() => ({
         <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
+<div v-if="showUnverifiedInfo" class="badge-popover-backdrop" @click="showUnverifiedInfo = false">
 
     <div v-if="showUnverifiedInfo" class="badge-popover">
-      <p>
+        <p>
   This report is based on a single submission and hasn't been corroborated
   by other independent reporters yet. It becomes <strong>Highly Suspicious</strong>
   once at least 3 different people report the same account, or after a
@@ -235,10 +261,9 @@ useHead(() => ({
 <p class="badge-popover-sub">
   Read details carefully and verify independently before acting on this report.
 </p>
-<p class="badge-popover-brand">
-  Fraud Radar NG
-</p>
-    </div>
+<p class="badge-popover-brand"> Fraud Radar NG</p>
+  </div>
+</div>
   </span>
 </div>
 
@@ -351,7 +376,7 @@ useHead(() => ({
                 :src="img"
                 alt="Evidence"
                 class="additional-evidence-thumb"
-                @click="openImage(img)"
+                @click="openStandaloneImage(img)"
               />
             </div>
           </div>
@@ -661,7 +686,6 @@ useHead(() => ({
   white-space: nowrap;
 }
 .recovery-cta-btn:hover { background: #d4eb3c; }
-
 .badge-suspicious {
   font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -692,19 +716,39 @@ useHead(() => ({
 }
 .badge-info-btn:hover { color: var(--text-1); border-color: var(--text-1); }
 
+.badge-popover-backdrop {
+  position: fxed;
+  inset: 0;
+  background: transparent;
+  z-index: 19;
+}
+
 .badge-popover {
   position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  left: auto;
-  z-index: 20;
-  width: min(260px, calc(100vw - 40px));
+  top: 26px;
+  left: -6px;
+  z-index: 200;
+  width: max-content;
+  max-width: 260px;
   background: var(--surface);
   border: 1px solid var(--border-hi);
   border-radius: 8px;
   padding: 12px 14px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  animation: popover-drop-in 0.15s ease-out;
 }
+
+@keyframes popover-drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .badge-popover p {
   font-size: 12px;
   line-height: 1.6;
@@ -723,6 +767,18 @@ useHead(() => ({
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-3);
+}
+
+@media (max-width: 480px) {
+  .badge-popover {
+    position: fixed;
+    top: auto;
+    bottom: 20px;
+    left: 16px;
+    right: 16px;
+    max-width: none;
+    width: auto;
+  }
 }
 
 .avatar--flagged {

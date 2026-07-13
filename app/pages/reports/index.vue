@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Report } from '#shared/types/report'
+import { onBeforeRouteLeave } from 'vue-router'
 
 useHead({ title: 'Browse Reports — Fraud Radar NG' })
 
@@ -11,6 +12,14 @@ const loadingMore = ref(false)
 const totalReports = ref(0)
 const highRiskCount = ref(0)
 
+const listCache = useReportsListCache()
+const detailCache = useReportDetailCache()
+
+function cacheReports(reports: Report[]) {
+  for (const r of reports) {
+    if (r?.id) detailCache.value[r.id] = r
+  }
+}
 async function fetchPage(afterCursor?: string) {
   const query = afterCursor ? `?cursor=${afterCursor}` : ''
   return await $fetch<{ reports: Report[]; nextCursor: string | null }>(`/api/reports${query}`)
@@ -19,14 +28,26 @@ async function fetchPage(afterCursor?: string) {
 async function fetchStats() {
   return await $fetch<{ totalReports: number; highRiskCount: number }>('/api/reports/stats')
 }
-
 onMounted(async () => {
+  if (listCache.value.loaded) {
+    // Came back from a report — restore instantly, no refetch, no loader
+    allReports.value = listCache.value.reports
+    cursor.value = listCache.value.cursor
+    totalReports.value = listCache.value.totalReports
+    highRiskCount.value = listCache.value.highRiskCount
+    initialPending.value = false
+    await nextTick()
+    window.scrollTo(0, listCache.value.scrollY)
+    return
+  }
+
   try {
     const [firstPage, stats] = await Promise.all([fetchPage(), fetchStats()])
     allReports.value = firstPage.reports
     cursor.value = firstPage.nextCursor
     totalReports.value = stats.totalReports
     highRiskCount.value = stats.highRiskCount
+    cacheReports(firstPage.reports)
   } finally {
     initialPending.value = false
   }
@@ -39,10 +60,22 @@ async function loadMore() {
     const { reports, nextCursor } = await fetchPage(cursor.value)
     allReports.value.push(...reports)
     cursor.value = nextCursor
+    cacheReports(reports)
   } finally {
     loadingMore.value = false
   }
 }
+
+onBeforeRouteLeave(() => {
+  listCache.value = {
+    reports: allReports.value,
+    cursor: cursor.value,
+    totalReports: totalReports.value,
+    highRiskCount: highRiskCount.value,
+    scrollY: window.scrollY,
+    loaded: true
+  }
+})
 
 const validReports = computed(() => allReports.value.filter(Boolean))
 
@@ -87,33 +120,35 @@ const filteredReports = computed(() => {
 
 <template>
   <div>
-    <section class="browse-hero">
-      <div class="browse-bg-image" />
-      <div class="browse-overlay" />
-
-      <div class="browse-hero-content">
-        <div class="eyebrow">
-          <span class="eyebrow-dot" />
-          The reality of bank transfer fraud
-        </div>
-        <h1 class="browse-title">Fraud doesn't announce itself.</h1>
-        <p class="browse-desc">
-          Most victims don't realize they've been scammed until the money
-          is already gone. A fake urgency, a convincing story, a familiar-
-          sounding bank name — and a transfer that can't be undone. This
-          page exists so the next transfer isn't made blind.
-        </p>
-      </div>
-
-      <svg class="browse-curve" viewBox="0 0 1440 100" preserveAspectRatio="none">
-        <path d="M0,0 C480,100 960,100 1440,0 L1440,100 L0,100 Z" fill="var(--bg)" />
-      </svg>
-    </section>
-
     <div class="page-body">
       <Teleport to="body">
         <ReportsLoader v-if="initialPending" />
       </Teleport>
+
+      <!-- COMPOSER STACK — search pill on top, "file a report" row right below,
+           replacing the old hero image entirely -->
+      <div class="composer-stack">
+        <div class="composer-bar">
+          <div class="composer-avatar">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+              <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="composer-search">
+            <SearchBar />
+          </div>
+        </div>
+
+        <NuxtLink to="/report/new" class="file-report-row">
+          <span class="file-report-icon">+</span>
+          <div class="file-report-text">
+            <span class="file-report-title">File a report</span>
+            <span class="file-report-sub">Warn others before they lose money</span>
+          </div>
+          <span class="file-report-arrow">→</span>
+        </NuxtLink>
+      </div>
 
       <div v-if="Object.keys(categoryCounts).length" class="category-filter-row">
         <button
@@ -156,7 +191,6 @@ const filteredReports = computed(() => {
           <span class="eyebrow-dot" />
           PUBLIC CITIZEN REPORTS
         </div>
-        <SearchBar />
       </div>
 
       <p v-if="!initialPending && !validReports.length" class="empty-text">
@@ -191,98 +225,113 @@ const filteredReports = computed(() => {
 }
 .eyebrow-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; }
 
-.browse-hero {
-  position: relative;
-  overflow: hidden;
-  min-height: 420px;
-  display: flex;
-  align-items: center;
-}
-
-.browse-bg-image {
-  position: absolute;
-  inset: 0;
-  background-image: url('/all.png');
-  background-size: cover;
-  background-position: center;
-  filter: grayscale(10%);
-  z-index: 0;
-}
-
-.browse-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(10,10,11,0.94) 0%,
-    rgba(10,10,11,0.75) 10%,
-    rgba(10,10,11,0.35) 100%
-  );
-  z-index: 1;
-}
-
-.browse-hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 920px;
-  margin: 0 auto;
-  padding: 70px 24px 90px;
-  width: 100%;
-}
-
-@media (max-width: 640px) {
-  .browse-hero { min-height: 380px; }
-  .browse-hero-content { padding: 50px 20px 80px; }
-  .browse-overlay {
-    background: linear-gradient(
-      180deg,
-      rgba(10,10,11,0.9) 0%,
-      rgba(10,10,11,0.6) 100%
-    );
-  }
-}
-
-.browse-title {
-  font-family: var(--serif);
-  font-size: clamp(50px, 8.9vw, 76px);
-  color: rgba(255, 255, 255, 0.92);
-  line-height: 1.15;
-  margin-bottom: 16px;
-}
-
-.browse-desc {
-  font-size: 14px;
-  color: rgba(200, 200, 200, 0.9);
-  line-height: 1.75;
-  font-weight: 300;
-  max-width: 460px;
-}
-
-.browse-curve {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  height: 60px;
-  z-index: 2;
-  display: block;
-}
-
 .page-body {
   max-width: 920px;
   margin: 0 auto;
-  padding: 0 24px 40px;
+  padding: 32px 24px 40px;
 }
 
 @media (max-width: 560px) {
-  .page-body { padding: 0 16px 40px; }
+  .page-body { padding: 24px 16px 40px; }
+}
+
+/* COMPOSER STACK — the Facebook-feed-style pair of bars replacing the hero */
+.composer-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.composer-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.composer-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #f87171;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.composer-search {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-report-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.file-report-row:hover {
+  background: var(--surface-2);
+  border-color: var(--border-hi);
+  border-left-color: var(--accent);
+}
+
+.file-report-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #0a0a0b;
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.file-report-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.file-report-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  color: var(--text-1);
+}
+.file-report-sub {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+.file-report-arrow {
+  font-family: var(--mono);
+  color: var(--text-3);
+  flex-shrink: 0;
 }
 
 .category-filter-row {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: 32px;
   margin-bottom: 20px;
 }
 .category-filter-chip {

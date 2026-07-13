@@ -54,17 +54,23 @@ const nextSteps = [
   }
 ]
 
+const agreedToTerms = ref(false)
 </script>
 
 <template>
   <div>
     <section class="impact-strip">
-      <div class="impact-bg-image" />
-      <div class="impact-overlay" />
+      <div class="hazard-strip" />
 
-      <!-- <div class="impact-content">
+      <svg class="radar-sweep" viewBox="0 0 600 600" aria-hidden="true">
+        <circle cx="300" cy="300" r="90" class="radar-ring" />
+        <circle cx="300" cy="300" r="170" class="radar-ring radar-ring--delay1" />
+        <circle cx="300" cy="300" r="250" class="radar-ring radar-ring--delay2" />
+      </svg>
+
+      <div class="impact-content">
         <div class="impact-eyebrow">
-          <span class="dot dot--danger" /> Real reports, real losses
+          <span class="dot dot--danger dot--pulse" /> Real reports, real losses
         </div>
         <h1 class="impact-title">
           Behind every fake account is someone who lost something real.
@@ -74,7 +80,7 @@ const nextSteps = [
           month. Fraud isn't abstract — it's the reason people are asking
           for help below.
         </p>
-      </div> -->
+      </div>
 
       <svg class="impact-curve" viewBox="0 0 1440 100" preserveAspectRatio="none">
         <path d="M0,0 C480,100 960,100 1440,0 L1440,100 L0,100 Z" fill="var(--bg)" />
@@ -110,18 +116,45 @@ const nextSteps = [
                 <li>Do not report someone based on rumor, suspicion alone, or a personal dispute unrelated to fraud.</li>
                 <li>Reports are public and tied to a real account holder's name — a false report can cause real harm to an innocent person.</li>
                 <li>Deliberately false reports may be removed, and repeated abuse of this platform may result in your submissions being blocked.</li>
+                <li>
+                  Where a report describes conduct that may constitute a criminal offence, we reserve the
+                  right to preserve relevant submission data — including technical identifiers described in
+                  our <NuxtLink to="/privacy-notice" class="warning-link">Privacy Notice</NuxtLink> — and to
+                  share it with the EFCC, the Nigeria Police Force, or another appropriate authority,
+                  independent of any request from the person who submitted the report. We may also disclose
+                  information where required by a valid court order or other legal process.
+                </li>
               </ul>
             </div>
 
-            <NuxtLink to="/report/form" class="continue-btn">
+            <label class="consent-row">
+              <input v-model="agreedToTerms" type="checkbox" class="consent-checkbox" />
+              <span>
+                I confirm this report is based on a real experience to the best of my knowledge, and I
+                agree to the
+                <NuxtLink to="/terms" class="warning-link" @click.stop>Terms &amp; Conditions</NuxtLink>
+                and
+                <NuxtLink to="/privacy-notice" class="warning-link" @click.stop>Privacy Notice</NuxtLink>.
+              </span>
+            </label>
+
+            <NuxtLink
+              :to="agreedToTerms ? '/report/form' : ''"
+              class="continue-btn"
+              :class="{ 'continue-btn--disabled': !agreedToTerms }"
+              :tabindex="agreedToTerms ? 0 : -1"
+              :aria-disabled="!agreedToTerms"
+              @click="!agreedToTerms && $event.preventDefault()"
+            >
               Continue to report form →
             </NuxtLink>
 
             <p class="legal-note">
-              By continuing, you confirm this report is based on a real
-              experience, to the best of your knowledge. Fraud Radar NG
-              does not verify reports before publishing and is not liable
-              for user-submitted content.
+              Fraud Radar NG does not verify reports before publishing and is
+              not liable for user-submitted content. Reports found to be
+              knowingly false may be removed, and repeated abuse may result
+              in the submitter being blocked and, where conduct may be
+              criminal, referred to the appropriate authorities.
             </p>
           </div>
 
@@ -176,44 +209,85 @@ const nextSteps = [
 .dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; }
 .dot--danger { background: #f87171; }
 
-/* HERO — full-bleed, matches /reports exactly */
+/* HERO — no image; radar-sweep + hazard-strip signature */
 .impact-strip {
   position: relative;
   overflow: hidden;
   min-height: 420px;
   display: flex;
   align-items: center;
+  background: var(--bg);
 }
 
-.impact-bg-image {
+/* Alarm strip: a thin hazard-tape rule along the very top of the hero */
+.hazard-strip {
   position: absolute;
-  inset: 0;
-  background-image: url('/rep.png');
-  background-size: cover;
-  background-position: center;
-  
-  filter: grayscale(10%);
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  z-index: 3;
+  background: repeating-linear-gradient(
+    -45deg,
+    #f87171 0 10px,
+    #0a0a0b 10px 20px
+  );
+  opacity: 0.85;
+}
+
+/* Radar sweep: concentric rings pulsing outward behind the headline,
+   the page's namesake visual instead of a stock photo */
+.radar-sweep {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 640px;
+  height: 640px;
+  max-width: 130vw;
   z-index: 0;
+  pointer-events: none;
+}
+.radar-ring {
+  fill: none;
+  stroke: #f87171;
+  stroke-width: 1.5;
+  opacity: 0;
+  transform-origin: 300px 300px;
+  animation: radar-pulse 3.6s ease-out infinite;
+}
+.radar-ring--delay1 { animation-delay: 1.2s; }
+.radar-ring--delay2 { animation-delay: 2.4s; }
+
+@keyframes radar-pulse {
+  0%   { opacity: 0.5; transform: scale(0.4); }
+  70%  { opacity: 0.12; }
+  100% { opacity: 0; transform: scale(1.05); }
 }
 
-.impact-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
+@media (prefers-reduced-motion: reduce) {
+  .radar-ring { animation: none; opacity: 0.15; }
 }
 
+.impact-content {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 90px 24px 100px;
+  width: 100%;
+  text-align: center;
+}
 
+.dot--pulse {
+  animation: dot-pulse 1.8s ease-in-out infinite;
+}
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
 
 @media (max-width: 640px) {
   .impact-strip { min-height: 380px; }
-  .impact-content { padding: 50px 20px 80px; }
-  .impact-overlay {
-    background: linear-gradient(
-      180deg,
-      rgba(0,10,11,0.10) 10%,
-      rgba(10,10,11,0.6) 20%
-    );
-  }
+  .impact-content { padding: 60px 20px 80px; }
+  .radar-sweep { width: 480px; height: 480px; }
 }
 
 .impact-eyebrow {
@@ -224,7 +298,7 @@ const nextSteps = [
 }
 .impact-title {
   font-family: var(--serif);
-  font-size: clamp(30px, 4.5vw, 46px);
+  font-size: clamp(40px, 6.5vw, 76px);
   color: rgba(255, 255, 255, 0.92);
   line-height: 1.2;
   margin-bottom: 14px;
@@ -235,6 +309,7 @@ const nextSteps = [
   line-height: 1.7;
   font-weight: 300;
   max-width: 480px;
+  margin: 0 auto;
 }
 
 .impact-curve {
@@ -411,6 +486,34 @@ const nextSteps = [
   font-weight: 600;
 }
 
+.warning-link {
+  color: var(--text-1);
+  text-decoration: underline;
+}
+.warning-link:hover { color: var(--accent); }
+
+.consent-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.consent-checkbox {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.consent-row span {
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
 .continue-btn {
   display: inline-flex;
   align-items: center;
@@ -424,8 +527,14 @@ const nextSteps = [
   border-radius: var(--radius);
   padding: 13px 26px;
   text-decoration: none;
+  transition: background 0.15s ease, opacity 0.15s ease;
 }
 .continue-btn:hover { background: #d4eb3c; }
+.continue-btn--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 
 .legal-note {
   font-family: var(--mono);

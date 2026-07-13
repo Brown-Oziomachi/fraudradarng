@@ -129,33 +129,6 @@ async function shareReport() {
     // user cancelled share sheet or clipboard blocked — no-op
   }
 }
-
-// REPORT THIS POST (dispute evidence as untrue)
-const showFlagModal = ref(false)
-const flagReason = ref('')
-const flagSubmitting = ref(false)
-const flagSubmitted = ref(false)
-
-async function submitFlag() {
-  if (!flagReason.value) return
-  flagSubmitting.value = true
-  try {
-    await $fetch(`/api/reports/${props.report.id}/flag`, {
-      method: ("POST" as any),
-      body: { reason: flagReason.value }
-    })
-    flagSubmitted.value = true
-    setTimeout(() => {
-      showFlagModal.value = false
-      flagSubmitted.value = false
-      flagReason.value = ''
-    }, 1500)
-  } catch {
-    // silently fail for now — could surface an error message here
-  } finally {
-    flagSubmitting.value = false
-  }
-}
 </script>
 
 <template>
@@ -226,51 +199,16 @@ async function submitFlag() {
         Edit
       </NuxtLink>
 
-      <button type="button" class="action-btn" @click="showFlagModal = true">
+    <NuxtLink :to="`/flag/report?reportId=${report.id}`" class="action-btn">
         <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M4 2v20h2v-7h13l-2.5-5L19 5H6V2z"/></svg>
         Dispute
-      </button>
+      </NuxtLink>
 
       <button type="button" class="action-btn" @click="shareReport">
         <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 1 0-3-3c0 .24.04.47.09.7L8.04 9.81A2.99 2.99 0 0 0 3 12a3 3 0 0 0 5.04 2.19l7.12 4.16c-.05.21-.08.43-.08.65a3 3 0 1 0 3-3z"/></svg>
         {{ copied ? 'Link copied!' : 'Share' }}
       </button>
     </div>
-
-    <!-- REPORT/FLAG MODAL -->
-    <Teleport to="body">
-      <div v-if="showFlagModal" class="modal-overlay" @click.self="showFlagModal = false">
-        <div class="modal">
-          <template v-if="!flagSubmitted">
-            <h3 class="modal-title">Dispute this evidence</h3>
-            <p class="modal-sub">
-              Tell us why you think this report is inaccurate or misleading.
-            </p>
-            <select v-model="flagReason" class="modal-select">
-              <option value="" disabled>Select a reason...</option>
-              <option value="not_accurate">This information is not accurate</option>
-              <option value="wrong_person">Wrong person / account attached</option>
-              <option value="already_resolved">This has already been resolved</option>
-              <option value="other">Other</option>
-            </select>
-            <div class="modal-actions">
-              <button type="button" class="modal-cancel" @click="showFlagModal = false">Cancel</button>
-              <button
-                type="button"
-                class="modal-submit"
-                :disabled="!flagReason || flagSubmitting"
-                @click="submitFlag"
-              >
-                {{ flagSubmitting ? 'Submitting...' : 'Submit report' }}
-              </button>
-            </div>
-          </template>
-          <template v-else>
-            <p class="modal-success">Thanks — this has been flagged for review.</p>
-          </template>
-        </div>
-      </div>
-    </Teleport>
   </article>
 </template>
 

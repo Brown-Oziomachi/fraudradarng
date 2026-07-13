@@ -863,8 +863,17 @@ function finishSuccess() {
 
             <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
 
+           <label class="consent-row">
+              <input v-model="finalConsent" type="checkbox" class="consent-checkbox" />
+              <span>
+                I confirm this report is accurate to the best of my knowledge and agree to the
+                <NuxtLink to="/terms" class="warning-link" target="_blank">Terms</NuxtLink> and
+                <NuxtLink to="/privacy-notice" class="warning-link" target="_blank">Privacy Notice</NuxtLink>.
+              </span>
+            </label>
+
             <div class="form-actions">
-              <button type="button" class="btn-submit" :disabled="isSubmitting" @click="submitReport">
+              <button type="button" class="btn-submit" :disabled="isSubmitting || !finalConsent" @click="submitReport">
                 {{ isSubmitting ? 'Submitting...' : 'Submit report' }}
               </button>
             </div>

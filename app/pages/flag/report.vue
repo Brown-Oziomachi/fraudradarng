@@ -31,9 +31,9 @@ async function runSearch() {
   isSearching.value = true
   searchError.value = ''
   try {
-    const data = await $fetch<ReportResult[]>('/api/search', {
-      query: { q }
-    })
+    const data = await $fetch<ReportResult[]>('/api/reports/search', {
+  query: { q }
+})
     searchResults.value = data || []
   } catch {
     searchError.value = 'Could not load results. Try again.'
