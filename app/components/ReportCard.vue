@@ -150,7 +150,7 @@ async function shareReport() {
       </svg>
     </div>
     <div class="post-header-text">
-      <span class="post-name-label">Flagged account</span>
+      <span class="post-name-label">Flagged Account | Illegal Operator</span>
       <span class="post-name">{{ displayTitle }}</span>
       <div class="post-meta">
         <span>{{ displaySubtitle }}</span>

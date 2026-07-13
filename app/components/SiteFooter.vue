@@ -9,6 +9,7 @@ const aboutLinks = [
   { label: 'FAQ', to: '/faq' },
   { label: 'Vision & Mission', to: '/vision-mission-statement' },
   { label: 'Follow FRNG', to: '/follow' },
+  { label: 'Domain Literacy', to: '/greenlist' },
 ]
 
 const reportsLinks = [
@@ -20,6 +21,8 @@ const reportsLinks = [
   { label: 'Flag a reports on FRNG', to: '/flag/report' },
   { label: 'Most flagged Accounts', to: '/most-flagged' },
   { label: 'Check Before You Pay', to: '/lookupsearch' },
+  { label: 'BlackList Vault', to: '/blacklistvault' },
+  { label: 'Government Escalation Desk', to: '/fraud/patterns' },
 ]
 
 const quickLinks = [
@@ -27,6 +30,12 @@ const quickLinks = [
   { label: 'Contact', to: '/contact' },
   { label: 'Privacy Notice', to: '/privacy-notice' },
   { label: 'Terms & Conditions', to: '/terms' },
+  { label: 'Politics', to: '/politics' },
+  { label: 'Disclaimer', to: '/disclaimer' },
+  { label: 'Help Center', to: '/help' },
+  { label: 'Naira Recovery Pipeline', to: '/recovery' },
+  { label: 'Community Awareness', to: '/community' },
+  { label: 'FRNG Intelligence', to: '/intelligence' },
 ]
 
 const emergencyContacts = [
@@ -59,7 +68,7 @@ const emergencyContacts = [
 
           <h4 class="contact-heading">Emergency &amp; Reporting</h4>
           <div class="contact-list">
-            
+
              <a v-for="contact in emergencyContacts"
               :key="contact.label"
               :href="contact.href"
@@ -126,7 +135,7 @@ const emergencyContacts = [
       <!-- Quick Links row -->
       <div class="quick-links-block">
         <h4 class="col-heading">Quick Links</h4>
-        <div class="quick-links-row">
+        <div class="quick-links-grid">
           <NuxtLink v-for="link in quickLinks" :key="link.to" :to="link.to" class="quick-link">
             {{ link.label }}
           </NuxtLink>
@@ -209,7 +218,7 @@ const emergencyContacts = [
   object-fit: cover;
   border-radius: 50%;
   box-shadow: 0 4px 12px rgba(9, 229, 90, 0.807);
-} 
+}
 
 .brand-wordmark {
   font-family: var(--serif);
@@ -303,17 +312,35 @@ const emergencyContacts = [
 
 /* Quick links row */
 .quick-links-block { margin-bottom: 20px; }
-.quick-links-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 28px;
-  margin-top: 12px;
+
+.quick-links-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 24px;
+  margin-top: 16px;
 }
+
+@media (max-width: 900px) {
+  .quick-links-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .quick-links-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 16px;
+  }
+}
+
 .quick-link {
   font-size: 13.5px;
   color: var(--text-2);
   text-decoration: none;
   transition: color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .quick-link:hover { color: var(--accent); }
 

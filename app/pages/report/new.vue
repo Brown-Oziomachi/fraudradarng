@@ -299,13 +299,11 @@ const agreedToTerms = ref(false)
 .impact-title {
   font-family: var(--serif);
   font-size: clamp(40px, 6.5vw, 76px);
-  color: rgba(255, 255, 255, 0.92);
   line-height: 1.2;
   margin-bottom: 14px;
 }
 .impact-sub {
   font-size: 14px;
-  color: rgba(200, 200, 200, 0.92);
   line-height: 1.7;
   font-weight: 300;
   max-width: 480px;

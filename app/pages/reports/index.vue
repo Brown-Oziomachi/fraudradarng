@@ -3,7 +3,6 @@ import type { Report } from '#shared/types/report'
 import { onBeforeRouteLeave } from 'vue-router'
 
 useHead({ title: 'Browse Reports — Fraud Radar NG' })
-
 const allReports = ref<Report[]>([])
 const cursor = ref<string | null>(null)
 const initialPending = ref(true)
@@ -120,6 +119,7 @@ const filteredReports = computed(() => {
 
 <template>
   <div>
+    
     <div class="page-body">
       <Teleport to="body">
         <ReportsLoader v-if="initialPending" />
@@ -185,7 +185,7 @@ const filteredReports = computed(() => {
           <div class="stat-label">High-risk accounts</div>
         </div>
       </div>
-
+      
       <div class="section-header">
         <div class="eyebrow">
           <span class="eyebrow-dot" />
@@ -382,6 +382,15 @@ const filteredReports = computed(() => {
   justify-content: center;
   margin-top: 24px;
   padding-bottom: 20px;
+}
+
+.impact-strip {
+  position: relative;
+  overflow: hidden;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  background: var(--bg);
 }
 
 .load-more-btn {

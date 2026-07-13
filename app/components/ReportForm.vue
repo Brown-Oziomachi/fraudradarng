@@ -28,6 +28,7 @@ const props = defineProps<{
 }>()
 
 const isEditMode = computed(() => !!props.report)
+const finalConsent = ref(false)
 
 const PLATFORM_OPTIONS = [
   'WhatsApp',
@@ -267,6 +268,7 @@ function resetForm() {
   showCustomPlatformInput.value = false
   evidencePreviews.value = []
   currentStep.value = 'target'
+  finalConsent.value = false
 }
 
 const targetLabel = computed(() =>
@@ -867,10 +869,13 @@ function finishSuccess() {
               <input v-model="finalConsent" type="checkbox" class="consent-checkbox" />
               <span>
                 I confirm this report is accurate to the best of my knowledge and agree to the
-                <NuxtLink to="/terms" class="warning-link" target="_blank">Terms</NuxtLink> and
+                <NuxtLink to="/terms" class="warning-link" target="_blank">Terms &amp; Conditions</NuxtLink>
+                and
                 <NuxtLink to="/privacy-notice" class="warning-link" target="_blank">Privacy Notice</NuxtLink>.
               </span>
             </label>
+
+            <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
 
             <div class="form-actions">
               <button type="button" class="btn-submit" :disabled="isSubmitting || !finalConsent" @click="submitReport">
@@ -1550,4 +1555,31 @@ select.input {
   text-align: left;
   line-height: 1.5;
 }
+
+.consent-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+.consent-checkbox {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.consent-row span {
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.6;
+  font-weight: 300;
+}
+.warning-link {
+  color: var(--text-1);
+  text-decoration: underline;
+}
+.warning-link:hover { color: var(--accent); }
 </style>

@@ -105,7 +105,7 @@ async function generateCard() {
   // Logo (top-left of the red band)
   let logo: HTMLImageElement | null = null
   try {
-    logo = await loadImage('/FRlogo.png') // ← update this path to your actual logo file
+    logo = await loadImage('/FRLOGO.png') // ← update this path to your actual logo file
   } catch {
     logo = null // silently fall back to no logo if it fails to load
   }
@@ -124,7 +124,7 @@ async function generateCard() {
 
   // Watermark logo — dim, centered in the white body area, sits behind the text
   if (logo) {
-    const wmSize = 520
+    const wmSize = 512
     const wmX = (W - wmSize) / 2
     const wmY = bandHeight + (H - bandHeight - wmSize) / 2
 

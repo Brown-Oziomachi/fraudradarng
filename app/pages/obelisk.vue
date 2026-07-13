@@ -18,6 +18,7 @@ const navGroups = [
       { id: 'vault', label: 'Vault', icon: '▣' },
       { id: 'reporters', label: 'Reporters', icon: '◈' },
       { id: 'announcement', label: 'Announcement', icon: '◈', link: '/fraud/announcements' },
+      { id: 'sec-feed', label: 'SEC Feed', icon: '⚖' },
     ],
   },
   {
@@ -69,6 +70,56 @@ const {
     return $fetch('/api/obelisk/stats', { query: { window: activeWindow.value }, headers })
   },
   { server: false, lazy: true, watch: [activeWindow] }
+)
+
+const {
+  data: secFeedData,
+  pending: secFeedPending,
+  error: secFeedError,
+  refresh: refreshSecFeed,
+} = await useAsyncData(
+  'obelisk-sec-feed',
+  async () => {
+    const headers = await getAuthHeader()
+    return $fetch('/api/obelisk/sec-feed', { headers })
+  },
+  { server: false, lazy: true }
+)
+
+const pullingFeed = ref(false)
+async function pullSecFeed() {
+  pullingFeed.value = true
+  try {
+    const headers = await getAuthHeader()
+    const result = await $fetch('/api/obelisk/sec-feed/refresh', { method: 'POST', headers })
+    await refreshSecFeed()
+    alert(`Fetched ${result.fetched} item(s), ${result.added} new.`)
+  } catch (err) {
+    alert(`Failed to pull feed: ${err?.data?.statusMessage ?? err?.message ?? 'unknown error'}`)
+  } finally {
+    pullingFeed.value = false
+  }
+}
+
+const reviewingItem = ref(null)
+async function reviewSecFeedItem(id, action) {
+  reviewingItem.value = id
+  try {
+    const headers = await getAuthHeader()
+    await $fetch(`/api/obelisk/sec-feed/${id}`, { method: 'PATCH', body: { action }, headers })
+    if (secFeedData.value?.items) {
+      const item = secFeedData.value.items.find((i) => i.id === id)
+      if (item) item.status = action === 'publish' ? 'published' : 'dismissed'
+    }
+  } catch (err) {
+    alert(`Failed: ${err?.data?.statusMessage ?? err?.message ?? 'unknown error'}`)
+  } finally {
+    reviewingItem.value = null
+  }
+}
+
+const unreviewedSecItems = computed(() =>
+  (secFeedData.value?.items ?? []).filter((i) => i.status === 'unreviewed')
 )
 
 const search = ref('')
@@ -620,6 +671,45 @@ function statusTonePartnership(status) {
         </section>
       </div>
 
+      <!-- ================= SEC FEED ================= -->
+      <div v-show="activeTab === 'sec-feed'">
+        <div v-if="secFeedError" class="banner banner-error">Couldn't load the SEC feed queue.</div>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>SEC enforcement feed — {{ unreviewedSecItems.length }} awaiting review</h2>
+            <button class="refresh" :disabled="pullingFeed" @click="pullSecFeed">
+              <span :class="{ spin: pullingFeed }">↻</span> Pull latest
+            </button>
+          </div>
+
+          <div v-for="item in unreviewedSecItems" :key="item.id" class="contact-card">
+            <div class="contact-head">
+              <span class="contact-name">{{ item.title }}</span>
+              <a :href="item.link" target="_blank" rel="noopener noreferrer" class="contact-email">View source</a>
+              <span class="muted">{{ fmtDate(item.pubDate) }}</span>
+            </div>
+            <p v-if="item.summary" class="contact-message">{{ item.summary }}</p>
+            <div class="flag-actions" style="margin-top: 10px;">
+              <button
+                class="delete-btn"
+                style="background: color-mix(in srgb, #4ade80 15%, transparent); color: #4ade80; border-color: color-mix(in srgb, #4ade80 35%, transparent);"
+                :disabled="reviewingItem === item.id"
+                @click="reviewSecFeedItem(item.id, 'publish')"
+              >
+                {{ reviewingItem === item.id ? 'Working…' : 'Publish' }}
+              </button>
+              <button class="dismiss-btn" :disabled="reviewingItem === item.id" @click="reviewSecFeedItem(item.id, 'dismiss')">
+                Dismiss
+              </button>
+            </div>
+          </div>
+
+          <p v-if="!secFeedPending && !unreviewedSecItems.length" class="empty">
+            Nothing new — pull the latest feed to check for updates.
+          </p>
+        </section>
+      </div>
+      
       <!-- ================= VAULT ================= -->
       <div v-show="activeTab === 'vault'">
         <div v-if="vaultError" class="banner banner-error">Couldn't reach the vault.</div>

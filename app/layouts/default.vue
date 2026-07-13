@@ -210,8 +210,13 @@ const mobileSections = [
       { label: 'Naira Recovery Pipeline', to: '/recovery', icon: 'recover', desc: 'Steps to try and recover funds.' },
       { label: 'Community Awareness', to: '/community', icon: 'megaphone', desc: 'Campaigns to spread scam awareness.' },
       { label: 'Check Before You Pay', to: '/lookupsearch', icon: 'search', desc: 'Look up a number before sending money.' },
-      { label: 'FRNG Intelligence(Coming Soon)', to: '/intelligence',  icon: 'cpu', desc: 'Proactive cyber-threat analytics and real-time fraud prevention engines.' 
-}
+      { label: 'FRNG Intelligence(Coming Soon)', to: '/intelligence',  icon: 'cpu', desc: 'Proactive cyber-threat analytics and real-time fraud prevention engines.' },
+      { 
+  label: 'SEC Enforcement', 
+  to: '/whistleblowing', 
+  icon: 'shield-alert', // or 'gavel' / 'security' 
+  desc: 'Live regulatory updates and company blacklists from the SEC.' 
+},
     ]
   },
 ]

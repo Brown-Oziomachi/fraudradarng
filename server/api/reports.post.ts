@@ -1,17 +1,15 @@
 import { createReport, checkRateLimit, recordSubmission } from '../utils/db'
 import { getReporterFingerprint, getReporterIpHash, getReporterDeviceId } from '../utils/reporterFingerprint'
 import { checkBlocked, getStrikeCount, WARN_AT } from '../utils/abuse-tracking'
+import { looksLikeInjectionAttempt, logSecurityIncident } from '../utils/security-incidents'
 import type { NewReportInput } from '#shared/types/report'
 
 export default defineEventHandler(async (event) => {
   const ip = getRequestIP(event, { xForwardedFor: true }) ?? 'unknown'
 
-  const allowed = await checkRateLimit(ip, 'partnership')
+  const allowed = await checkRateLimit(ip)
   if (!allowed) {
-    throw createError({
-      statusCode: 429,
-      statusMessage: 'Too many applications submitted. Please try again later.',
-    })
+    throw createError({ statusCode: 429, statusMessage: 'Too many reports submitted. Please try again later.' })
   }
 
   const identity = {
@@ -47,6 +45,25 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid target type' })
   }
 
+  // Check every free-text field a user could inject through — this fires
+  // rarely, only on actual attack-shaped payloads, matching the narrow scope
+  // described in the Privacy Notice.
+  const fieldsToCheck = [
+    body.description, body.companyName, body.companyAddress,
+    body.websiteUrl, body.websiteName, body.bankName,
+    body.accountName, body.contactPlatform,
+  ]
+  const suspiciousField = fieldsToCheck.find(looksLikeInjectionAttempt)
+
+  if (suspiciousField) {
+    await logSecurityIncident(event, {
+      type: 'injection_attempt',
+      route: '/api/reports',
+      payload: body,
+    })
+    throw createError({ statusCode: 400, statusMessage: 'Invalid submission.' })
+  }
+
   const MAX_IMAGES = 5
   const evidenceUrls = body.evidenceUrls?.slice(0, MAX_IMAGES)
 
@@ -61,11 +78,13 @@ export default defineEventHandler(async (event) => {
       companyAddress: body.companyAddress,
       websiteUrl: body.websiteUrl,
       websiteName: body.websiteName,
+      phoneNumber: body.phoneNumber,
+      walletTag: body.walletTag,
       description: body.description,
       reason: body.reason,
       amountInvolved: body.amountInvolved,
       contactPlatform: body.contactPlatform,
-      evidenceUrls,
+      evidenceUrls
     },
     identity.fingerprint,
     identity.ipHash,
