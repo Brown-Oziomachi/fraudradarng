@@ -74,6 +74,18 @@ const recoveryLink = computed(() => {
   return `/recovery?${params.toString()}`
 })
 
+const REGULATORY_LABELS: Record<string, { label: string; tone: string }> = {
+  unregistered: { label: '🛑 Unregistered / Illegal Operator', tone: 'unregistered' },
+  probation: { label: '🟡 Under Regulatory Probation', tone: 'probation' },
+  registered: { label: '🟢 Currently SEC-Registered', tone: 'registered' },
+}
+
+const regulatoryBadge = computed(() => {
+  const r = report.value
+  if (!r?.regulatoryStatus) return null
+  return REGULATORY_LABELS[r.regulatoryStatus] ?? null
+})
+
 const timeAgo = computed(() => {
   const r = report.value
   if (!r?.createdAt) return ''
@@ -265,6 +277,13 @@ useHead(() => ({
   </div>
 </div>
   </span>
+  <div v-if="regulatoryBadge" class="regulatory-badge" :class="`regulatory-badge--${regulatoryBadge.tone}`">
+      <strong>{{ regulatoryBadge.label }}</strong>
+      <span v-if="report.regulatoryStatusNote"> — {{ report.regulatoryStatusNote }}</span>
+      <p class="regulatory-badge-caveat">
+        Reflects the entity's regulatory registration status only. It does not confirm, dispute, or resolve the fraud report above.
+      </p>
+    </div>
 </div>
 
       <div class="post-header">
@@ -861,5 +880,34 @@ useHead(() => ({
 }
 .share-panel .details-heading {
   margin-bottom: 10px;
+}
+.regulatory-badge {
+  margin: 0 16px 14px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.regulatory-badge--unregistered {
+  background: rgba(248, 113, 113, 0.06);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  color: #f87171;
+}
+.regulatory-badge--probation {
+  background: rgba(234, 179, 8, 0.06);
+  border: 1px solid rgba(234, 179, 8, 0.25);
+  color: #eab308;
+}
+.regulatory-badge--registered {
+  background: rgba(74, 222, 128, 0.06);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+  color: #4ade80;
+}
+.regulatory-badge-caveat {
+  color: var(--text-3);
+  font-weight: 300;
+  font-style: italic;
+  margin-top: 6px;
+  font-size: 11.5px;
 }
 </style>

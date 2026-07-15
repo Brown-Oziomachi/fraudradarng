@@ -9,11 +9,15 @@
 const props = defineProps({
   illustration: {
     type: String,
-    default: '/FRLOGO.png', // <- your file in /public
+    default: '/FRLOGO.png',
   },
   hashtag: {
     type: String,
     default: '#StopScamsNG',
+  },
+  hashtagImage: {
+    type: String,
+    default: '/bannerFRNG.png', 
   },
   handles: {
     type: Object,
@@ -26,6 +30,30 @@ const props = defineProps({
       tiktok: '@fraudradarng',
     }),
   },
+})
+
+const isHashtagModalOpen = ref(false)
+
+function openHashtagModal() {
+  isHashtagModalOpen.value = true
+  document.body.style.overflow = 'hidden'
+}
+
+function closeHashtagModal() {
+  isHashtagModalOpen.value = false
+  document.body.style.overflow = ''
+}
+
+function handleModalKeydown(e) {
+  if (e.key === 'Escape') closeHashtagModal()
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleModalKeydown)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleModalKeydown)
+  document.body.style.overflow = ''
 })
 
 const platforms = computed(() => [
@@ -51,10 +79,10 @@ const platforms = computed(() => [
     bg: '#2947d1',
   },
   {
-    id: 'linkedin',
-    label: 'LinkedIn',
+    id: 'telegram',
+    label: 'Telegram',
     handle: props.handles.linkedin,
-    href: `https://linkedin.com/company/${props.handles.linkedin.replace('@', '')}`,
+    href: `https://t.me/+wIGxpCLhiBcwMTZk/${props.handles.linkedin.replace('@', '')}`,
     bg: '#1f4fc9',
   },
   {
@@ -81,14 +109,17 @@ const platforms = computed(() => [
         <h2 id="follow-heading">Follow FRNG</h2>
         <p>
           Follow and engage with us to stay updated and help spread the word.
-          Let's make <strong class="tag">{{ hashtag }}</strong> reach every Nigerian, one
-          feed at a time. 🤝
+          Let's make
+          <button type="button" class="tag tag-btn" @click="openHashtagModal">
+            {{ hashtag }}
+          </button>
+          reach every Nigerian, one feed at a time. 🤝
         </p>
 
         <ul class="grid">
           <li v-for="p in platforms" :key="p.id">
-            <a
-              :href="p.href"
+            
+             <a :href="p.href"
               target="_blank"
               rel="noopener noreferrer"
               class="card"
@@ -104,7 +135,7 @@ const platforms = computed(() => [
 
       <div class="follow-art" aria-hidden="true">
         <img
-          v-if="illustration"
+        v-if="illustration"
           :src="illustration"
           alt=""
           class="illustration"
@@ -112,6 +143,34 @@ const platforms = computed(() => [
         />
       </div>
     </div>
+
+    <Transition name="modal-fade">
+      <div
+        v-if="isHashtagModalOpen"
+        class="hashtag-modal-overlay"
+        @click.self="closeHashtagModal"
+      >
+        <div
+          class="hashtag-modal"
+          role="dialog"
+          aria-modal="true"
+          :aria-label="hashtag"
+        >
+          <button
+            type="button"
+            class="hashtag-modal-close"
+            aria-label="Close"
+            @click="closeHashtagModal"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <img :src="hashtagImage" :alt="hashtag" class="hashtag-modal-image" />
+          <p class="hashtag-modal-caption">{{ hashtag }}</p>
+        </div>
+      </div>
+    </Transition>
   </section>
 </template>
 
@@ -233,5 +292,100 @@ export default { data: () => ({ icons }) }
   max-width: 460px;
   height: auto;
   display: block;
+}
+
+.tag-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent);
+}
+
+.tag-btn:hover,
+.tag-btn:focus-visible {
+  text-decoration-color: var(--accent);
+}
+
+.hashtag-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.hashtag-modal {
+  position: relative;
+  max-width: min(560px, 92vw);
+  max-height: 88vh;
+  background: var(--bg);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+.hashtag-modal-image {
+  width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+  display: block;
+  background: #0a0a0b;
+}
+
+.hashtag-modal-caption {
+  margin: 0;
+  padding: 16px 20px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 15px;
+}
+
+.hashtag-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.hashtag-modal-close:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.modal-fade-enter-active .hashtag-modal,
+.modal-fade-leave-active .hashtag-modal {
+  transition: transform 0.2s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+.modal-fade-enter-from .hashtag-modal {
+  transform: scale(0.95);
 }
 </style>

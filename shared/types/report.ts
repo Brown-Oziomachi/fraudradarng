@@ -33,10 +33,12 @@ export interface Report {
   websiteUrl?: string
   websiteName?: string
 
-  // NEW LOOKUP — phone_number target type
+  regulatoryStatus?: 'unregistered' | 'probation' | 'registered'
+  regulatoryStatusNote?: string
+  regulatoryStatusUpdatedAt?: string
+  
   phoneNumber?: string
 
-  // NEW LOOKUP — digital_wallet target type (OPay/PalmPay/Moniepoint tags)
   walletProvider?: 'opay' | 'palmpay' | 'moniepoint' | 'other'
   walletTag?: string
 

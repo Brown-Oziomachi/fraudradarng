@@ -319,7 +319,7 @@ const regulators = [
             these four categories are the most common, not the only ones we track.
           </p>
           <div class="contact-actions">
-            <NuxtLink to="/report/form" class="btn-primary">Report a scam</NuxtLink>
+            <NuxtLink to="/report/new" class="btn-primary">Report a scam</NuxtLink>
             <NuxtLink to="/reports" class="btn-secondary">Browse all reports</NuxtLink>
           </div>
         </div>

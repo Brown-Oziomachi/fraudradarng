@@ -8,7 +8,9 @@ export default defineNuxtConfig({
       firebaseAuthDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
       firebaseProjectId: process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID,
       firebaseStorageBucket: process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      firebaseAppId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID
+      firebaseAppId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID,
+      telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
+      telegramWebhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET,
     } 
   },
   nitro: {

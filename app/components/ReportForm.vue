@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref, computed, watch, onMounted } from 'vue'
 import type { Report, TargetType, ScamCategory } from '#shared/types/report'
+const reportsListCache = useReportsListCache()
 
 interface FormState {
   targetType: TargetType
@@ -12,9 +13,6 @@ interface FormState {
   companyAddress: string
   websiteUrl: string
   websiteName: string
-  // Cross-identifiers — collected regardless of targetType, since the same
-  // scammer often reuses one phone number or wallet/payment tag across
-  // different bank accounts, companies, or sites.
   phoneNumber: string
   walletTag: string
   reason: '' | 'fake_transfer' | 'romance_scam' | 'job_scam' | 'investment_scam' | 'other'
@@ -328,6 +326,7 @@ async function submitReport() {
 
       successReport.value = report
       showSuccessModal.value = true
+      reportsListCache.value.loaded = false
     }
   } catch (err: any) {
     if (err?.statusCode === 429) {

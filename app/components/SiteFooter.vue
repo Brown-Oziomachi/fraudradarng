@@ -285,7 +285,7 @@ const emergencyContacts = [
 
 .footer-link {
   font-size: 13.5px;
-  color: var(--text-2);
+  color: var(--text-3);
   text-decoration: none;
   transition: color 0.15s;
 }

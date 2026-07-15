@@ -76,6 +76,17 @@ const images = computed(() => {
 const previewImages = computed(() => images.value.slice(0, 3))
 const remainingCount = computed(() => Math.max(images.value.length - 3, 0))
 
+const REGULATORY_LABELS: Record<string, { label: string; tone: string }> = {
+  unregistered: { label: '🛑 Unregistered', tone: 'unregistered' },
+  probation: { label: '🟡 Under Probation', tone: 'probation' },
+  registered: { label: '🟢 SEC-Registered', tone: 'registered' },
+}
+
+const regulatoryBadge = computed(() => {
+  if (!props.report.regulatoryStatus) return null
+  return REGULATORY_LABELS[props.report.regulatoryStatus] ?? null
+})
+
 const CATEGORY_LABELS: Record<string, string> = {
   fintech_ussd: 'Fintech & USSD',
   social_commerce: 'Social commerce',
@@ -99,10 +110,6 @@ const previewDescription = computed(() => {
   return (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trimEnd() + '…'
 })
 
-// OWNERSHIP — no auth system yet, so ownership is tracked per
-// browser: ReportForm saves the new report's id into localStorage
-// on successful submit, and we check for it here. Only the browser
-// that created the report will see the edit icon.
 const isOwner = ref(false)
 onMounted(() => {
   try {
@@ -133,11 +140,19 @@ async function shareReport() {
 
 <template>
   <article class="card">
-   <div class="card-top">
+  <div class="card-top">
   <span class="type-chip">{{ typeLabel }}</span>
   <span v-if="categoryLabel" class="category-chip">{{ categoryLabel }}</span>
   <span class="badge-count" :class="{ high: report.reportCount ? report.reportCount >= 3 : false }">
     Flagged {{ report.reportCount ?? 1 }}x
+  </span>
+  <span
+    v-if="regulatoryBadge"
+    class="regulatory-chip"
+    :class="`regulatory-chip--${regulatoryBadge.tone}`"
+    :title="report.regulatoryStatusNote || 'Reflects regulatory registration status only — does not confirm or resolve this fraud report.'"
+  >
+    {{ regulatoryBadge.label }}
   </span>
 </div>
 
@@ -436,5 +451,21 @@ async function shareReport() {
   text-transform: uppercase;
   color: var(--text-3);
   margin-bottom: 2px;
+}
+
+.regulatory-chip {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px; border-radius: 3px;
+  cursor: help;
+}
+.regulatory-chip--unregistered {
+  color: #f87171; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);
+}
+.regulatory-chip--probation {
+  color: #eab308; background: rgba(234,179,8,0.08); border: 1px solid rgba(234,179,8,0.25);
+}
+.regulatory-chip--registered {
+  color: #4ade80; background: rgba(74,222,128,0.07); border: 1px solid rgba(74,222,128,0.18);
 }
 </style>

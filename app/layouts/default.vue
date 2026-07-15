@@ -96,6 +96,11 @@ function openSubscribeFromMobile() {
   isSubscribeOpen.value = true
 }
 
+function getIcon(name: string) {
+  const key = name.trim() as keyof typeof navIcons
+  return navIcons[key] ?? navIcons.info // fallback icon so a typo is visible, not invisible
+}
+
 // Small inline icon set for nav items — no external icon package needed.
 const navIcons: Record<string, string> = {
   grid: `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="1.5" fill="currentColor"/><rect x="13" y="3" width="8" height="8" rx="1.5" fill="currentColor"/><rect x="3" y="13" width="8" height="8" rx="1.5" fill="currentColor"/><rect x="13" y="13" width="8" height="8" rx="1.5" fill="currentColor"/></svg>`,
@@ -119,9 +124,8 @@ const navIcons: Record<string, string> = {
   recover: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>`,
   megaphone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 13v-2Z"/><path d="M11.6 16.8 13 22h-3l-1.6-5.6"/></svg>`,
   search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>`,
-  shieldCheck: `<svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 11 11 13 15 9"/></svg>`,
-
-}
+  cpu: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>`,
+  domainScan: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h6l3 3h5a2 2 0 0 1 2 2v1"/><circle cx="10" cy="16" r="5"/><path d="m17.5 19.5-3-3M8 16h4"/></svg>`,}
 
 // Each section has one promo (image + caption + Learn More link) shown on
 // desktop mega-menus only, plus a grid of items — each with an icon and a
@@ -157,8 +161,7 @@ const mobileSections = [
     items: [
       { label: 'Safety guides', to: '/guides', icon: 'book', desc: 'Practical steps to avoid common scams.' },
       { label: 'How it works', to: '/how-it-works', icon: 'info', desc: 'How reports get verified and shared.' },
-      { label: 'Domain Literacy', to: '/greenlist', icon: ' shieldCheck', desc: 'Master character-by-character URL inspection to catch clone sites instantly.' 
-}
+{ label: 'Domain Literacy', to: '/greenlist', icon: 'domainScan', desc: 'Master character-by-character URL inspection to catch clone sites instantly.' },
     ]
   },
   {
@@ -211,12 +214,6 @@ const mobileSections = [
       { label: 'Community Awareness', to: '/community', icon: 'megaphone', desc: 'Campaigns to spread scam awareness.' },
       { label: 'Check Before You Pay', to: '/lookupsearch', icon: 'search', desc: 'Look up a number before sending money.' },
       { label: 'FRNG Intelligence(Coming Soon)', to: '/intelligence',  icon: 'cpu', desc: 'Proactive cyber-threat analytics and real-time fraud prevention engines.' },
-      { 
-  label: 'SEC Enforcement', 
-  to: '/whistleblowing', 
-  icon: 'shield-alert', // or 'gavel' / 'security' 
-  desc: 'Live regulatory updates and company blacklists from the SEC.' 
-},
     ]
   },
 ]

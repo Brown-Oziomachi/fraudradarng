@@ -18,7 +18,6 @@ const navGroups = [
       { id: 'vault', label: 'Vault', icon: '▣' },
       { id: 'reporters', label: 'Reporters', icon: '◈' },
       { id: 'announcement', label: 'Announcement', icon: '◈', link: '/fraud/announcements' },
-      { id: 'sec-feed', label: 'SEC Feed', icon: '⚖' },
     ],
   },
   {
@@ -70,56 +69,6 @@ const {
     return $fetch('/api/obelisk/stats', { query: { window: activeWindow.value }, headers })
   },
   { server: false, lazy: true, watch: [activeWindow] }
-)
-
-const {
-  data: secFeedData,
-  pending: secFeedPending,
-  error: secFeedError,
-  refresh: refreshSecFeed,
-} = await useAsyncData(
-  'obelisk-sec-feed',
-  async () => {
-    const headers = await getAuthHeader()
-    return $fetch('/api/obelisk/sec-feed', { headers })
-  },
-  { server: false, lazy: true }
-)
-
-const pullingFeed = ref(false)
-async function pullSecFeed() {
-  pullingFeed.value = true
-  try {
-    const headers = await getAuthHeader()
-    const result = await $fetch('/api/obelisk/sec-feed/refresh', { method: 'POST', headers })
-    await refreshSecFeed()
-    alert(`Fetched ${result.fetched} item(s), ${result.added} new.`)
-  } catch (err) {
-    alert(`Failed to pull feed: ${err?.data?.statusMessage ?? err?.message ?? 'unknown error'}`)
-  } finally {
-    pullingFeed.value = false
-  }
-}
-
-const reviewingItem = ref(null)
-async function reviewSecFeedItem(id, action) {
-  reviewingItem.value = id
-  try {
-    const headers = await getAuthHeader()
-    await $fetch(`/api/obelisk/sec-feed/${id}`, { method: 'PATCH', body: { action }, headers })
-    if (secFeedData.value?.items) {
-      const item = secFeedData.value.items.find((i) => i.id === id)
-      if (item) item.status = action === 'publish' ? 'published' : 'dismissed'
-    }
-  } catch (err) {
-    alert(`Failed: ${err?.data?.statusMessage ?? err?.message ?? 'unknown error'}`)
-  } finally {
-    reviewingItem.value = null
-  }
-}
-
-const unreviewedSecItems = computed(() =>
-  (secFeedData.value?.items ?? []).filter((i) => i.status === 'unreviewed')
 )
 
 const search = ref('')
@@ -257,6 +206,7 @@ function reportMatches(report, q) {
     .toLowerCase()
   return hay.includes(q)
 }
+
 
 const filteredReporters = computed(() => {
   const q = reporterSearch.value.trim().toLowerCase()
@@ -469,6 +419,42 @@ async function handleUpdatePartnershipStatus(id, status) {
   }
 }
 
+const REGULATORY_STATUSES = [
+  { value: null, label: 'Not set' },
+  { value: 'unregistered', label: '🛑 Unregistered / Illegal operator' },
+  { value: 'probation', label: '🟡 Under regulatory probation' },
+  { value: 'registered', label: '🟢 Currently SEC-registered' },
+]
+
+const updatingRegStatus = ref(false)
+async function updateRegulatoryStatus(reportId, status, note) {
+  updatingRegStatus.value = true
+  try {
+    const headers = await getAuthHeader()
+    await $fetch(`/api/obelisk/reports/${reportId}/regulatory-status`, {
+      method: 'PATCH',
+      body: { status, note },
+      headers,
+    })
+
+    // Optimistic update everywhere this report might currently be rendered.
+    const applyUpdate = (r) => {
+      if (r?.id === reportId) {
+        r.regulatoryStatus = status
+        r.regulatoryStatusNote = note || undefined
+      }
+    }
+    applyUpdate(selectedReport.value)
+    statsData.value?.activity?.forEach(applyUpdate)
+    vaultData.value?.entries?.forEach(applyUpdate)
+    reportersData.value?.reporters?.forEach((r) => r.reports?.forEach(applyUpdate))
+  } catch (err) {
+    alert(`Failed to update regulatory status: ${err?.data?.statusMessage ?? err?.message ?? 'unknown error'}`)
+  } finally {
+    updatingRegStatus.value = false
+  }
+}
+
 function statusTonePartnership(status) {
   return { new: 'tone-warn', contacted: 'tone-muted', approved: 'tone-success', declined: 'tone-muted' }[status] || 'tone-muted'
 }
@@ -671,45 +657,6 @@ function statusTonePartnership(status) {
         </section>
       </div>
 
-      <!-- ================= SEC FEED ================= -->
-      <div v-show="activeTab === 'sec-feed'">
-        <div v-if="secFeedError" class="banner banner-error">Couldn't load the SEC feed queue.</div>
-        <section class="panel">
-          <div class="panel-head">
-            <h2>SEC enforcement feed — {{ unreviewedSecItems.length }} awaiting review</h2>
-            <button class="refresh" :disabled="pullingFeed" @click="pullSecFeed">
-              <span :class="{ spin: pullingFeed }">↻</span> Pull latest
-            </button>
-          </div>
-
-          <div v-for="item in unreviewedSecItems" :key="item.id" class="contact-card">
-            <div class="contact-head">
-              <span class="contact-name">{{ item.title }}</span>
-              <a :href="item.link" target="_blank" rel="noopener noreferrer" class="contact-email">View source</a>
-              <span class="muted">{{ fmtDate(item.pubDate) }}</span>
-            </div>
-            <p v-if="item.summary" class="contact-message">{{ item.summary }}</p>
-            <div class="flag-actions" style="margin-top: 10px;">
-              <button
-                class="delete-btn"
-                style="background: color-mix(in srgb, #4ade80 15%, transparent); color: #4ade80; border-color: color-mix(in srgb, #4ade80 35%, transparent);"
-                :disabled="reviewingItem === item.id"
-                @click="reviewSecFeedItem(item.id, 'publish')"
-              >
-                {{ reviewingItem === item.id ? 'Working…' : 'Publish' }}
-              </button>
-              <button class="dismiss-btn" :disabled="reviewingItem === item.id" @click="reviewSecFeedItem(item.id, 'dismiss')">
-                Dismiss
-              </button>
-            </div>
-          </div>
-
-          <p v-if="!secFeedPending && !unreviewedSecItems.length" class="empty">
-            Nothing new — pull the latest feed to check for updates.
-          </p>
-        </section>
-      </div>
-      
       <!-- ================= VAULT ================= -->
       <div v-show="activeTab === 'vault'">
         <div v-if="vaultError" class="banner banner-error">Couldn't reach the vault.</div>
@@ -957,6 +904,28 @@ function statusTonePartnership(status) {
             <div v-if="selectedReport.when"><dt>Submitted</dt><dd>{{ selectedReport.when }}</dd></div>
           </dl>
 
+          <div class="details-panel" style="margin: 0 0 16px;">
+            <h3 class="details-heading">Regulatory status (admin-set)</h3>
+            <p class="reporters-intro" style="margin-bottom: 10px;">
+              Reflects the entity's registration status only — does not confirm or resolve the fraud reports above.
+            </p>
+            <select
+              class="status-select"
+              :value="selectedReport.regulatoryStatus ?? ''"
+              :disabled="updatingRegStatus"
+              @change="updateRegulatoryStatus(selectedReport.id, $event.target.value || null, selectedReport.regulatoryStatusNote)"
+            >
+              <option v-for="opt in REGULATORY_STATUSES" :key="opt.label" :value="opt.value ?? ''">{{ opt.label }}</option>
+            </select>
+            <input
+              class="filter-input"
+              style="width: 100%; margin-top: 8px;"
+              placeholder="Optional note, e.g. 'Registered with SEC as of March 2026'"
+              :value="selectedReport.regulatoryStatusNote"
+              :disabled="updatingRegStatus"
+              @change="updateRegulatoryStatus(selectedReport.id, selectedReport.regulatoryStatus, $event.target.value)"
+            />
+          </div>
           <p v-if="selectedReport.description" class="report-description">{{ selectedReport.description }}</p>
 
           <div v-if="selectedReport.evidenceUrls?.length" class="image-strip">
