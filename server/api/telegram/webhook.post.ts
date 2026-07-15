@@ -70,8 +70,6 @@ function escapeHtml(str: string): string {
 }
 
 export default defineEventHandler(async (event) => {
-  // Verify this request genuinely came from Telegram, not a spoofed caller —
-  // Telegram sends back whatever secret_token you configured in setWebhook.
   const configuredSecret = useRuntimeConfig().telegramWebhookSecret
   const incomingSecret = getHeader(event, 'x-telegram-bot-api-secret-token')
   if (configuredSecret && incomingSecret !== configuredSecret) {
@@ -81,7 +79,6 @@ export default defineEventHandler(async (event) => {
   const update = await readBody<any>(event)
   const message = update?.message
   if (!message?.text || !message?.chat?.id) {
-    // Non-text update (sticker, photo, etc.) — acknowledge and ignore.
     return { ok: true }
   }
 
