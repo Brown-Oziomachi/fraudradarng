@@ -13,21 +13,17 @@
       </p>
 
       <!-- MOBILE / TABLET: collapsible jump-to-section dropdown -->
-      <details class="toc-mobile" :open="tocOpen" @toggle="tocOpen = $event.target.open">
+      <details class="toc-mobile" :open="tocOpen" @toggle="onToggle">
         <summary class="toc-mobile-summary">
           <span>Jump to a section</span>
           <svg class="toc-mobile-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
         </summary>
         <nav class="toc-mobile-list" aria-label="Table of contents">
-          <a
-            v-for="(section, i) in sections"
-            :key="section.id"
-            :href="`#${section.id}`"
-            class="toc-mobile-link"
-            @click="closeToc"
-          >
+          <a v-for="(section, i) in sections" :key="section.id" :href="`#${section.id}`" class="toc-mobile-link"
+            @click="closeToc">
             <span class="toc-mobile-num">{{ i + 1 }}</span>{{ section.title }}
           </a>
         </nav>
@@ -133,7 +129,8 @@
             <ul>
               <li>Service providers who host our infrastructure and database.</li>
               <li>Email delivery providers, to send alerts you've subscribed to.</li>
-              <li>Law enforcement or regulators, where required by law or where a report indicates possible criminal conduct.</li>
+              <li>Law enforcement or regulators, where required by law or where a report indicates possible criminal
+                conduct.</li>
             </ul>
           </section>
 
@@ -152,10 +149,13 @@
           <section id="retention" class="notice-section">
             <h2>7. Data retention</h2>
             <ul>
-              <li>Published reports are retained indefinitely to preserve the public fraud record, unless successfully disputed and removed or edited.</li>
+              <li>Published reports are retained indefinitely to preserve the public fraud record, unless successfully
+                disputed and removed or edited.</li>
               <li>Incomplete or abandoned draft submissions are deleted after 30 days.</li>
-              <li>Security and abuse-detection logs are retained for up to 2 years, consistent with data retention expectations under Nigeria's Cybercrimes Act.</li>
-              <li>Contact form messages and subscriber emails are retained until you ask us to remove them or unsubscribe.</li>
+              <li>Security and abuse-detection logs are retained for up to 2 years, consistent with data retention
+                expectations under Nigeria's Cybercrimes Act.</li>
+              <li>Contact form messages and subscriber emails are retained until you ask us to remove them or
+                unsubscribe.</li>
             </ul>
           </section>
 
@@ -174,7 +174,7 @@
             </p>
           </section>
 
-         <section id="cookies" class="notice-section">
+          <section id="cookies" class="notice-section">
             <h2>9. Cookies, local storage, and device identifiers</h2>
             <p>
               We use minimal cookies necessary for the site to function, such
@@ -193,7 +193,7 @@
               never tied to any account, and never visible to us or to anyone
               else. The only data this feature sends us is the search term
               itself, momentarily, to check for a matching report; that check
-              is not logged or linked back to you in any ways.
+              is not logged or linked back to you in any way.
             </p>
           </section>
 
@@ -242,6 +242,12 @@ const sections = [
 const tocOpen = ref(false)
 function closeToc() {
   tocOpen.value = false
+}
+
+function onToggle(e: Event) {
+  // currentTarget is the <details> element the event is bound to
+  const details = e.currentTarget as HTMLDetailsElement | null
+  tocOpen.value = !!details?.open
 }
 
 useHead({
@@ -313,6 +319,7 @@ useHead({
   margin: 0 0 2rem;
   overflow: hidden;
 }
+
 .toc-mobile-summary {
   display: flex;
   align-items: center;
@@ -325,9 +332,20 @@ useHead({
   color: var(--text-1);
   list-style: none;
 }
-.toc-mobile-summary::-webkit-details-marker { display: none; }
-.toc-mobile-chevron { color: var(--text-3); transition: transform 0.2s ease; flex-shrink: 0; }
-.toc-mobile[open] .toc-mobile-chevron { transform: rotate(180deg); }
+
+.toc-mobile-summary::-webkit-details-marker {
+  display: none;
+}
+
+.toc-mobile-chevron {
+  color: var(--text-3);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.toc-mobile[open] .toc-mobile-chevron {
+  transform: rotate(180deg);
+}
 
 .toc-mobile-list {
   display: flex;
@@ -336,6 +354,7 @@ useHead({
   max-height: 320px;
   overflow-y: auto;
 }
+
 .toc-mobile-link {
   display: flex;
   align-items: center;
@@ -346,8 +365,16 @@ useHead({
   text-decoration: none;
   border-bottom: 1px solid var(--border);
 }
-.toc-mobile-link:last-child { border-bottom: none; }
-.toc-mobile-link:hover { color: var(--accent); background: var(--surface-2, var(--bg)); }
+
+.toc-mobile-link:last-child {
+  border-bottom: none;
+}
+
+.toc-mobile-link:hover {
+  color: var(--accent);
+  background: var(--surface-2, var(--bg));
+}
+
 .toc-mobile-num {
   font-family: var(--mono);
   font-size: 0.7rem;
@@ -357,12 +384,22 @@ useHead({
 }
 
 /* ============ Body grid ============ */
-.body-grid { display: block; }
-.content-col { min-width: 0; }
-.toc-desktop { display: none; }
+.body-grid {
+  display: block;
+}
+
+.content-col {
+  min-width: 0;
+}
+
+.toc-desktop {
+  display: none;
+}
 
 @media (min-width: 1024px) {
-  .toc-mobile { display: none; }
+  .toc-mobile {
+    display: none;
+  }
 
   .body-grid {
     display: grid;
@@ -380,6 +417,7 @@ useHead({
     padding: 1.25rem 0.25rem;
     border-right: 1px solid var(--border);
   }
+
   .toc-desktop-label {
     font-family: var(--mono);
     font-size: 0.7rem;
@@ -389,6 +427,7 @@ useHead({
     margin-bottom: 0.75rem;
     padding: 0 0.5rem;
   }
+
   .toc-desktop-link {
     display: flex;
     align-items: baseline;
@@ -401,10 +440,12 @@ useHead({
     border-radius: 6px;
     transition: color 0.15s ease, background 0.15s ease;
   }
+
   .toc-desktop-link:hover {
     color: var(--text-1);
     background: var(--surface);
   }
+
   .toc-desktop-num {
     font-family: var(--mono);
     font-size: 0.68rem;
@@ -418,7 +459,11 @@ useHead({
   border-top: 1px solid var(--border);
   scroll-margin-top: 2rem;
 }
-.notice-section:first-of-type { border-top: none; padding-top: 0; }
+
+.notice-section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
 
 .notice-section h2 {
   font-family: var(--serif);
@@ -435,7 +480,10 @@ useHead({
   color: var(--text-2);
   margin: 0 0 1rem;
 }
-.notice-section p:last-child { margin-bottom: 0; }
+
+.notice-section p:last-child {
+  margin-bottom: 0;
+}
 
 .notice-section ul {
   margin: 0 0 1rem;
@@ -444,12 +492,16 @@ useHead({
   flex-direction: column;
   gap: 0.5rem;
 }
+
 .notice-section li {
   font-size: 0.98rem;
   line-height: 1.6;
   color: var(--text-2);
 }
-.notice-section ul:last-child { margin-bottom: 0; }
+
+.notice-section ul:last-child {
+  margin-bottom: 0;
+}
 
 .inline-link {
   color: var(--accent);
@@ -457,6 +509,8 @@ useHead({
 }
 
 @media (max-width: 480px) {
-  .page-title { font-size: 2rem; }
+  .page-title {
+    font-size: 2rem;
+  }
 }
 </style>
