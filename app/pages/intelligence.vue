@@ -110,7 +110,7 @@ useHead({
         </div>
       </div>
     </div>
-
+   <TelegramCallout bot-username="FraudRadarNGBot" />
   </div>
 </template>
 

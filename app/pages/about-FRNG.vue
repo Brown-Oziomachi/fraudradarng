@@ -1,6 +1,9 @@
 <script setup lang="ts">
 
 useHead({ title: 'About Us — Fraud Radar NG' })
+const founderName = ref('Sir Brown AD')
+const href = ref('https://sirbrownad.name.ng/bc/about')
+
 
 const headline = "Built because silence protects scammers, not victims."
 const headlineWords = headline.split(' ')
@@ -214,7 +217,7 @@ onBeforeUnmount(() => {
       <div class="signal-tag"><span class="signal-dot" /> SIGNAL DETECTED — WHO'S BEHIND THIS</div>
       <h2 class="block-title">Who's behind this</h2>
       <p class="block-body">
-        Fraud Radar NG is built and maintained by Sir Brown AD, a
+        Fraud Radar NG is built and maintained by <a :href target="_blank" class="highlight">{{ founderName }}</a>, a
         full-stack developer based in Abuja. It's an independent project
         built to give ordinary Nigerians a place to warn each other,
         without needing a government office or a corporation's permission.

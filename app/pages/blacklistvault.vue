@@ -34,6 +34,19 @@ interface ArchiveCase {
   year: number
 }
 
+const route = useRoute()
+
+onMounted(() => {
+  const categoryParam = route.query.category
+  if (typeof categoryParam === 'string' && (CHIPS as readonly string[]).includes(categoryParam)) {
+    activeChip.value = categoryParam as (typeof CHIPS)[number]
+  }
+  const qParam = route.query.q
+  if (typeof qParam === 'string') {
+    query.value = qParam
+  }
+})
+
 const featuredCases: FeaturedCase[] = [
   {
     id: 'FRNG-VLT-029',

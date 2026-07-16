@@ -174,8 +174,8 @@
             </p>
           </section>
 
-          <section id="cookies" class="notice-section">
-            <h2>9. Cookies and device identifiers</h2>
+         <section id="cookies" class="notice-section">
+            <h2>9. Cookies, local storage, and device identifiers</h2>
             <p>
               We use minimal cookies necessary for the site to function, such
               as remembering your theme preference. We also set a long-lived
@@ -185,6 +185,15 @@
               placed on their account by clearing browser data). This cookie
               does not identify you personally, does not track you across
               other websites, and is never used for advertising.
+            </p>
+            <p>
+              If you use our optional Watchlist feature, the items you choose
+              to track (such as an account number or company name) are stored
+              only in your browser's local storage — never on our servers,
+              never tied to any account, and never visible to us or to anyone
+              else. The only data this feature sends us is the search term
+              itself, momentarily, to check for a matching report; that check
+              is not logged or linked back to you in any way.
             </p>
           </section>
 

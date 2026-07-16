@@ -43,4 +43,5 @@ body {
     color: var(--text-2);
     font-family: var(--sans);
     transition: background 0.2s ease, color 0.2s ease;
+    border-radius: none;
 }

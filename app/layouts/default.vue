@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAnnouncementBar, ANNOUNCEMENT_BAR_HEIGHT } from '~/composables/useAnnouncementBar'
-
+import { ref } from 'vue'
 const route = useRoute()
 const { theme, toggleTheme, initTheme } = useTheme()
 const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()
@@ -20,10 +20,28 @@ function handleGlobalKeydown(e: KeyboardEvent) {
   }
 }
 const openDesktopMenu = ref<string | null>(null)
-const desktopMenuRefs = ref<Record<string, HTMLElement | null>>({})
+const openSubmenuItem = ref<string | null>(null)
+let submenuCloseTimer: ReturnType<typeof setTimeout> | null = null
 
-// Hover-driven mega-menu: a short close delay so moving the cursor from
-// the trigger down into the menu (across the gap) doesn't slam it shut.
+function openSubmenuOnHover(itemLabel: string) {
+  if (submenuCloseTimer) {
+    clearTimeout(submenuCloseTimer)
+    submenuCloseTimer = null
+  }
+  openSubmenuItem.value = itemLabel
+}
+
+function scheduleSubmenuClose() {
+  if (submenuCloseTimer) clearTimeout(submenuCloseTimer)
+  submenuCloseTimer = setTimeout(() => {
+    openSubmenuItem.value = null
+  }, 150)
+}
+
+const desktopMenuRefs = ref<Record<string, HTMLElement | null>>({})
+const openSubmenu = ref(null)
+
+
 let hoverCloseTimer: ReturnType<typeof setTimeout> | null = null
 
 function openMenuOnHover(id: string) {
@@ -44,7 +62,7 @@ function scheduleMenuClose() {
 onMounted(() => {
   initTheme()
   document.addEventListener('click', handleClickOutside)
-    document.addEventListener('keydown', handleGlobalKeydown)
+  document.addEventListener('keydown', handleGlobalKeydown)
 })
 
 onBeforeUnmount(() => {
@@ -96,6 +114,13 @@ function openSubscribeFromMobile() {
   isSubscribeOpen.value = true
 }
 
+// "Follow topic" in the desktop mega-menu reuses the existing Subscribe modal
+// rather than being a decorative button with no function.
+function openSubscribeFromDesktop() {
+  closeDesktopMenu()
+  isSubscribeOpen.value = true
+}
+
 function getIcon(name: string) {
   const key = name.trim() as keyof typeof navIcons
   return navIcons[key] ?? navIcons.info // fallback icon so a typo is visible, not invisible
@@ -125,43 +150,59 @@ const navIcons: Record<string, string> = {
   megaphone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 13v-2Z"/><path d="M11.6 16.8 13 22h-3l-1.6-5.6"/></svg>`,
   search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>`,
   cpu: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>`,
-  domainScan: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h6l3 3h5a2 2 0 0 1 2 2v1"/><circle cx="10" cy="16" r="5"/><path d="m17.5 19.5-3-3M8 16h4"/></svg>`,}
+  domainScan: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h6l3 3h5a2 2 0 0 1 2 2v1"/><circle cx="10" cy="16" r="5"/><path d="m17.5 19.5-3-3M8 16h4"/></svg>`,
+  bell: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
+}
 
-// Each section has one promo (image + caption + Learn More link) shown on
-// desktop mega-menus only, plus a grid of items — each with an icon and a
-// one-line description — shared by both desktop and mobile navigation.
+// Each section has one promo (image + eyebrow + headline + short blurb + link)
+// shown as the featured panel on desktop mega-menus, plus a flat list of
+// items (label + route) shown as plain text links — shared by both desktop
+// and mobile navigation. `item.desc` is kept as a hover tooltip on desktop
+// so the descriptive copy isn't lost even though the list is now text-only.
 const mobileSections = [
- {
-  id: 'reports',
-  label: 'Reports',
-  promo: {
-    image: '/reports.png',
-    eyebrow: 'Community reports',
-    title: 'See what\'s been flagged this week',
-    to: '/reports',
+  {
+    id: 'reports',
+    label: 'Reports',
+    promo: {
+      image: '/reports.png',
+      eyebrow: 'Community reports',
+      title: 'See what\'s been flagged this week',
+      blurb: 'Every report is cross-checked against past submissions and ranked by how many people flagged the same offender, so the most dangerous accounts surface first.',
+      to: '/reports',
+    },
+    items: [
+      { label: 'All reports', to: '/reports', icon: 'grid', desc: 'Browse every report submitted so far.' },
+      { label: 'Report a scam', to: '/report/new', icon: 'flag', desc: "Tell us who's targeting Nigerians right now." },
+      {
+        label: 'BlackList Vault',
+        to: '/blacklistvault',
+        icon: 'vault',
+        desc: 'Search confirmed scammers before you pay.',
+        children: [
+          { label: 'Forex & Ponzi schemes', to: { path: '/blacklistvault', query: { category: 'Forex Pools' } } },
+          { label: 'MLM & referral pyramids', to: { path: '/blacklistvault', query: { category: 'MLM / Matrix Loops' } } },
+          { label: 'Unregistered crowdfunding', to: { path: '/blacklistvault', query: { category: 'Unregistered Crowdfunding' } } },
+        ]
+      },
+      { label: 'Government Escalation Desk', to: '/fraud/patterns', icon: 'chart', desc: 'See which scam types are trending and get help.' },
+      { label: 'Flag a reports on FRNG', to: '/flag/report', icon: 'alert', desc: 'Dispute or flag an existing report.' },
+      { label: 'Most flagged Accounts', to: '/most-flagged', icon: 'users', desc: 'The handles and numbers reported most.' },
+    ]
   },
-  items: [
-    { label: 'All reports', to: '/reports', icon: 'grid', desc: 'Browse every report submitted so far.' },
-    { label: 'Report a scam', to: '/report/new', icon: 'flag', desc: "Tell us who's targeting Nigerians right now." },
-    { label: 'BlackList Vault', to: '/blacklistvault', icon: 'vault', desc: 'Search confirmed scammers before you pay.' },
-    { label: 'Government Escalation Desk', to: '/fraud/patterns', icon: 'chart', desc: 'See which scam types are trending and get help.' },
-    { label: 'Flag a reports on FRNG', to: '/flag/report', icon: 'alert', desc: 'Dispute or flag an existing report.' },
-    { label: 'Most flagged Accounts', to: '/most-flagged', icon: 'users', desc: 'The handles and numbers reported most.' },
-  ]
-},
   {
     id: 'resources',
     label: 'Resources',
     promo: {
       image: '/stay.png',
       eyebrow: 'Stay informed',
-      title: 'research scams, learn how to avoid them',
+      title: 'Research scams, learn how to avoid them',
+      blurb: 'Guides written directly from real fraud reports and updated as new scam patterns emerge across Nigeria.',
       to: '/guides',
     },
     items: [
       { label: 'Safety guides', to: '/guides', icon: 'book', desc: 'Practical steps to avoid common scams.' },
       { label: 'How it works', to: '/how-it-works', icon: 'info', desc: 'How reports get verified and shared.' },
-{ label: 'Domain Literacy', to: '/greenlist', icon: 'domainScan', desc: 'Master character-by-character URL inspection to catch clone sites instantly.' },
+      { label: 'Domain Literacy', to: '/greenlist', icon: 'domainScan', desc: 'Master character-by-character URL inspection to catch clone sites instantly.' },
     ]
   },
   {
@@ -171,6 +212,7 @@ const mobileSections = [
       image: '/about.png',
       eyebrow: 'About FRNG',
       title: 'Built by Nigerians, for Nigerians',
+      blurb: 'The people and principles behind Fraud Radar NG, and how we keep every report trustworthy and verifiable.',
       to: '/about-FRNG',
     },
     items: [
@@ -183,13 +225,14 @@ const mobileSections = [
       { label: 'Follow FRNG', to: '/follow', icon: 'share', desc: 'Stay updated across social media.' },
     ]
   },
-   {
+  {
     id: 'legal',
     label: 'Legal',
     promo: {
       image: '/legal.png',
       eyebrow: 'Stay informed',
       title: 'Legal and privacy information',
+      blurb: 'How your data is handled, how content gets moderated, and where FRNG stands on political neutrality.',
       to: '/privacy-notice',
     },
     items: [
@@ -199,13 +242,14 @@ const mobileSections = [
       { label: 'Disclaimer', to: '/disclaimer', icon: 'alert', desc: "What FRNG is, and isn't." },
     ]
   },
-   {
+  {
     id: 'help',
     label: 'Help & Reporting',
     promo: {
       image: '/trusts.png',
       eyebrow: 'Stay informed',
       title: 'Get help or report a scam',
+      blurb: 'Already been scammed? Start with the recovery pipeline, or check a number before you send another naira.',
       to: '/help',
     },
     items: [
@@ -213,7 +257,8 @@ const mobileSections = [
       { label: 'Naira Recovery Pipeline', to: '/recovery', icon: 'recover', desc: 'Steps to try and recover funds.' },
       { label: 'Community Awareness', to: '/community', icon: 'megaphone', desc: 'Campaigns to spread scam awareness.' },
       { label: 'Check Before You Pay', to: '/lookupsearch', icon: 'search', desc: 'Look up a number before sending money.' },
-      { label: 'FRNG Intelligence(Coming Soon)', to: '/intelligence',  icon: 'cpu', desc: 'Proactive cyber-threat analytics and real-time fraud prevention engines.' },
+      { label: 'My Watchlist', to: '/watchlist', icon: 'bell', desc: 'Get notified if a saved account or number is ever reported.' },
+      { label: 'FRNG Intelligence(Coming Soon)', to: '/intelligence', icon: 'cpu', desc: 'Proactive cyber-threat analytics and real-time fraud prevention engines.' },
     ]
   },
 ]
@@ -221,75 +266,123 @@ const mobileSections = [
 function close() {
   emit('update:modelValue', false)
 }
+
+const customMenu = ref({ visible: false, x: 0, y: 0 })
+
+function handleContextMenu(e: MouseEvent) {
+  e.preventDefault() // stops the browser's own right-click menu from appearing
+  customMenu.value = { visible: true, x: e.clientX, y: e.clientY }
+}
+
+function closeCustomMenu() {
+  customMenu.value.visible = false
+}
+
+function copyPageLink() {
+  if (typeof globalThis.window === 'undefined' || typeof globalThis.navigator === 'undefined') {
+    return
+  }
+
+  const clipboard = globalThis.navigator.clipboard
+  if (clipboard?.writeText) {
+    clipboard.writeText(globalThis.window.location.href)
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('contextmenu', handleContextMenu)
+  document.addEventListener('click', closeCustomMenu) // closes it on any normal left-click elsewhere
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('contextmenu', handleContextMenu)
+  document.removeEventListener('click', closeCustomMenu)
+})
 </script>
 
 <template>
   <div class="page">
-        <AnnouncementBar />
+    <AnnouncementBar />
 
     <header class="site-header" :class="{ 'has-announcement': isAnnouncementVisible }">
       <NuxtLink to="/" class="brand">
-  <img src="/FRLOGO.png" alt="Fraud Radar NG" class="brand-logo" />
-  <span class="brand-text">
-    <span class="brand-name">FRNG</span>
-    <span class="brand-subtext">Fraud Radar NIGERIA</span>
-  </span>
-</NuxtLink>
+        <img src="/FRLOGO.png" alt="Fraud Radar NG" class="brand-logo" />
+        <span class="brand-text">
+          <span class="brand-name">FRNG</span>
+          <span class="brand-subtext">Fraud Radar NIGERIA</span>
+        </span>
+      </NuxtLink>
 
       <!-- ===================== DESKTOP NAV ===================== -->
       <nav class="nav">
 
-        <div
-          v-for="section in mobileSections"
-          :key="section.id"
-          :ref="el => (desktopMenuRefs[section.id] = el as HTMLElement)"
-          class="nav-dropdown"
-          @mouseenter="openMenuOnHover(section.id)"
-          @mouseleave="scheduleMenuClose"
-        >
-          <button
-            type="button"
-            class="nav-dropdown-trigger"
+        <div v-for="section in mobileSections" :key="section.id"
+          :ref="el => (desktopMenuRefs[section.id] = el as HTMLElement)" class="nav-dropdown"
+          @mouseenter="openMenuOnHover(section.id)" @mouseleave="scheduleMenuClose">
+          <button type="button" class="nav-dropdown-trigger"
             :class="{ 'nav-dropdown-trigger--active': openDesktopMenu === section.id }"
-            :aria-expanded="openDesktopMenu === section.id"
-            @click="toggleDesktopMenu(section.id)"
-          >
+            :aria-expanded="openDesktopMenu === section.id" @click="toggleDesktopMenu(section.id)">
             {{ section.label }}
             <svg viewBox="0 0 24 24" width="11" height="11" fill="none" class="nav-caret">
-              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round" />
             </svg>
           </button>
 
+          <!-- MEGA-MENU: left = plain text link list (sidebar), right = one featured panel -->
           <div v-if="openDesktopMenu === section.id" class="mega-menu">
-            <div class="mega-menu-promo">
-              <img :src="section.promo.image" :alt="section.promo.title" class="mega-menu-promo-image" />
-              <div class="mega-menu-promo-text">
-                <span class="mega-menu-promo-eyebrow">{{ section.promo.eyebrow }}</span>
-                <span class="mega-menu-promo-title">{{ section.promo.title }}</span>
-                <NuxtLink
-                  :to="section.promo.to"
-                  class="mega-menu-promo-btn"
-                  @click="closeDesktopMenu"
-                >
-                  Learn more
+            <div class="mega-menu-list">
+              <div v-for="item in section.items" :key="item.to" class="mega-menu-list-item-wrap"
+                @mouseenter="item.children && openSubmenuOnHover(item.label)"
+                @mouseleave="item.children && scheduleSubmenuClose()">
+                <NuxtLink :to="item.to" class="mega-menu-list-item" :title="item.desc" @click="closeDesktopMenu">
+                  {{ item.label }}
+                  <svg v-if="item.children" viewBox="0 0 24 24" width="10" height="10" fill="none"
+                    class="submenu-caret">
+                    <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
                 </NuxtLink>
+
+                <!-- The actual submenu — only renders if this item has children AND it's the one currently hovered -->
+                <div v-if="item.children && openSubmenuItem === item.label" class="submenu">
+                  <NuxtLink v-for="child in item.children" :key="child.to" :to="child.to" class="submenu-item"
+                    @click="closeDesktopMenu">
+                    {{ child.label }}
+                  </NuxtLink>
+                </div>
               </div>
             </div>
 
-            <div class="mega-menu-links">
-              <NuxtLink
-                v-for="item in section.items"
-                :key="item.to"
-                :to="item.to"
-                class="mega-menu-item"
-                @click="closeDesktopMenu"
-              >
-                <span class="mega-menu-item-icon" v-html="navIcons[item.icon]" />
-                <span class="mega-menu-item-text">
-                  <span class="mega-menu-item-title">{{ item.label }}</span>
-                  <span class="mega-menu-item-desc">{{ item.desc }}</span>
-                </span>
-              </NuxtLink>
+            <div class="mega-menu-feature">
+              <span class="mega-menu-feature-rule"></span>
+              <span class="mega-menu-feature-eyebrow">{{ section.promo.eyebrow }}</span>
+
+              <div class="mega-menu-feature-row">
+                <div class="mega-menu-feature-text">
+                  <h3 class="mega-menu-feature-title">{{ section.promo.title }}</h3>
+                  <p class="mega-menu-feature-desc">{{ section.promo.blurb }}</p>
+                </div>
+                <img :src="section.promo.image" :alt="section.promo.title" class="mega-menu-feature-image" />
+              </div>
+
+              <div class="mega-menu-feature-actions">
+                <NuxtLink :to="section.promo.to" class="mega-menu-feature-btn mega-menu-feature-btn--primary"
+                  @click="closeDesktopMenu">
+                  All in {{ section.label }}
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none">
+                    <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </NuxtLink>
+                <button type="button" class="mega-menu-feature-btn mega-menu-feature-btn--outline"
+                  @click="openSubscribeFromDesktop">
+                  Subscribe
+                </button>
+                <NuxtLink to="/follow" type="button" class="mega-menu-feature-btn mega-menu-feature-btn--outline"
+                  @click="closeDesktopMenu">
+                  Follow FRNG
+                </NuxtLink>
+              </div>
             </div>
           </div>
         </div>
@@ -297,34 +390,29 @@ function close() {
         <NuxtLink to="/contact" class="nav-link">Contact us</NuxtLink>
 
         <!-- Inside .nav, alongside theme-toggle -->
-        <button
-          type="button"
-          class="search-trigger"
-          aria-label="Search reports and guides"
-          @click="isSearchOpen = true"
-        >
+        <button type="button" class="search-trigger" aria-label="Search reports and guides"
+          @click="isSearchOpen = true">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none">
-            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
-            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
           <kbd class="search-trigger-kbd">⌘K</kbd>
         </button>
 
-        <button
-          type="button"
-          class="theme-toggle"
-          :aria-label="theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'"
-          @click="toggleTheme"
-        >
+        <button type="button" class="theme-toggle"
+          :aria-label="theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'" @click="toggleTheme">
           <svg v-if="theme === 'light'" viewBox="0 0 24 24" width="15" height="15" fill="none">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79Z" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           <svg v-else viewBox="0 0 24 24" width="15" height="15" fill="none">
-            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2" />
+            <path
+              d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
         </button>
-
+       <WatchlistBell />
         <button type="button" class="nav-link" @click="isSubscribeOpen = true">
           Subscribe
         </button>
@@ -332,90 +420,71 @@ function close() {
         <NuxtLink to="/report/new" class="nav-link nav-link--cta">
           Report a scam
         </NuxtLink>
-        
+
       </nav>
 
- <div class="mobile-icon-group">
-  <button
-    type="button"
-    class="mobile-search-btn"
-    aria-label="Search reports and guides"
-    @click="isSearchOpen = true"
-  >
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-      <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
-      <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  </button>
+      <div class="mobile-icon-group">
+        <button type="button" class="mobile-search-btn" aria-label="Search reports and guides"
+          @click="isSearchOpen = true">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
 
-  <!-- Mobile hamburger -->
-  <button
-    type="button"
-    class="hamburger-btn"
-    aria-label="Open menu"
-    @click="toggleMobileMenu"
-  >
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-      <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  </button>
-</div>
+        <!-- Mobile hamburger -->
+        <button type="button" class="hamburger-btn" aria-label="Open menu" @click="toggleMobileMenu">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+            <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
     </header>
 
     <!-- ===================== MOBILE MENU OVERLAY ===================== -->
     <Transition name="mobile-menu">
       <div v-if="isMobileMenuOpen" class="mobile-menu">
-      <div class="mobile-menu-header">
-  <NuxtLink to="/" class="mobile-brand" @click="closeMobileMenu">
-    <img src="/FRLOGO.png" alt="Fraud Radar NG" class="mobile-brand-logo" />
-    <span class="mobile-brand-text">
-      <span class="mobile-brand-name">FRNG</span>
-      <span class="mobile-brand-subtext">Fraud Radar NIGERIA</span>
-    </span>
-  </NuxtLink>
-  <button type="button" class="mobile-close-btn" aria-label="Close menu" @click="closeMobileMenu">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-      <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  </button>
-</div>
+        <div class="mobile-menu-header">
+          <NuxtLink to="/" class="mobile-brand" @click="closeMobileMenu">
+            <img src="/FRLOGO.png" alt="Fraud Radar NG" class="mobile-brand-logo" />
+            <span class="mobile-brand-text">
+              <span class="mobile-brand-name">FRNG</span>
+              <span class="mobile-brand-subtext">Fraud Radar NIGERIA</span>
+            </span>
+          </NuxtLink>
+          <button type="button" class="mobile-close-btn" aria-label="Close menu" @click="closeMobileMenu">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
 
         <div class="mobile-menu-body">
-          <div
-            v-for="section in mobileSections"
-            :key="section.id"
-            class="accordion-section"
-          >
-            <button
-              type="button"
-              class="accordion-trigger"
-              @click="toggleAccordion(section.id)"
-            >
+          <div v-for="section in mobileSections" :key="section.id" class="accordion-section">
+            <button type="button" class="accordion-trigger" @click="toggleAccordion(section.id)">
               <span>{{ section.label }}</span>
-              <svg
-                viewBox="0 0 24 24"
-                width="16"
-                height="16"
-                fill="none"
-                class="accordion-chevron"
-                :class="{ 'accordion-chevron--open': openAccordion === section.id }"
-              >
-                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" class="accordion-chevron"
+                :class="{ 'accordion-chevron--open': openAccordion === section.id }">
+                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
               </svg>
             </button>
 
-            <Transition name="accordion">
+           <Transition name="accordion">
               <div v-if="openAccordion === section.id" class="accordion-content">
-                <NuxtLink
-                  v-for="item in section.items"
-                  :key="item.to"
-                  :to="item.to"
-                  class="accordion-item"
-                  @click="closeMobileMenu"
-                >
-                  <span class="accordion-item-title">{{ item.label }}</span>
-                  <span class="accordion-item-desc">{{ item.desc }}</span>
-                </NuxtLink>
+                <template v-for="item in section.items" :key="item.to">
+                  <NuxtLink :to="item.to" class="accordion-item" @click="closeMobileMenu">
+                    <span class="accordion-item-title">{{ item.label }}</span>
+                    <span class="accordion-item-desc">{{ item.desc }}</span>
+                  </NuxtLink>
+
+                  <div v-if="item.children" class="accordion-subitems">
+                    <NuxtLink v-for="child in item.children" :key="child.label" :to="child.to" class="accordion-subitem"
+                      @click="closeMobileMenu">
+                      {{ child.label }}
+                    </NuxtLink>
+                  </div>
+                </template>
               </div>
             </Transition>
           </div>
@@ -430,11 +499,14 @@ function close() {
           <button type="button" class="mobile-action-row" @click="toggleTheme">
             <span class="mobile-action-icon">
               <svg v-if="theme === 'light'" viewBox="0 0 24 24" width="15" height="15" fill="none">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79Z" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" />
               </svg>
               <svg v-else viewBox="0 0 24 24" width="15" height="15" fill="none">
-                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
-                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2" />
+                <path
+                  d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" />
               </svg>
             </span>
             <span>{{ theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode' }}</span>
@@ -451,10 +523,26 @@ function close() {
       <slot />
     </main>
 
-    <SiteFooter v-if="!route.meta.hideFooter"/>
+    <SiteFooter v-if="!route.meta.hideFooter" />
     <SearchModal v-model="isSearchOpen" />
     <SubscribeModal v-model="isSubscribeOpen" privacy-notice-url="/privacy-notice" />
   </div>
+
+  <Teleport to="body">
+    <div v-if="customMenu.visible" class="custom-context-menu"
+      :style="{ top: customMenu.y + 'px', left: customMenu.x + 'px' }" @click.stop>
+      <button type="button" @click="navigateTo('/report/new'); closeCustomMenu()">
+        🚩 Report a scam
+      </button>
+      <button type="button" @click="navigateTo('/reports'); closeCustomMenu()">
+        🔍 Search reports
+      </button>
+      <button type="button" @click="copyPageLink()">
+        🔗 Copy page link
+      </button>
+    </div>
+  </Teleport>
+
 </template>
 
 <style scoped>
@@ -462,7 +550,7 @@ function close() {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  
+
 }
 
 .site-header {
@@ -479,14 +567,25 @@ function close() {
   background: color-mix(in srgb, var(--bg) 85%, transparent);
 
 }
+
 .site-header.has-announcement {
-  top: 34px; /* ANNOUNCEMENT_BAR_HEIGHT — offset only while the bar is actually shown */
+  top: 34px;
+  /* ANNOUNCEMENT_BAR_HEIGHT — offset only while the bar is actually shown */
 }
 
 @media (max-width: 720px) {
-  .nav { display: none; }
-  .hamburger-btn { display: flex; }
-  .mobile-search-btn { display: flex; }
+  .nav {
+    display: none;
+  }
+
+  .hamburger-btn {
+    display: flex;
+  }
+
+  .mobile-search-btn {
+    display: flex;
+  }
+
   .site-header {
     position: fixed;
     top: 0;
@@ -495,13 +594,27 @@ function close() {
     width: 100%;
     padding: 10px 20px;
   }
+
   .site-header.has-announcement {
     top: 34px;
   }
-  .brand-logo { width: 44px; height: 44px; }
-  .brand-name { font-size: 35px; }
-  .content { padding-top: 68px; }
-  .content.has-announcement { padding-top: 102px; }
+
+  .brand-logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .brand-name {
+    font-size: 35px;
+  }
+
+  .content {
+    padding-top: 68px;
+  }
+
+  .content.has-announcement {
+    padding-top: 102px;
+  }
 }
 
 .brand {
@@ -556,9 +669,17 @@ function close() {
 }
 
 @keyframes brandShine {
-  0%   { background-position: 0% 0%; }
-  50%  { background-position: 100% 0%; }
-  100% { background-position: 0% 0%; }
+  0% {
+    background-position: 0% 0%;
+  }
+
+  50% {
+    background-position: 100% 0%;
+  }
+
+  100% {
+    background-position: 0% 0%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -600,7 +721,9 @@ function close() {
 }
 
 @media (max-width: 720px) {
-  .brand-subtext { font-size: 8px; }
+  .brand-subtext {
+    font-size: 8px;
+  }
 }
 
 .nav {
@@ -611,8 +734,13 @@ function close() {
 }
 
 @keyframes status-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.5); }
-  100% { box-shadow: 0 0 0 6px rgba(74,222,128,0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.5);
+  }
+
+  100% {
+    box-shadow: 0 0 0 6px rgba(74, 222, 128, 0);
+  }
 }
 
 .theme-toggle {
@@ -628,6 +756,7 @@ function close() {
   color: var(--text-2);
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
+
 .theme-toggle:hover {
   border-color: var(--border-hi);
   background: var(--surface-2);
@@ -635,15 +764,20 @@ function close() {
 }
 
 .nav-link {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em;
-  color: var(--text-2); text-decoration: none;
-  padding: 8px 14px; border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text-2);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: var(--radius);
   border: 1px solid var(--border);
   transition: border-color 0.15s, color 0.15s, background 0.15s;
   background: none;
   cursor: pointer;
   font-family: var(--mono);
 }
+
 .nav-link:hover {
   border-color: var(--border-hi);
   color: var(--text-1);
@@ -655,14 +789,16 @@ function close() {
   font-weight: 600;
   border-color: var(--accent);
 }
+
 .nav-link--cta:hover {
   background: #d4eb3c;
   border-color: #d4eb3c;
 }
 
-/* ============ DESKTOP MEGA-MENU — full viewport width ============ */
+/* ============ DESKTOP MEGA-MENU — sidebar list + featured panel ============ */
 .nav-dropdown {
-  position: static; /* mega-menu positions against viewport, not trigger */
+  position: static;
+  /* mega-menu positions against viewport, not trigger */
 }
 
 .nav-dropdown-trigger {
@@ -697,6 +833,7 @@ function close() {
   flex-shrink: 0;
   transition: transform 0.15s;
 }
+
 .nav-dropdown-trigger--active .nav-caret {
   transform: rotate(180deg);
 }
@@ -706,144 +843,156 @@ function close() {
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  width: 97vw;
+  width: 900px;
+  max-width: 92vw;
   background: var(--surface);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border-hi);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.16);
   border-radius: var(--radius);
   display: flex;
   z-index: 60;
   min-height: 320px;
-  padding-top: 1px;
-  margin-top: -1px;
-}
-
-.mega-menu-promo {
-  flex: 0 0 340px;
-  position: relative;
   overflow: hidden;
-}
-
-.mega-menu-promo-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-  position: absolute;
-  inset: 0;
-}
-
-.mega-menu-promo-text {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 32px;
-  height: 100%;
-  justify-content: flex-end;
-  background: linear-gradient(180deg, rgba(10,10,11,0) 40%, rgba(10,10,11,0.85) 100%);
-}
-
-.mega-menu-promo-eyebrow {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
-.mega-menu-promo-title {
-  font-family: var(--serif);
-  font-size: 20px;
-  color: #fdfdfa;
-  line-height: 1.3;
-  max-width: 260px;
-}
-
-.mega-menu-promo-btn {
   margin-top: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 18px;
-  border-radius: 999px;
-  background: #fdfdfa;
-  color: var(--accent, #2d7a3f);
-  font-family: var(--sans);
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.mega-menu-promo-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
-.mega-menu-links {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-content: start;
-  gap: 6px 48px;
-  padding: 40px 60px;
-}
-
-.mega-menu-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 14px 10px;
-  border-radius: var(--radius);
-  text-decoration: none;
-  transition: background 0.15s;
-}
-.mega-menu-item:hover {
-  background: var(--surface-2);
-}
-.mega-menu-item:hover .mega-menu-item-title {
-  color: var(--accent);
-}
-
-.mega-menu-item-icon {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: var(--accent-dim, rgba(74, 222, 128, 0.12));
-  color: var(--accent, #2d7a3f);
-}
-.mega-menu-item-icon :deep(svg) {
-  width: 16px;
-  height: 16px;
-}
-
-.mega-menu-item-text {
+/* Left column: flat list of plain text links, sidebar style */
+.mega-menu-list {
+  flex: 0 0 240px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  min-width: 0;
+  gap: 2px;
+  padding: 20px 12px;
+  background: var(--surface-2);
+  border-right: 1px solid var(--border);
 }
 
-.mega-menu-item-title {
+.mega-menu-list-item {
   font-family: var(--sans);
   font-size: 14px;
   font-weight: 700;
   color: var(--text-1);
-  transition: color 0.15s;
+  text-decoration: none;
+  padding: 11px 14px;
+  border-radius: var(--radius);
+  transition: background 0.15s, color 0.15s;
 }
 
-.mega-menu-item-desc {
+.mega-menu-list-item:hover {
+  background: var(--surface);
+  color: var(--accent, #2d7a3f);
+}
+
+/* Right column: one featured panel — rule, eyebrow, headline + image, actions */
+.mega-menu-feature {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 36px;
+}
+
+.mega-menu-feature-rule {
+  width: 42px;
+  height: 3px;
+  background: var(--accent, #2d7a3f);
+  border-radius: 2px;
+  margin-bottom: 14px;
+}
+
+.mega-menu-feature-eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 10px;
+}
+
+.mega-menu-feature-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.mega-menu-feature-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.mega-menu-feature-title {
+  font-family: var(--sans);
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--text-1);
+  margin: 0 0 10px 0;
+}
+
+.mega-menu-feature-desc {
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-3);
+  margin: 0;
+  max-width: 46ch;
+}
+
+.mega-menu-feature-image {
+  flex-shrink: 0;
+  width: 76px;
+  height: 76px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.mega-menu-feature-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.mega-menu-feature-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 18px;
+  border-radius: 6px;
   font-family: var(--sans);
   font-size: 12.5px;
-  line-height: 1.4;
-  color: var(--text-3);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s, border-color 0.15s;
+}
+
+.mega-menu-feature-btn--primary {
+  background: var(--accent, #2d7a3f);
+  color: #0a0a0b;
+}
+
+.mega-menu-feature-btn--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.mega-menu-feature-btn--outline {
+  background: none;
+  border-color: var(--border-hi);
+  color: var(--text-1);
+}
+
+.mega-menu-feature-btn--outline:hover {
+  border-color: var(--accent, #2d7a3f);
+  color: var(--accent, #2d7a3f);
 }
 
 .content {
@@ -855,20 +1004,28 @@ function close() {
   border-top: 1px solid var(--border);
   padding: 24px;
 }
+
 .footer-inner {
   max-width: 1120px;
   margin: 0 auto;
-  font-family: var(--mono); font-size: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
   color: var(--text-3);
-  display: flex; align-items: center; gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+
 .footer-logo {
   width: 16px;
   height: 16px;
   object-fit: contain;
   border-radius: 3px;
 }
-.footer-dot { color: var(--border-hi); }
+
+.footer-dot {
+  color: var(--border-hi);
+}
 
 /* ============ HAMBURGER (mobile only) ============ */
 .hamburger-btn {
@@ -907,16 +1064,36 @@ function close() {
 }
 
 @media (max-width: 720px) {
-  .mobile-icon-group { display: flex; }
+  .mobile-icon-group {
+    display: flex;
+  }
 }
 
 @media (max-width: 720px) {
-  .nav { display: none; }
-  .hamburger-btn { display: flex; }
-  .mobile-search-btn { display: flex; } 
-  .site-header { padding: 10px 20px; }
-  .brand-logo { width: 44px; height: 44px; }
-  .brand-name { font-size: 35px; }
+  .nav {
+    display: none;
+  }
+
+  .hamburger-btn {
+    display: flex;
+  }
+
+  .mobile-search-btn {
+    display: flex;
+  }
+
+  .site-header {
+    padding: 10px 20px;
+  }
+
+  .brand-logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .brand-name {
+    font-size: 35px;
+  }
 }
 
 /* ============ MOBILE MENU OVERLAY ============ */
@@ -938,12 +1115,14 @@ function close() {
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
+
 .mobile-brand {
   display: flex;
   align-items: center;
   gap: 8px;
   text-decoration: none;
 }
+
 .mobile-brand-logo {
   width: 36px;
   height: 36px;
@@ -978,6 +1157,7 @@ function close() {
   color: var(--text-3);
   margin-top: 2px;
 }
+
 .mobile-close-btn {
   display: flex;
   align-items: center;
@@ -1019,6 +1199,7 @@ function close() {
   transition: transform 0.2s ease;
   flex-shrink: 0;
 }
+
 .accordion-chevron--open {
   transform: rotate(180deg);
 }
@@ -1039,17 +1220,21 @@ function close() {
   border-radius: var(--radius);
   transition: background 0.15s, color 0.15s;
 }
+
 .accordion-item:hover {
   background: var(--surface-2);
 }
+
 .accordion-item-title {
   font-family: var(--mono);
   font-size: 13px;
   color: var(--text-2);
 }
+
 .accordion-item:hover .accordion-item-title {
   color: var(--text-1);
 }
+
 .accordion-item-desc {
   font-family: var(--sans);
   font-size: 11.5px;
@@ -1061,10 +1246,35 @@ function close() {
   transition: max-height 0.25s ease, opacity 0.2s ease;
   max-height: 400px;
 }
+
 .accordion-enter-from,
 .accordion-leave-to {
   max-height: 0;
   opacity: 0;
+}
+
+.accordion-subitems {
+  display: flex;
+  flex-direction: column;
+  padding-left: 20px;
+  margin-bottom: 6px;
+  border-left: 1px dashed var(--border);
+  margin-left: 12px;
+}
+
+.accordion-subitem {
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-3);
+  text-decoration: none;
+  border-radius: var(--radius);
+  transition: color 0.15s, background 0.15s;
+}
+
+.accordion-subitem:hover {
+  color: var(--text-1);
+  background: var(--surface-2);
 }
 
 .mobile-menu-footer {
@@ -1091,6 +1301,7 @@ function close() {
   cursor: pointer;
   text-align: left;
 }
+
 .mobile-action-icon {
   display: flex;
   align-items: center;
@@ -1116,6 +1327,7 @@ function close() {
   border-radius: var(--radius);
   text-decoration: none;
 }
+
 .mobile-cta:hover {
   background: #d4eb3c;
 }
@@ -1125,6 +1337,7 @@ function close() {
 .mobile-menu-leave-active {
   transition: opacity 0.2s ease;
 }
+
 .mobile-menu-enter-from,
 .mobile-menu-leave-to {
   opacity: 0;
@@ -1135,6 +1348,7 @@ function close() {
   background: var(--surface-2);
   color: var(--text-1);
 }
+
 .search-trigger-kbd {
   font-family: var(--mono);
   font-size: 9.5px;
@@ -1143,9 +1357,13 @@ function close() {
   border-radius: 3px;
   padding: 1px 4px;
 }
+
 @media (max-width: 720px) {
-  .search-trigger { display: none; }
+  .search-trigger {
+    display: none;
+  }
 }
+
 @media (max-width: 720px) {
   .site-header {
     position: fixed;
@@ -1156,7 +1374,8 @@ function close() {
   }
 
   .site-header.has-announcement {
-    top: 34px; /* ANNOUNCEMENT_BAR_HEIGHT */
+    top: 34px;
+    /* ANNOUNCEMENT_BAR_HEIGHT */
   }
 
   .content {
@@ -1164,7 +1383,91 @@ function close() {
   }
 
   .content.has-announcement {
-    padding-top: 102px; /* 68px header + 34px bar */
+    padding-top: 102px;
+    /* 68px header + 34px bar */
   }
+}
+
+.mega-menu-list-item-wrap {
+  position: relative;
+  /* anchors the submenu to THIS item, not the page */
+}
+
+.submenu-caret {
+  margin-left: auto;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+/* Make the parent link a flex row so the caret sits to the right */
+.mega-menu-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.submenu {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  /* sits to the RIGHT of the item, not below it */
+  margin-left: 4px;
+  min-width: 200px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 70;
+  /* higher than .mega-menu's z-index: 60, so it sits above it */
+}
+
+.submenu-item {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text-2);
+  text-decoration: none;
+  padding: 9px 12px;
+  border-radius: var(--radius);
+  transition: background 0.15s, color 0.15s;
+}
+
+.submenu-item:hover {
+  background: var(--surface-2);
+  color: var(--text-1);
+}
+
+.custom-context-menu {
+  position: fixed;
+  z-index: 500;
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+}
+
+.custom-context-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: var(--text-1);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.custom-context-menu button:hover {
+  background: var(--surface-2);
 }
 </style>
