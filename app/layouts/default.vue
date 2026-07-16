@@ -179,9 +179,9 @@ const mobileSections = [
         icon: 'vault',
         desc: 'Search confirmed scammers before you pay.',
         children: [
-          { label: 'Forex & Ponzi schemes', to: { path: '/blacklistvault', query: { category: 'Forex Pools' } } },
-          { label: 'MLM & referral pyramids', to: { path: '/blacklistvault', query: { category: 'MLM / Matrix Loops' } } },
-          { label: 'Unregistered crowdfunding', to: { path: '/blacklistvault', query: { category: 'Unregistered Crowdfunding' } } },
+          { label: 'Forex & Ponzi schemes', to: '/blacklistvault?category=Forex Pools', key: 'forex' },
+          { label: 'MLM & referral pyramids', to: '/blacklistvault?category=MLM / Matrix Loops', key: 'mlm' },
+          { label: 'Unregistered crowdfunding', to: '/blacklistvault?category=Unregistered Crowdfunding', key: 'crowdfunding' },
         ]
       },
       { label: 'Government Escalation Desk', to: '/fraud/patterns', icon: 'chart', desc: 'See which scam types are trending and get help.' },
@@ -412,7 +412,7 @@ onBeforeUnmount(() => {
               stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
         </button>
-       <WatchlistBell />
+        <WatchlistBell />
         <button type="button" class="nav-link" @click="isSubscribeOpen = true">
           Subscribe
         </button>
@@ -470,7 +470,7 @@ onBeforeUnmount(() => {
               </svg>
             </button>
 
-           <Transition name="accordion">
+            <Transition name="accordion">
               <div v-if="openAccordion === section.id" class="accordion-content">
                 <template v-for="item in section.items" :key="item.to">
                   <NuxtLink :to="item.to" class="accordion-item" @click="closeMobileMenu">
