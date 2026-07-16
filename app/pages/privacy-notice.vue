@@ -193,7 +193,7 @@
               never tied to any account, and never visible to us or to anyone
               else. The only data this feature sends us is the search term
               itself, momentarily, to check for a matching report; that check
-              is not logged or linked back to you in any way.
+              is not logged or linked back to you in any ways.
             </p>
           </section>
 
