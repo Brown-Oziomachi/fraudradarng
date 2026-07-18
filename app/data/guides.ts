@@ -1481,4 +1481,84 @@ Report to the Securities and Exchange Commission of Nigeria and the EFCC. Large-
 
 Every version of this scheme — whether branded as forex, crypto, agriculture, or an AI trading bot — relies on the same mathematical impossibility: paying guaranteed high returns from money that isn't being profitably invested at all. The packaging will keep evolving. The underlying test does not change: if a return is guaranteed, fixed, and higher than what real markets reliably produce, the "investment" is not an investment. It is a countdown.`,
   },
+  {
+    slug: 'vote-buying-election-fraud-nigeria',
+    title: 'Vote Buying in Nigeria — Why the Account Number That Pays You to Vote Is a Fraud Report Waiting to Happen',
+    preview:
+      'A stranger sends money to your account or calls your phone with an offer: vote a certain way, or show proof you did, and get paid. It feels like easy money on election day. It is actually a documented federal crime — and the account number behind it is exactly the kind of evidence that should never disappear once the polls close. Here is how vote buying actually works, why it is fraud against every Nigerian voter, and why reporting the number matters long after election day is over.',
+    category: 'Civic & Election Fraud',
+    datePublished: '2026-07-17',
+    image: '/vote.jpg',
+    content: `Election day in Nigeria has a familiar, quiet economy running underneath it — one that has nothing to do with the ballot box. A phone number circulates in a WhatsApp group. A POS agent sets up near a polling unit with a card reader instead of a ballot box. A "coordinator" walks the queue with a list of names and a stack of cash. By the time the polls close, thousands of naira have changed hands in exchange for something that was never supposed to be for sale: a vote.
+
+This is vote buying, and it is not a grey area. It is a specific, named criminal offence under Nigerian law, carrying real penalties for both the person who pays and the person who accepts. Yet it persists, election after election, because most of the people involved in it — the voter accepting ₦2,000 at a polling unit, the agent moving money from a burner account, the coordinator running the operation — never expect any of it to be traced back to them.
+
+This guide explains exactly how the practice works, what the law actually says, and why the account number or phone number used to pay you to vote is one of the most valuable pieces of evidence a citizen can hold onto — evidence that should not vanish the moment the results are announced.
+
+### What Vote Buying Actually Is, Legally
+
+Section 121 of the Electoral Act 2022 makes it an offence for any person — directly or indirectly — to give, lend, or offer money or any other valuable consideration to a voter in order to influence how they cast their ballot. It works both ways: offering the inducement is an offence, and accepting it is an offence.
+
+For years, the penalty attached to this section was widely seen as too weak to matter — a fine in the low hundreds of thousands of naira, or a short jail term, treated by well-funded campaigns as a routine cost of doing business. That changed with the 2026 amendment to the Electoral Act, which raised the stakes considerably: offenders now face a minimum of two years' imprisonment, a fine that can reach five million naira, or both — plus a ten-year ban from contesting any election. INEC's own leadership has since publicly named vote buying as one of the single biggest threats to the credibility of Nigerian elections, and has directed the Police, the EFCC, and the ICPC to actively pursue arrests and prosecutions, not just warnings.
+
+In other words: this is no longer a practice the law treats lightly. The gap that remains is not in the statute — it is in how rarely the transaction gets documented and reported before the evidence disappears.
+
+### How the Money Actually Moves
+
+Vote buying in Nigeria today rarely looks like a suitcase of cash changing hands in a back room. It has adapted to modern financial rails, and understanding the mechanics is the first step to recognizing it as fraud rather than as a harmless election-day tradition.
+
+**The queue-side cash handoff.** The oldest and still most visible method — an agent stationed near, but technically outside, the polling unit, paying voters directly after they show a marked ballot, a thumbprint photo, or simply their voter's card as proof they showed up and voted the "right" way.
+
+**The POS and bank transfer method.** As cash-based vote buying became easier for observers and security agents to photograph and report, operations shifted to Point-of-Sale terminals and instant bank transfers. A voter provides an account number, and payment arrives digitally within seconds — leaving a far more traceable trail than cash ever did, if anyone thinks to preserve it.
+
+**The WhatsApp and phone-number network.** Coordinators build lists of voters ahead of election day through WhatsApp groups, community associations, or local intermediaries, collecting phone numbers and account details in advance. On election day, disbursement is coordinated remotely, often by someone who never sets foot near the polling unit at all.
+
+**The "reward for proof" model.** Rather than paying upfront, some operations ask voters to prove their vote first — a photo of a marked ballot, a specific answer given to a "surveyor," or a code word — before payment is released. This variant is particularly aggressive, since it directly compromises the secrecy of the ballot, which is itself a separate protection under Nigerian electoral law.
+
+Every one of these methods shares one thing in common: a phone number or an account number sits at the center of the transaction, moving through Nigeria's formal banking and mobile money system, fully traceable by the institutions that process it — if a report is ever filed.
+
+### Why This Is Fraud Against Every Voter, Not Just a Personal Choice
+
+It is tempting to think of accepting ₦2,000 or ₦5,000 on election day as a private, victimless transaction — your vote, your business. It is not, and the reasoning matters.
+
+**It breaks the accountability chain that makes elections meaningful.** A representative's entire obligation to govern well rests on the fact that citizens can reward good governance with re-election and punish bad governance by voting them out. When a vote is purchased rather than earned, that accountability link snaps. The politician's incentive shifts from "govern well enough to deserve re-election" to "budget enough cash to buy the next election" — and governance quality predictably suffers as a result.
+
+**It systematically disenfranchises the poorest voters, not just anyone.** Vote buying operations do not target voters at random — they target areas and households where a few thousand naira represents real, urgent value, because that is where the inducement is most likely to work. This means the practice does not distribute its damage evenly across society; it specifically converts the votes of Nigeria's most economically vulnerable citizens into the cheapest votes to acquire, while wealthier voters are largely left alone. The result is a democracy that responds more to who can afford to pay than to what most citizens actually need.
+
+**It is frequently financed by proceeds that are themselves under scrutiny.** Large-scale vote buying operations require significant capital moved quickly through many small transactions — a pattern that overlaps closely with money laundering typologies the EFCC already investigates independently of any election. Reporting the account or number used is not only an electoral integrity matter; it can also surface financial crime that has nothing to do with any specific candidate.
+
+This is a position FRNG holds regardless of party. Vote buying happens across the political spectrum, funded by campaigns of every affiliation, and it corrodes the same democratic foundation no matter which party's agent is holding the cash. Reporting a number used for vote buying is not an act of opposition to any candidate — it is an act of defense of the process itself.
+
+### Why the Account Number Matters Even After the Election Is Over
+
+Here is the part most people miss: the value of reporting a vote-buying account number does not expire when the polls close.
+
+**Financial institutions can trace disbursement patterns.** A single account that sent hundreds of small, near-identical payments to different individuals within a narrow window on election day leaves a distinctive fingerprint in banking records — one that investigators can use to map an entire vote-buying network back to whoever funded it, long after the specific election is history.
+
+**Reported numbers build a record that outlasts one election cycle.** Individuals and networks that run vote-buying operations tend to reappear in subsequent elections, often using the same financial infrastructure. A report filed today becomes part of the evidence base the next investigation can draw on.
+
+**It removes the "nobody ever reports it" assumption operations rely on.** Vote-buying networks are built on the confident assumption that voters accepting payment will never document or report the transaction — after all, the voter benefited too, and reporting it feels like reporting yourself. That assumption is exactly what allows the practice to scale as openly as it does. Every report filed erodes that assumption a little further.
+
+### What to Document, and Where to Take It
+
+If you witness or are approached for vote buying, the single most useful thing you can do is capture the transaction details before they disappear — not necessarily in the heat of the moment, which can be unsafe, but as soon as it is safe to do so afterward.
+
+Useful evidence includes: the account number, account name, or phone number that sent or requested payment; a screenshot of the transfer alert or SMS notification, with the sender's details visible; the approximate time, date, and polling unit or location where the offer was made; any WhatsApp messages, voice notes, or screenshots coordinating the payment; and, if safely possible, a photo of anyone actively disbursing cash or operating a POS terminal for this purpose.
+
+**Report to INEC** through its official election-day hotlines and incident reporting channels, which exist specifically to receive and act on vote-buying reports in real time.
+
+**Report to the ICPC** (Independent Corrupt Practices and Other Related Offences Commission), which has specific statutory authority over bribery and inducement offences, including those connected to elections.
+
+**Report to the EFCC** where the scale of the operation suggests organized financial crime — large, coordinated fund movement, or a network operating across multiple polling units.
+
+**File the account or number as a report on FRNG.** An account or phone number used to disburse vote-buying payments is, at its core, exactly the kind of suspicious financial activity this platform exists to catalogue — traceable, reusable across future elections, and valuable to anyone else who encounters the same number and wants to know its history before engaging with it.
+
+### The Bigger Picture
+
+Free and fair elections are not an abstract ideal reserved for civics textbooks — they are the mechanism by which ordinary Nigerians hold power accountable without needing wealth, connections, or force to do it. Every vote purchased for a few thousand naira is a vote quietly removed from that mechanism, and a small piece of leverage handed instead to whoever had the largest campaign war chest.
+
+The account number that pays you to vote is not a footnote to election day. It is evidence of a federal offence, a thread that can be pulled to expose a larger financing network, and — increasingly, under the strengthened 2026 penalties — a genuine legal risk for whoever is on the other end of it.
+
+Vote freely. Document what you're offered. Report the number. Democracy holds up better when the price of a vote is zero.`,
+  },
 ]

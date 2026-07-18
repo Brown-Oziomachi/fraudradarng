@@ -22,7 +22,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [
-        { rel: 'icon', type: 'image/png', href: '/FRLOGO.png' }
+        { rel: 'icon', type: 'image/png', href: '/FRLOGO.png' },
       ],
       script: [
         {

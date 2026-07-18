@@ -109,6 +109,51 @@ useHead({
           </div>
         </div>
       </div>
+
+      <!-- ===================== For Banks & Fintechs ===================== -->
+      <section class="bank-section">
+        <div class="bank-intro">
+          <span class="eyebrow">FOR BANKS &amp; FINTECHS</span>
+          <h2 class="section-label">Built Into the Transfer Rail, Not Bolted On After</h2>
+          <p class="section-sub">
+            Every fraudulent transfer today moves through the same six steps a legitimate one does — initiate, validate, process, settle, confirm. The pipeline isn't the problem. What's missing is a single question asked before settlement: has this exact recipient already been reported, by anyone, anywhere? By the time a customer notices something's wrong, the funds have cleared and the mule account has already moved the money on. FRNG Intelligence sits inside that pipeline as an interception step — checking the recipient against a live, crowdsourced, cross-referenced database of reported bank accounts, phone numbers, wallet tags, and connected fraud syndicate clusters. A match doesn't take an investigation. It takes an API call and milliseconds, before the transfer settles instead of after a victim files a complaint.
+          </p>
+        </div>
+
+        <!-- Transaction flow diagram — horizontally scrollable on mobile so
+             all six steps stay readable instead of shrinking to illegible. -->
+        <div class="flow-scroll-wrap">
+          <img
+            src="/frng-transaction-flow2.png"
+            alt="FRNG Intelligence transaction flow: initiate transfer, bank validation, processing, FRNG Intelligence scan for reported fraud, settlement, confirmation"
+            class="flow-img"
+          />
+        </div>
+        <p class="scroll-hint">← swipe to see the full flow →</p>
+
+        <div class="benefits-grid">
+          <div class="benefit-card">
+            <h3>What You Gain</h3>
+            <ul>
+              <li>Interception before settlement — a match blocks or flags the transfer before funds move, not after, cutting the chargeback and dispute-resolution load that reactive fraud creates.</li>
+              <li>A shared, growing threat layer — not an isolated internal blacklist, but a crowdsourced database that gets stronger with every institution and every reporter that feeds into it.</li>
+              <li>Syndicate-level detection, not single-account lookups — FRNG clusters connected phone numbers, wallet tags, and URLs used by the same operation, so blocking one exposed identifier can surface the whole network behind it.</li>
+              <li>Lightweight integration — a single API call slotted into your existing validation or processing step, not a platform rebuild.</li>
+              <li>Lower fraud-support overhead — fewer "why didn't you catch this" complaints when the check already ran before the money left.</li>
+              <li>A visible, demonstrable commitment to proactive fraud prevention at a time when fraud headlines move customer trust fast.</li>
+            </ul>
+          </div>
+          <div class="benefit-card">
+            <h3>What Your Customers Gain</h3>
+            <ul>
+              <li>Their transfer is checked against known scam patterns before the money moves, not after it's already gone.</li>
+              <li>When something is flagged, resolution is immediate — a blocked transaction beats weeks of bank freeze-letters and recovery pipelines.</li>
+              <li>Real protection at the moment it matters, instead of a "we're sorry this happened" after the fact.</li>
+              <li>Zero added friction — the check runs invisibly inside the transfer they were already making, no extra step, no extra app.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
     </div>
    <TelegramCallout bot-username="FraudRadarNGBot" />
   </div>
@@ -342,5 +387,130 @@ useHead({
 @keyframes ripple {
   0% { r: 15px; opacity: 0.6; }
   100% { r: 60px; opacity: 0; }
+}
+
+/* ============ For Banks & Fintechs section ============ */
+.bank-section {
+  margin-top: 4rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--border-color, rgba(128, 128, 128, 0.15));
+}
+
+.bank-intro {
+  max-width: 780px;
+  margin: 0 auto 2.5rem;
+  text-align: left;
+}
+
+.eyebrow {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent-color, #22c55e);
+  margin-bottom: 0.6rem;
+}
+
+.bank-intro .section-sub {
+  max-width: 100%;
+}
+
+/* Flow diagram — desktop: contained, fully visible.
+   Mobile: horizontally scrollable strip so the six steps stay legible
+   instead of shrinking to fit the viewport. */
+.flow-scroll-wrap {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-color, rgba(128, 128, 128, 0.15));
+  margin-bottom: 0.6rem;
+}
+
+.flow-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.scroll-hint {
+  display: none;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  opacity: 0.5;
+  text-align: center;
+  margin: 0 0 2.5rem;
+}
+
+@media (max-width: 760px) {
+  .flow-scroll-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+  .flow-img {
+    width: auto;
+    max-width: none;
+    min-width: 820px; /* keeps each of the 6 steps at a readable size */
+    height: 320px;
+    object-fit: cover;
+  }
+  .scroll-hint {
+    display: block;
+  }
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 760px) {
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.benefit-card {
+  background: var(--card-bg, rgba(128, 128, 128, 0.05));
+  border: 1px solid var(--border-color, rgba(128, 128, 128, 0.15));
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+}
+
+.benefit-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  color: var(--accent-color, #22c55e);
+}
+
+.benefit-card ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.benefit-card li {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  opacity: 0.85;
+  padding-left: 1.1rem;
+  position: relative;
+}
+
+.benefit-card li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-color, #22c55e);
 }
 </style>

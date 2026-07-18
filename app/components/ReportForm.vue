@@ -3,6 +3,8 @@ import { reactive, ref, computed, watch, onMounted } from 'vue'
 import type { Report, TargetType, ScamCategory } from '#shared/types/report'
 const reportsListCache = useReportsListCache()
 
+type ReportWithState = Report & { state?: string }
+
 interface FormState {
   targetType: TargetType
   category: '' | ScamCategory
@@ -15,6 +17,7 @@ interface FormState {
   websiteName: string
   phoneNumber: string
   walletTag: string
+  state: string
   reason: '' | 'fake_transfer' | 'romance_scam' | 'job_scam' | 'investment_scam' | 'other'
   description: string
   amountInvolved: string
@@ -40,7 +43,21 @@ const PLATFORM_OPTIONS = [
   'Other'
 ] as const
 
+// 36 states + FCT. "Unspecified" is the default when a reporter skips it —
+// used by the geographic heatmap to bucket reports with no location given
+// rather than silently dropping them.
+const NIGERIA_STATES = [
+  'Unspecified',
+  'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue',
+  'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu',
+  'FCT (Abuja)', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina',
+  'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo',
+  'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara'
+] as const
+
 function buildForm(report?: Report | null): FormState {
+  const reportWithState = report as ReportWithState | null | undefined
+
   return {
     targetType: report?.targetType ?? 'bank_account',
     category: (report?.category as FormState['category']) ?? '',
@@ -53,6 +70,7 @@ function buildForm(report?: Report | null): FormState {
     websiteName: report?.websiteName ?? '',
     phoneNumber: report?.phoneNumber ?? '',
     walletTag: report?.walletTag ?? '',
+    state: reportWithState?.state ?? '',
     reason: (report?.reason as FormState['reason']) ?? '',
     description: report?.description ?? '',
     amountInvolved: report?.amountInvolved != null ? String(report.amountInvolved) : '',
@@ -297,6 +315,7 @@ async function submitReport() {
     websiteName: form.websiteName || undefined,
     phoneNumber: form.phoneNumber || undefined,
     walletTag: form.walletTag || undefined,
+    state: form.state || undefined,
     description: form.description,
     reason: form.reason,
     amountInvolved: form.amountInvolved ? Number(form.amountInvolved) : undefined,
@@ -453,6 +472,14 @@ function finishSuccess() {
                 <label for="walletTag">Wallet / payment tag (optional)</label>
                 <input id="walletTag" v-model="form.walletTag" class="input" placeholder="e.g. @quickcash, OPay tag" />
               </div>
+            </div>
+
+            <div class="form-group">
+              <label for="state">State where this happened (optional)</label>
+              <select id="state" v-model="form.state" class="input">
+                <option value="">Prefer not to say</option>
+                <option v-for="s in NIGERIA_STATES" :key="s" :value="s">{{ s }}</option>
+              </select>
             </div>
           </section>
 
@@ -720,6 +747,14 @@ function finishSuccess() {
               </div>
             </div>
 
+            <div class="form-group">
+              <label for="stateWizard">State where this happened (optional)</label>
+              <select id="stateWizard" v-model="form.state" class="input">
+                <option value="">Prefer not to say</option>
+                <option v-for="s in NIGERIA_STATES" :key="s" :value="s">{{ s }}</option>
+              </select>
+            </div>
+
             <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
 
             <div class="form-actions">
@@ -843,6 +878,10 @@ function finishSuccess() {
               <div v-if="form.walletTag" class="review-row">
                 <span class="review-label">Wallet / payment tag</span>
                 <span class="review-value">{{ form.walletTag }}</span>
+              </div>
+              <div v-if="form.state" class="review-row">
+                <span class="review-label">State</span>
+                <span class="review-value">{{ form.state }}</span>
               </div>
               <div v-if="formattedAmount" class="review-row">
                 <span class="review-label">Amount involved</span>

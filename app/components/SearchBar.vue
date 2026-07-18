@@ -128,7 +128,7 @@ onUnmounted(() => {
     <div v-if="isOpen" class="search-panel">
       <p v-if="loading" class="search-status">Searching…</p>
       <p v-else-if="hasSearched && !results.length" class="search-status">No matches found.</p>
-      <p v-else-if="!query.trim()" class="search-status">Start typing a bank, name, or account number.</p>
+      <p v-else-if="!query.trim()" class="search-status">Start typing a bank, name, phone-Number or account number.</p>
 
       <button
         v-for="r in results"

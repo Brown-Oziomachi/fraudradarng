@@ -152,6 +152,7 @@ const navIcons: Record<string, string> = {
   cpu: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>`,
   domainScan: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h6l3 3h5a2 2 0 0 1 2 2v1"/><circle cx="10" cy="16" r="5"/><path d="m17.5 19.5-3-3M8 16h4"/></svg>`,
   bell: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
+'shield-alert': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5z"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.5"/></svg>`,
 }
 
 // Each section has one promo (image + eyebrow + headline + short blurb + link)
@@ -179,7 +180,7 @@ const mobileSections = [
         icon: 'vault',
         desc: 'Search confirmed scammers before you pay.',
         children: [
-          { label: 'Forex & Ponzi schemes', to: '/blacklistvault?category=Forex Pools', key: 'forex' },
+          { label: 'Forex & Ponzi schemes', to: '/Forex-Ponzi-schemes' },
           { label: 'MLM & referral pyramids', to: '/blacklistvault?category=MLM / Matrix Loops', key: 'mlm' },
           { label: 'Unregistered crowdfunding', to: '/blacklistvault?category=Unregistered Crowdfunding', key: 'crowdfunding' },
         ]
@@ -238,8 +239,9 @@ const mobileSections = [
     items: [
       { label: 'Privacy Policy', to: '/privacy-notice', icon: 'lock', desc: 'How your data is handled.' },
       { label: 'Terms of Service', to: '/terms', icon: 'doc', desc: 'The rules for using FRNG.' },
-      { label: 'Politics', to: '/politics', icon: 'scale', desc: 'Our position on political neutrality.' },
+      { label: 'Civic & Election Fraud', to: '/politics', icon: 'scale', desc: 'Our position on political neutrality.' },
       { label: 'Disclaimer', to: '/disclaimer', icon: 'alert', desc: "What FRNG is, and isn't." },
+      { label: '2027 Election', to: '/choose-candidate', icon: 'shield-alert', desc: 'Compare candidates and verify claims before you vote.' },
     ]
   },
   {
@@ -256,7 +258,7 @@ const mobileSections = [
       { label: 'Help Center', to: '/help', icon: 'help', desc: 'Get support using the platform.' },
       { label: 'Naira Recovery Pipeline', to: '/recovery', icon: 'recover', desc: 'Steps to try and recover funds.' },
       { label: 'Community Awareness', to: '/community', icon: 'megaphone', desc: 'Campaigns to spread scam awareness.' },
-      { label: 'Check Before You Pay', to: '/lookupsearch', icon: 'search', desc: 'Look up a number before sending money.' },
+      { label: 'Threat Registry', to: '/lookupsearch', icon: 'search', desc: 'Look up a number before sending money.' },
       { label: 'My Watchlist', to: '/watchlist', icon: 'bell', desc: 'Get notified if a saved account or number is ever reported.' },
       { label: 'FRNG Intelligence(Coming Soon)', to: '/intelligence', icon: 'cpu', desc: 'Proactive cyber-threat analytics and real-time fraud prevention engines.' },
     ]
@@ -267,11 +269,33 @@ function close() {
   emit('update:modelValue', false)
 }
 
-const customMenu = ref({ visible: false, x: 0, y: 0 })
+const customMenu = ref({
+  visible: false,
+  x: 0,
+  y: 0,
+  isImage: false,
+  imageSrc: null as string | null
+})
 
 function handleContextMenu(e: MouseEvent) {
   e.preventDefault() // stops the browser's own right-click menu from appearing
-  customMenu.value = { visible: true, x: e.clientX, y: e.clientY }
+
+  const target = e.target as HTMLElement
+  const img = target.closest('img') as HTMLImageElement | null
+
+  // Clamp so the menu never renders off the right/bottom edge of the viewport
+  const menuWidth = 220
+  const menuHeight = img ? 260 : 160
+  const x = Math.min(e.clientX, window.innerWidth - menuWidth - 8)
+  const y = Math.min(e.clientY, window.innerHeight - menuHeight - 8)
+
+  customMenu.value = {
+    visible: true,
+    x,
+    y,
+    isImage: !!img,
+    imageSrc: img?.src ?? null
+  }
 }
 
 function closeCustomMenu() {
@@ -279,14 +303,61 @@ function closeCustomMenu() {
 }
 
 function copyPageLink() {
-  if (typeof globalThis.window === 'undefined' || typeof globalThis.navigator === 'undefined') {
-    return
-  }
-
+  if (typeof globalThis.window === 'undefined' || typeof globalThis.navigator === 'undefined') return
   const clipboard = globalThis.navigator.clipboard
   if (clipboard?.writeText) {
     clipboard.writeText(globalThis.window.location.href)
   }
+  closeCustomMenu()
+}
+
+async function copyImageAddress() {
+  if (!customMenu.value.imageSrc) return
+  const clipboard = globalThis.navigator?.clipboard
+  if (clipboard?.writeText) {
+    // resolve to an absolute URL so a relative /assets path still copies correctly
+    clipboard.writeText(new URL(customMenu.value.imageSrc, window.location.origin).href)
+  }
+  closeCustomMenu()
+}
+
+async function downloadImage() {
+  const src = customMenu.value.imageSrc
+  if (!src) return
+
+  try {
+    const response = await fetch(src)
+    const blob = await response.blob()
+    const blobUrl = URL.createObjectURL(blob)
+    const filename = src.split('/').pop()?.split('?')[0] || 'fraud-radar-ng.png'
+
+    const a = document.createElement('a')
+    a.href = blobUrl
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(blobUrl)
+  } catch {
+    // Cross-origin images without CORS headers can't be fetched as a blob —
+    // fall back to just opening it so the user can save it manually.
+    window.open(src, '_blank', 'noopener')
+  }
+
+  closeCustomMenu()
+}
+
+function shareImageOnWhatsApp() {
+  if (!customMenu.value.imageSrc) return
+  const absoluteSrc = new URL(customMenu.value.imageSrc, window.location.origin).href
+  const message = `Check this out on Fraud Radar NG — verify before you trust it: ${absoluteSrc}`
+  window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener')
+  closeCustomMenu()
+}
+
+function checkPageOnRegistry() {
+  navigateTo('/lookupsearch')
+  closeCustomMenu()
 }
 
 onMounted(() => {
@@ -307,7 +378,7 @@ onBeforeUnmount(() => {
       <NuxtLink to="/" class="brand">
         <img src="/FRLOGO.png" alt="Fraud Radar NG" class="brand-logo" />
         <span class="brand-text">
-          <span class="brand-name">FRNG</span>
+          <span class="brand-name">FRNG.</span>
           <span class="brand-subtext">Fraud Radar NIGERIA</span>
         </span>
       </NuxtLink>
@@ -528,14 +599,32 @@ onBeforeUnmount(() => {
     <SubscribeModal v-model="isSubscribeOpen" privacy-notice-url="/privacy-notice" />
   </div>
 
-  <Teleport to="body">
+<Teleport to="body">
     <div v-if="customMenu.visible" class="custom-context-menu"
       :style="{ top: customMenu.y + 'px', left: customMenu.x + 'px' }" @click.stop>
+
+      <!-- Image-specific actions — only shown when the right-click landed on an <img> -->
+      <template v-if="customMenu.isImage">
+        <button type="button" @click="downloadImage()">
+          ⬇️ Download image
+        </button>
+        <button type="button" @click="copyImageAddress()">
+          🖼️ Copy image address
+        </button>
+        <button type="button" @click="shareImageOnWhatsApp()">
+          💬 Share image on WhatsApp
+        </button>
+        <div class="custom-context-menu-divider" />
+      </template>
+
       <button type="button" @click="navigateTo('/report/new'); closeCustomMenu()">
         🚩 Report a scam
       </button>
       <button type="button" @click="navigateTo('/reports'); closeCustomMenu()">
         🔍 Search reports
+      </button>
+      <button type="button" @click="checkPageOnRegistry()">
+        🛡️ Check on Threat Registry
       </button>
       <button type="button" @click="copyPageLink()">
         🔗 Copy page link
@@ -700,6 +789,11 @@ onBeforeUnmount(() => {
   padding-bottom: 4px;
 }
 
+.custom-context-menu-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 2px;
+}
 /* accent underline that draws in beneath the subtext */
 .brand-subtext::after {
   content: '';

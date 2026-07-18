@@ -17,7 +17,6 @@ const reportsLinks = [
   { label: 'Browse reports', to: '/reports' },
   { label: 'Most flagged', to: '/most-flagged' },
   { label: 'Safety guides', to: '/guides' },
-  { label: 'Fraud categories', to: '/categories' },
   { label: 'Flag a reports on FRNG', to: '/flag/report' },
   { label: 'Most flagged Accounts', to: '/most-flagged' },
   { label: 'Check Before You Pay', to: '/lookupsearch' },
@@ -172,6 +171,7 @@ const emergencyContacts = [
 
     <SubscribeModal v-model="isSubscribeOpen" privacy-notice-url="/privacy-notice" />
   </footer>
+  <FrngWordmark block />
 </template>
 
 <style scoped>

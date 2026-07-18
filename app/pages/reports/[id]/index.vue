@@ -7,7 +7,7 @@ const id = route.params.id as string
 const detailCache = useReportDetailCache()
 
 const cached = detailCache.value[id]
-const report = ref<Report | null>(cached ?? null)
+const report = ref<Report & { state?: string } | null>(cached ?? null)
 const pending = ref(!cached)
 const error = ref<any>(null)
 
@@ -151,6 +151,11 @@ const sharedFields = computed(() => {
   }
   if (r.contactPlatform) {
     fields.push({ label: 'Contact platform', value: r.contactPlatform })
+  }
+  // ADDED: surfaces the state field captured on the report form, alongside
+  // the other cross-cutting details that aren't tied to a specific target type.
+  if (r.state) {
+    fields.push({ label: 'State', value: r.state })
   }
   return fields
 })
@@ -525,6 +530,11 @@ useHead(() => ({
           <div class="widget-snap-row">
             <span>Type</span>
             <span>{{ typeLabel }}</span>
+          </div>
+          <!-- ADDED: state row, only shown when the report has one set -->
+          <div v-if="report.state" class="widget-snap-row">
+            <span>State</span>
+            <span>{{ report.state }}</span>
           </div>
           <div class="widget-snap-row">
             <span>Reported</span>

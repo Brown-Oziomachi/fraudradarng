@@ -100,6 +100,9 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 const categoryFilter = ref<string | null>(null)
+// ADDED: state filter, mirrors categoryFilter — combined with AND logic
+// in filteredReports below so both can be active at once.
+const stateFilter = ref<string | null>(null)
 
 const categoryCounts = computed(() => {
   const counts: Record<string, number> = {}
@@ -111,9 +114,28 @@ const categoryCounts = computed(() => {
   return counts
 })
 
+// ADDED: state counts, from currently-loaded reports only (same caveat as
+// uniqueTargets above — this is a client-side tally, not a full scan).
+const stateCounts = computed(() => {
+  const counts: Record<string, number> = {}
+  for (const r of validReports.value) {
+      // Report may not have a typed `state` property; access dynamically to
+      // avoid TypeScript errors while still supporting state-based UI.
+      const st = (r as any).state as string | undefined
+      if (st) {
+        counts[st] = (counts[st] ?? 0) + 1
+      }
+    }
+  return counts
+})
+
 const filteredReports = computed(() => {
-  if (!categoryFilter.value) return validReports.value
-  return validReports.value.filter(r => r.category === categoryFilter.value)
+  return validReports.value.filter(r => {
+    if (categoryFilter.value && r.category !== categoryFilter.value) return false
+    const st = (r as any).state as string | undefined
+    if (stateFilter.value && st !== stateFilter.value) return false
+    return true
+  })
 })
 
 // ============ ADDED: desktop sidebar data + "magical" touches ============
@@ -171,6 +193,23 @@ const categoryBars = computed(() => {
     .map(([key, count]) => ({
       key,
       label: CATEGORY_LABELS[key] ?? key,
+      count,
+      pct: Math.round((count / max) * 100)
+    }))
+})
+
+// ADDED: "Reports by state" mini bar chart — the sidebar's lightweight
+// stand-in for a geographic heatmap on a page with no map component.
+// Capped to the top 6 states so the widget stays compact.
+const stateBars = computed(() => {
+  const entries = Object.entries(stateCounts.value)
+  const max = Math.max(1, ...entries.map(([, count]) => count))
+  return entries
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([key, count]) => ({
+      key,
+      label: key,
       count,
       pct: Math.round((count / max) * 100)
     }))
@@ -263,6 +302,20 @@ onBeforeUnmount(() => {
             </button>
           </div>
 
+          <!-- ADDED: state filter row, same chip pattern as the category
+               row above. Only renders once at least one loaded report has
+               a state set. -->
+          <div v-if="Object.keys(stateCounts).length" class="category-filter-row">
+            <button type="button" class="category-filter-chip" :class="{ active: !stateFilter }"
+              @click="stateFilter = null">
+              All states
+            </button>
+            <button v-for="(count, key) in stateCounts" :key="key" type="button" class="category-filter-chip"
+              :class="{ active: stateFilter === key }" @click="stateFilter = key">
+              {{ key }} ({{ count }})
+            </button>
+          </div>
+
           <div class="stats-row">
             <div class="stat-pill">
               <div class="stat-num">{{ displayTotal }}</div>
@@ -289,7 +342,7 @@ onBeforeUnmount(() => {
             No reports yet — be the first to flag a suspicious account.
           </p>
           <p v-else-if="!initialPending && !filteredReports.length" class="empty-text">
-            No reports match this category yet.
+            No reports match this filter yet.
           </p>
 
           <!-- ADDED: card-reveal wrapper gives each card a staggered fade/slide-in;
@@ -298,7 +351,7 @@ onBeforeUnmount(() => {
             <ReportCard :report="report" />
           </div>
 
-          <div v-if="cursor && !categoryFilter" class="load-more-row">
+          <div v-if="cursor && !categoryFilter && !stateFilter" class="load-more-row">
             <button type="button" class="load-more-btn" :disabled="loadingMore" @click="loadMore">
               {{ loadingMore ? 'Loading…' : 'Load more reports' }}
             </button>
@@ -323,6 +376,20 @@ onBeforeUnmount(() => {
           <div v-if="categoryBars.length" class="widget">
             <h3 class="widget-title">Trending scam types</h3>
             <div v-for="bar in categoryBars" :key="bar.key" class="widget-bar-row">
+              <span class="widget-bar-label">{{ bar.label }}</span>
+              <div class="widget-bar-track">
+                <div class="widget-bar-fill" :style="{ width: bar.pct + '%' }"></div>
+              </div>
+              <span class="widget-bar-count">{{ bar.count }}</span>
+            </div>
+          </div>
+
+          <!-- ADDED: "Reports by state" widget — a ranked list stand-in
+               for a geographic heatmap, reusing the same bar-row styling
+               as "Trending scam types" above. -->
+          <div v-if="stateBars.length" class="widget">
+            <h3 class="widget-title">Reports by state</h3>
+            <div v-for="bar in stateBars" :key="bar.key" class="widget-bar-row">
               <span class="widget-bar-label">{{ bar.label }}</span>
               <div class="widget-bar-track">
                 <div class="widget-bar-fill" :style="{ width: bar.pct + '%' }"></div>
