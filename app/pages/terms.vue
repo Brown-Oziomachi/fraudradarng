@@ -45,21 +45,17 @@ function closeToc() {
       </p>
 
       <!-- MOBILE / TABLET: collapsible jump-to-section dropdown -->
-      <details class="toc-mobile" :open="tocOpen" @toggle="tocOpen = $event.target.open">
+      <details class="toc-mobile" :open="tocOpen" @toggle="tocOpen = ($event.target as HTMLDetailsElement)?.open ?? false">
         <summary class="toc-mobile-summary">
           <span>Jump to a section</span>
           <svg class="toc-mobile-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
         </summary>
         <nav class="toc-mobile-list" aria-label="Table of contents">
-          <a
-            v-for="(section, i) in sections"
-            :key="section.id"
-            :href="`#${section.id}`"
-            class="toc-mobile-link"
-            @click="closeToc"
-          >
+          <a v-for="(section, i) in sections" :key="section.id" :href="`#${section.id}`" class="toc-mobile-link"
+            @click="closeToc">
             <span class="toc-mobile-num">{{ i + 1 }}</span>{{ section.title }}
           </a>
         </nav>
@@ -120,8 +116,10 @@ function closeToc() {
             </p>
             <p>By submitting a report, you confirm that:</p>
             <ul>
-              <li>The report is based on your own direct experience or firsthand evidence, to the best of your knowledge.</li>
-              <li>You have not submitted the report out of personal dispute, rumor, or malice unrelated to actual fraud.</li>
+              <li>The report is based on your own direct experience or firsthand evidence, to the best of your
+                knowledge.</li>
+              <li>You have not submitted the report out of personal dispute, rumor, or malice unrelated to actual fraud.
+              </li>
               <li>You understand the report will be public and may affect a real person or business named in it.</li>
             </ul>
           </section>
@@ -143,10 +141,12 @@ function closeToc() {
             <p>You agree not to use Fraud Radar NG to:</p>
             <ul>
               <li>Submit a report you know to be false, exaggerated, or fabricated.</li>
-              <li>Target an individual or business out of personal dispute, competition, or harassment rather than genuine fraud concerns.</li>
+              <li>Target an individual or business out of personal dispute, competition, or harassment rather than
+                genuine fraud concerns.</li>
               <li>Post content that is defamatory, obscene, threatening, or that violates the rights of others.</li>
               <li>Attempt to disrupt, scrape at scale, or interfere with the platform's normal operation.</li>
-              <li>Use the platform to collect personal data about other users or report subjects for any purpose outside its stated fraud-awareness function.</li>
+              <li>Use the platform to collect personal data about other users or report subjects for any purpose outside
+                its stated fraud-awareness function.</li>
             </ul>
             <p>
               Violation of these rules may result in content removal, account
@@ -350,6 +350,7 @@ function closeToc() {
   margin: 0 0 2rem;
   overflow: hidden;
 }
+
 .toc-mobile-summary {
   display: flex;
   align-items: center;
@@ -362,9 +363,20 @@ function closeToc() {
   color: var(--text-1);
   list-style: none;
 }
-.toc-mobile-summary::-webkit-details-marker { display: none; }
-.toc-mobile-chevron { color: var(--text-3); transition: transform 0.2s ease; flex-shrink: 0; }
-.toc-mobile[open] .toc-mobile-chevron { transform: rotate(180deg); }
+
+.toc-mobile-summary::-webkit-details-marker {
+  display: none;
+}
+
+.toc-mobile-chevron {
+  color: var(--text-3);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.toc-mobile[open] .toc-mobile-chevron {
+  transform: rotate(180deg);
+}
 
 .toc-mobile-list {
   display: flex;
@@ -373,6 +385,7 @@ function closeToc() {
   max-height: 320px;
   overflow-y: auto;
 }
+
 .toc-mobile-link {
   display: flex;
   align-items: center;
@@ -383,8 +396,16 @@ function closeToc() {
   text-decoration: none;
   border-bottom: 1px solid var(--border);
 }
-.toc-mobile-link:last-child { border-bottom: none; }
-.toc-mobile-link:hover { color: var(--accent); background: var(--surface-2, var(--bg)); }
+
+.toc-mobile-link:last-child {
+  border-bottom: none;
+}
+
+.toc-mobile-link:hover {
+  color: var(--accent);
+  background: var(--surface-2, var(--bg));
+}
+
 .toc-mobile-num {
   font-family: var(--mono);
   font-size: 0.7rem;
@@ -408,7 +429,9 @@ function closeToc() {
 }
 
 @media (min-width: 1024px) {
-  .toc-mobile { display: none; }
+  .toc-mobile {
+    display: none;
+  }
 
   .body-grid {
     display: grid;
@@ -426,6 +449,7 @@ function closeToc() {
     padding: 1.25rem 0.25rem;
     border-right: 1px solid var(--border);
   }
+
   .toc-desktop-label {
     font-family: var(--mono);
     font-size: 0.7rem;
@@ -435,6 +459,7 @@ function closeToc() {
     margin-bottom: 0.75rem;
     padding: 0 0.5rem;
   }
+
   .toc-desktop-link {
     display: flex;
     align-items: baseline;
@@ -447,10 +472,12 @@ function closeToc() {
     border-radius: 6px;
     transition: color 0.15s ease, background 0.15s ease;
   }
+
   .toc-desktop-link:hover {
     color: var(--text-1);
     background: var(--surface);
   }
+
   .toc-desktop-num {
     font-family: var(--mono);
     font-size: 0.68rem;
@@ -464,7 +491,11 @@ function closeToc() {
   border-top: 1px solid var(--border);
   scroll-margin-top: 2rem;
 }
-.terms-section:first-of-type { border-top: none; padding-top: 0; }
+
+.terms-section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
 
 .terms-section h2 {
   font-family: var(--serif);
@@ -473,6 +504,7 @@ function closeToc() {
   font-weight: 700;
   margin: 0 0 1rem;
 }
+
 .terms-section p {
   font-size: 0.95rem;
   line-height: 1.75;
@@ -480,7 +512,10 @@ function closeToc() {
   font-weight: 300;
   margin: 0 0 1rem;
 }
-.terms-section p:last-child { margin-bottom: 0; }
+
+.terms-section p:last-child {
+  margin-bottom: 0;
+}
 
 .terms-section ul {
   margin: 0 0 1rem;
@@ -489,21 +524,30 @@ function closeToc() {
   flex-direction: column;
   gap: 0.5rem;
 }
+
 .terms-section li {
   font-size: 0.95rem;
   line-height: 1.65;
   color: var(--text-2);
   font-weight: 300;
 }
-.terms-section ul:last-child { margin-bottom: 0; }
+
+.terms-section ul:last-child {
+  margin-bottom: 0;
+}
 
 .inline-link {
   color: var(--text-1);
   text-decoration: underline;
 }
-.inline-link:hover { color: var(--accent); }
+
+.inline-link:hover {
+  color: var(--accent);
+}
 
 @media (max-width: 480px) {
-  .page-title { font-size: 2rem; }
+  .page-title {
+    font-size: 2rem;
+  }
 }
 </style>

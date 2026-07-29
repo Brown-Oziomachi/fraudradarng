@@ -1,6 +1,13 @@
 <script setup lang="ts">
 const currentYear = new Date().getFullYear()
 const isSubscribeOpen = ref(false)
+const founderName = ref('Sir Brown AD')
+const showFounderModal = ref(false)
+const founderLinks = [
+  { label: 'X (Twitter)', href: 'https://x.com/@BrownC15427449', icon: 'x' as const },
+  { label: 'GitHub', href: 'https://github.com/Brown-Oziomachi', icon: 'github' as const },
+  { label: 'Website', href: 'https://sirbrownad.name.ng/bc/about', icon: 'globe' as const },
+]
 
 const aboutLinks = [
   { label: 'How it works', to: '/how-it-works' },
@@ -156,7 +163,9 @@ const emergencyContacts = [
 
       <!-- Centered copyright -->
       <p class="copyright">
-        Copyright © {{ currentYear }} Fraud Radar NG. Built by Sir Brown AD.
+        Copyright © {{ currentYear }} Fraud Radar NG. Built by <a href="#" class="highlight"
+          @click.prevent="showFounderModal = true"> {{ founderName }}
+        </a>.
         &nbsp;|&nbsp; All rights reserved.
       </p>
 
@@ -168,7 +177,7 @@ const emergencyContacts = [
         EFCC through their official channels.
       </p>
     </div>
-
+   <AboutFounderModal v-model="showFounderModal" :founder-name="founderName" :links="founderLinks" />
     <SubscribeModal v-model="isSubscribeOpen" privacy-notice-url="/privacy-notice" />
   </footer>
   <FrngWordmark block />
@@ -176,7 +185,7 @@ const emergencyContacts = [
 
 <style scoped>
 .site-footer {
-  background: var(--bg);
+  background: var(--surface);
   color: var(--text-2);
   border-top: 1px solid var(--border);
   padding: 64px 24px 40px;
@@ -380,6 +389,12 @@ const emergencyContacts = [
   font-size: 13px;
   color: var(--text-2);
   margin-bottom: 20px;
+}
+
+.highlight {
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: 20px;
 }
 
 .disclaimer {

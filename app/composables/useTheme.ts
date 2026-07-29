@@ -1,8 +1,8 @@
 // composables/useTheme.ts
 export function useTheme() {
-  const theme = useState<'light' | 'dark'>('theme', () => 'light')
+  const theme = useState<'light' | 'green'>('theme', () => 'light')
 
-  function applyTheme(value: 'light' | 'dark') {
+  function applyTheme(value: 'light' | 'green') {
     theme.value = value
     if (import.meta.client) {
       document.documentElement.setAttribute('data-theme', value)
@@ -11,13 +11,13 @@ export function useTheme() {
   }
 
   function toggleTheme() {
-    applyTheme(theme.value === 'light' ? 'dark' : 'light')
+    applyTheme(theme.value === 'light' ? 'green' : 'light')
   }
 
   function initTheme() {
     if (import.meta.client) {
-      const saved = localStorage.getItem('theme') as 'light' | 'dark' | null
-      const preferred = saved ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      const saved = localStorage.getItem('theme') as 'light' | 'green' | null
+      const preferred = saved ?? (window.matchMedia('(prefers-color-scheme: green)').matches ? 'green' : 'light')
       applyTheme(preferred)
     }
   }

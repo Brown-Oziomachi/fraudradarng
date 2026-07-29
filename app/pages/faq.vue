@@ -313,7 +313,6 @@ function toggle(key: string) {
 .faq-item {
   background: var(--surface, #fff);
   border: 1px solid var(--border);
-  border-radius: 14px;
   padding: 0 20px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }

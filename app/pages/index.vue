@@ -165,10 +165,6 @@ const flagLegend = [
   { n: 5, label: 'Fake engagement bait', body: '"Reply YES" simply confirms your number is active and reachable, marking you for further targeting.' }
 ]
 
-/* ============================================================
-   NEW: Fraud Files — expandable, click-to-reveal lessons across
-   technology, politics, everyday life and devices.
-   ============================================================ */
 const fraudFiles = reactive([
   {
     key: 'technology',
@@ -235,10 +231,7 @@ function revealItem(catKey: string, idx: number) {
   if (item) item.revealed = true
 }
 
-/* ============================================================
-   NEW: Live-signal toast — a single, dismissible nudge shown
-   once per session, not a repeating annoyance.
-   ============================================================ */
+
 const showToast = ref(false)
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -682,7 +675,18 @@ onUnmounted(() => {
         <div class="toast-title">New report just filed</div>
         <div class="toast-body">{{ tickerItems[0] }}</div>
       </div>
-      <NuxtLink to="/lookupsearch" class="toast-link" @click="dismissToast">View</NuxtLink>
+      <NuxtLink :to="`/reports/${validReports[0]?.id}`" class="toast-link">View</NuxtLink>
+      <button type="button" class="toast-close" @click="dismissToast" aria-label="Dismiss">×</button>
+    </div>
+  </Teleport>
+    <Teleport to="body">
+    <div v-if="showToast" class="toast">
+      <span class="toast-dot" />
+      <div class="toast-text">
+        <div class="toast-title">New report just filed</div>
+        <div class="toast-body">{{ tickerItems[0] }}</div>
+      </div>
+      <NuxtLink :to="`/reports/${validReports[1]?.id}`" class="toast-link">View</NuxtLink>
       <button type="button" class="toast-close" @click="dismissToast" aria-label="Dismiss">×</button>
     </div>
   </Teleport>
@@ -707,7 +711,6 @@ onUnmounted(() => {
   border-radius: 50%;
 }
 
-/* ============ SCROLL REVEAL ============ */
 .reveal {
   opacity: 0;
   transform: translateY(28px);
@@ -741,7 +744,7 @@ onUnmounted(() => {
 .hero-bg-image {
   position: absolute;
   inset: 0;
-  background-image: url('/FRNGLOGOO.png');
+  background-image: url('/ngf.png');
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -1005,12 +1008,11 @@ onUnmounted(() => {
 .btn--pill.btn--accent {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0a0a0b;
   font-weight: 700;
 }
 
 .btn--pill.btn--accent:hover {
-  background: #d4eb3c;
+  background: #3a6045;
   border-color: #d4eb3c;
   transform: translateY(-3px);
   box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 45%, transparent);
@@ -1071,13 +1073,13 @@ onUnmounted(() => {
 .btn--accent {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0a0a0b;
   font-weight: 700;
+    color: white;
 }
 
 .btn--accent:hover {
-  background: #d4eb3c;
-  border-color: #d4eb3c;
+  background: #34882f;
+  border-color: #eeefe9;
 }
 
 .btn--outline-dark {
@@ -1461,7 +1463,6 @@ onUnmounted(() => {
   align-items: center;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 18px;
   padding: 40px;
 }
 
@@ -1490,7 +1491,6 @@ onUnmounted(() => {
 .scam-callout-preview {
   background: var(--bg);
   border: 1px dashed var(--border-hi);
-  border-radius: 14px;
   padding: 24px;
   cursor: pointer;
   transition: border-color 0.2s ease, transform 0.2s ease;
@@ -1512,7 +1512,6 @@ onUnmounted(() => {
   background: color-mix(in srgb, var(--accent) 30%, transparent);
   color: var(--text-1);
   padding: 0 2px;
-  border-radius: 3px;
 }
 
 .preview-hint {
@@ -1557,7 +1556,6 @@ onUnmounted(() => {
 .lesson-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
   padding: 20px;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -1591,7 +1589,6 @@ onUnmounted(() => {
   background: var(--surface);
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
-  border-radius: var(--radius);
   padding: 24px 28px;
   text-decoration: none;
   transition: border-color 0.15s, transform 0.2s ease, box-shadow 0.2s ease;
@@ -1729,7 +1726,6 @@ onUnmounted(() => {
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 12px;
 }
 
 /* ============ FRAUD FILES ============ */
@@ -1765,7 +1761,6 @@ onUnmounted(() => {
 
 .fraud-category {
   border: 1px solid var(--border);
-  border-radius: var(--radius);
   background: var(--surface);
   overflow: hidden;
   transition: border-color 0.2s ease;
@@ -1850,7 +1845,6 @@ onUnmounted(() => {
   text-align: left;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
   padding: 16px;
   cursor: pointer;
   overflow: hidden;
@@ -1972,12 +1966,11 @@ onUnmounted(() => {
 .modal-card {
   position: relative;
   width: 100%;
-  max-width: 560px;
+  max-width: 960px;
   max-height: 88vh;
   overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--border-hi);
-  border-radius: 18px;
   padding: 36px;
 }
 

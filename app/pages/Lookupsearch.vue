@@ -219,7 +219,6 @@ function formatDate(iso: string | null) {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--border);
-  border-radius: var(--radius, 16px);
   padding: 2.75rem 2.25rem;
   box-shadow:
     0 30px 70px rgba(0, 0, 0, 0.45),

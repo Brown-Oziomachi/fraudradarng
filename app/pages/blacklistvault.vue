@@ -367,7 +367,7 @@ const hasResults = computed(() => resultCount.value > 0)
 
       <div class="v-anatomy-cta">
         <p>Spotting a platform matching these patterns right now?</p>
-        <NuxtLink to="/report/new" class="v-cta-btn">
+        <NuxtLink to="/report/new/" class="v-cta-btn">
           Report them on the FRNG Radar
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M5 12h14M13 5l7 7-7 7" />
@@ -445,7 +445,6 @@ const hasResults = computed(() => resultCount.value > 0)
   letter-spacing: 0.14em;
   color: var(--accent);
   border: 1px solid var(--accent-bdr);
-  border-radius: 2px;
   padding: 0.25rem 0.5rem;
   background: var(--accent-dim);
 }
@@ -502,7 +501,6 @@ const hasResults = computed(() => resultCount.value > 0)
   display: flex;
   align-items: center;
   border: 1px solid var(--border);
-  border-radius: 6px;
   background: var(--surface);
   padding: 0 0.875rem;
   transition: border-color 0.15s ease;
@@ -558,7 +556,6 @@ const hasResults = computed(() => resultCount.value > 0)
   color: var(--text-2);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 999px;
   padding: 0.4rem 0.875rem;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -617,7 +614,6 @@ const hasResults = computed(() => resultCount.value > 0)
 .v-case {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius, 8px);
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
@@ -757,7 +753,6 @@ const hasResults = computed(() => resultCount.value > 0)
   color: var(--danger);
   background: var(--danger-dim);
   border: 1px solid var(--danger-bdr);
-  border-radius: 6px;
   padding: 0.5rem 0.625rem;
 }
 
@@ -770,7 +765,6 @@ const hasResults = computed(() => resultCount.value > 0)
 /* ---------- Archive ledger ---------- */
 .v-ledger {
   border: 1px solid var(--border);
-  border-radius: var(--radius, 8px);
   overflow: hidden;
   background: var(--surface);
 }
@@ -839,7 +833,6 @@ const hasResults = computed(() => resultCount.value > 0)
   color: var(--accent);
   background: none;
   border: 1px solid var(--accent-bdr);
-  border-radius: 999px;
   padding: 0.4rem 1rem;
   cursor: pointer;
 }
@@ -891,7 +884,6 @@ const hasResults = computed(() => resultCount.value > 0)
 .v-anatomy-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius, 8px);
   padding: 1.5rem 1.25rem;
   position: relative;
 }
@@ -941,8 +933,8 @@ const hasResults = computed(() => resultCount.value > 0)
   font-family: var(--sans);
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--bg);
-  background: var(--accent);
+  color: var(--text-1);
+  background: var(--surface);
   border-radius: 999px;
   padding: 0.75rem 1.5rem;
   text-decoration: none;
@@ -958,6 +950,7 @@ const hasResults = computed(() => resultCount.value > 0)
 .v-cta-btn svg {
   width: 16px;
   height: 16px;
+  color: white;
 }
 
 /* ---------- Responsive: ledger collapses to stacked cards ---------- */

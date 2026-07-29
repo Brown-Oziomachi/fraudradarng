@@ -498,7 +498,6 @@ function flagAnother() {
 .form-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: calc(var(--radius) + 6px);
   padding: 40px;
   display: flex;
   flex-direction: column;
@@ -561,7 +560,6 @@ function flagAnother() {
   text-transform: uppercase;
   color: var(--text-3);
   border: 1px solid var(--border);
-  border-radius: 4px;
   padding: 2px 6px;
 }
 
@@ -581,7 +579,6 @@ label {
 .input {
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
   padding: 12px 14px;
   color: var(--text-1);
   font-family: var(--sans);
@@ -639,7 +636,6 @@ label {
   text-align: left;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
   padding: 12px 14px;
   cursor: pointer;
   transition: border-color 0.15s ease;
@@ -658,7 +654,6 @@ label {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 2px 7px;
-  border-radius: 3px;
   background: var(--accent-dim, rgba(232,255,71,0.08));
   color: var(--accent);
   border: 1px solid rgba(232,255,71,0.2);
@@ -723,7 +718,6 @@ label {
   gap: 4px;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
   padding: 12px 14px 12px 34px;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;

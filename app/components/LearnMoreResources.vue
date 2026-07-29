@@ -148,7 +148,6 @@ function formatDate(dateString: string) {
   max-width: 920px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius, 20px);
   padding: 3rem 2.5rem;
 }
 @media (max-width: 640px) {
@@ -360,7 +359,6 @@ function formatDate(dateString: string) {
   flex-direction: column;
   gap: 0.3rem;
   padding: 1rem 1.1rem;
-  border-radius: var(--radius, 8px);
   border: 1px solid var(--border);
   background: var(--surface);
   text-decoration: none;

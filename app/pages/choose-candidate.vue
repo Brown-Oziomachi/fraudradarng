@@ -204,8 +204,8 @@ onMounted(() => {
           <span>{{ item }}</span>
         </li>
       </ul>
-      <div class="checklist-actions">
-        <NuxtLink to="/choose-candidate" class="btn btn--accent">Election scams near you</NuxtLink>
+      <div>
+      <NuxtLink to="choose-candidate" class="btn btn--accent">Election scams near you</NuxtLink>
         <NuxtLink to="/lookupsearch" class="btn btn--outline-dark">Check the registry</NuxtLink>
         <NuxtLink to="/report/new" class="btn btn--outline-dark">Report a scam</NuxtLink>
       </div>
@@ -270,7 +270,6 @@ onMounted(() => {
 .official-frame {
   position: relative;
   border: 1px solid var(--border-hi);
-  border-radius: 18px;
   padding: 44px 28px 28px;
 }
 
@@ -281,7 +280,6 @@ onMounted(() => {
   transform: translateY(-50%);
   background: var(--bg);
   border: 1px solid var(--border-hi);
-  border-radius: 8px;
   padding: 7px 16px;
   font-family: var(--serif);
   font-size: 14px;
@@ -303,7 +301,6 @@ onMounted(() => {
   display: block;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
   padding: 18px;
   text-decoration: none;
   transition: border-color 0.2s ease, transform 0.2s ease;
@@ -355,7 +352,6 @@ onMounted(() => {
 .category-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
   padding: 24px;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -376,7 +372,6 @@ onMounted(() => {
   flex-shrink: 0;
   width: 42px;
   height: 42px;
-  border-radius: 10px;
   border: 1px solid var(--border-hi);
   display: flex;
   align-items: center;
@@ -484,7 +479,6 @@ onMounted(() => {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 13px 26px;
-  border-radius: var(--radius);
   border: 1px solid var(--border);
   text-decoration: none;
   cursor: pointer;
@@ -529,7 +523,6 @@ onMounted(() => {
 .polling-frame {
   position: relative;
   border: 1px solid var(--border-hi);
-  border-radius: 18px;
   padding: 44px 28px 28px;
 }
 
@@ -540,7 +533,6 @@ onMounted(() => {
   transform: translateY(-50%);
   background: var(--bg);
   border: 1px solid var(--border-hi);
-  border-radius: 8px;
   padding: 7px 16px;
   font-family: var(--mono);
   font-size: 11px;

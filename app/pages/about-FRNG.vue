@@ -1,9 +1,16 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 
 useHead({ title: 'About Us — Fraud Radar NG' })
-const founderName = ref('Sir Brown AD')
-const href = ref('https://sirbrownad.name.ng/bc/about')
 
+const founderName = ref('Sir Brown AD')
+const showFounderModal = ref(false)
+
+const founderLinks = [
+  { label: 'X (Twitter)', href: 'https://x.com/@BrownC15427449', icon: 'x' as const },
+  { label: 'GitHub', href: 'https://github.com/Brown-Oziomachi', icon: 'github' as const },
+  { label: 'Website', href: 'https://sirbrownad.name.ng/bc/about', icon: 'globe' as const },
+]
 
 const headline = "Built because silence protects scammers, not victims."
 const headlineWords = headline.split(' ')
@@ -58,55 +65,51 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="page-shell">
-   <section class="page-hero">
-  <div class="radar-field" aria-hidden="true">
-    <span class="radar-ring radar-ring--1" />
-    <span class="radar-ring radar-ring--2" />
-    <span class="radar-ring radar-ring--3" />
-    <span class="radar-sweep" />
-    <span class="radar-blip radar-blip--1" />
-    <span class="radar-blip radar-blip--2" />
-    <span class="radar-blip radar-blip--3" />
-    <span class="radar-blip radar-blip--4" />
-  </div>
+    <section class="page-hero">
+      <div class="radar-field" aria-hidden="true">
+        <span class="radar-ring radar-ring--1" />
+        <span class="radar-ring radar-ring--2" />
+        <span class="radar-ring radar-ring--3" />
+        <span class="radar-sweep" />
+        <span class="radar-blip radar-blip--1" />
+        <span class="radar-blip radar-blip--2" />
+        <span class="radar-blip radar-blip--3" />
+        <span class="radar-blip radar-blip--4" />
+      </div>
 
-  <div class="page-hero-inner">
-    <div class="eyebrow-pill">
-      <span class="eyebrow-icon">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
-          <path
-            d="M12 2 4 5v6c0 5 3.4 8.9 8 11 4.6-2.1 8-6 8-11V5l-8-3Z"
-            stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"
-          />
-          <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </span>
-      About us
-    </div>
+      <div class="page-hero-inner">
+        <div class="eyebrow-pill">
+          <span class="eyebrow-icon">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
+              <path d="M12 2 4 5v6c0 5 3.4 8.9 8 11 4.6-2.1 8-6 8-11V5l-8-3Z" stroke="currentColor" stroke-width="1.8"
+                stroke-linejoin="round" />
+              <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </span>
+          About us
+        </div>
 
-    <h1 class="page-title">
-      <span
-        v-for="(word, i) in headlineWords"
-        :key="i"
-        class="word"
-        :style="{ animationDelay: `${i * 0.06}s` }"
-      >{{ word }}&nbsp;</span>
-    </h1>
+        <h1 class="page-title">
+          <span v-for="(word, i) in headlineWords" :key="i" class="word" :style="{ animationDelay: `${i * 0.06}s` }">{{
+            word }}&nbsp;</span>
+        </h1>
 
-    <p class="page-sub">
-      Fraud Radar NG is Nigeria's community-powered fraud detection and
-      awareness platform — helping people identify, report, and avoid
-      scams before they become victims.
-    </p>
+        <p class="page-sub">
+          Fraud Radar NG is Nigeria's community-powered fraud detection and
+          awareness platform — helping people identify, report, and avoid
+          scams before they become victims.
+        </p>
 
-    <div class="hero-scroll-cue">
-      <span>Scroll to read more</span>
-      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" class="scroll-arrow">
-        <path d="M12 4v16M6 14l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-  </div>
-</section>
+        <div class="hero-scroll-cue">
+          <span>Scroll to read more</span>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" class="scroll-arrow">
+            <path d="M12 4v16M6 14l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </div>
+      </div>
+    </section>
 
     <section :ref="setSectionRef" class="content-block reveal">
       <div class="signal-tag"><span class="signal-dot" /> SIGNAL DETECTED — WHY WE EXIST</div>
@@ -115,7 +118,7 @@ onBeforeUnmount(() => {
         Every fraudulent bank account, fake company, and cloned website
         eventually reuses the same script on someone new.
         <mark class="highlight">The account that scammed you today will
-        try the exact same message on someone else tomorrow</mark> — unless
+          try the exact same message on someone else tomorrow</mark> — unless
         the pattern is exposed. A report filed in five minutes could be the
         five minutes that saves a stranger's life savings.
       </p>
@@ -128,58 +131,54 @@ onBeforeUnmount(() => {
     </section>
 
     <section :ref="setSectionRef" class="deep-dive-section reveal">
-  <div class="deep-dive-grid">
-    <div class="deep-dive-image-wrap">
-      <img
-        src="/FRLOGO.png"
-        alt="Fraud Radar NG platform showing community-submitted fraud reports"
-        class="deep-dive-image"
-        loading="lazy"
-      />
-    </div>
+      <div class="deep-dive-grid">
+        <div class="deep-dive-image-wrap">
+          <img src="/FRLOGO.png" alt="Fraud Radar NG platform showing community-submitted fraud reports"
+            class="deep-dive-image" loading="lazy" />
+        </div>
 
-    <div class="deep-dive-copy">
-      <div class="signal-tag"><span class="signal-dot" /> SIGNAL DETECTED — WHAT FRAUD RADAR NG ACTUALLY IS</div>
-      <h2 class="block-title">More than a complaints board</h2>
-      <p class="block-body">
-        Fraud Radar NG is a searchable, growing database of fraud
-        reports — bank accounts, companies, and websites — submitted
-        directly by the people who encountered them. There's no
-        approval queue standing between a warning and the person who
-        needs to see it.
-      </p>
-      <p class="block-body">
-        <mark class="highlight">Every account, name, or number can be
-        checked before you send money</mark> — turning a moment of
-        uncertainty into thirty seconds of verification instead of a
-        leap of faith.
-      </p>
-      <p class="block-body">
-        The platform runs on three principles: reports go live
-        instantly so warnings reach people while they still matter,
-        submission stays free and requires no account so nobody is
-        priced or gated out of protecting themselves, and every report
-        can be flagged by others if it's inaccurate — keeping the
-        radar honest without slowing it down.
-      </p>
+        <div class="deep-dive-copy">
+          <div class="signal-tag"><span class="signal-dot" /> SIGNAL DETECTED — WHAT FRAUD RADAR NG ACTUALLY IS</div>
+          <h2 class="block-title">More than a complaints board</h2>
+          <p class="block-body">
+            Fraud Radar NG is a searchable, growing database of fraud
+            reports — bank accounts, companies, and websites — submitted
+            directly by the people who encountered them. There's no
+            approval queue standing between a warning and the person who
+            needs to see it.
+          </p>
+          <p class="block-body">
+            <mark class="highlight">Every account, name, or number can be
+              checked before you send money</mark> — turning a moment of
+            uncertainty into thirty seconds of verification instead of a
+            leap of faith.
+          </p>
+          <p class="block-body">
+            The platform runs on three principles: reports go live
+            instantly so warnings reach people while they still matter,
+            submission stays free and requires no account so nobody is
+            priced or gated out of protecting themselves, and every report
+            can be flagged by others if it's inaccurate — keeping the
+            radar honest without slowing it down.
+          </p>
 
-      <ul class="deep-dive-points">
-        <li>
-          <span class="point-marker">01</span>
-          <span class="point-text">Report bank accounts, companies, or websites in under two minutes</span>
-        </li>
-        <li>
-          <span class="point-marker">02</span>
-          <span class="point-text">Search before you transfer — see if others have already been warned</span>
-        </li>
-        <li>
-          <span class="point-marker">03</span>
-          <span class="point-text">Flag reports you believe are inaccurate, keeping the data trustworthy</span>
-        </li>
-      </ul>
-    </div>
-  </div>
-</section>
+          <ul class="deep-dive-points">
+            <li>
+              <span class="point-marker">01</span>
+              <span class="point-text">Report bank accounts, companies, or websites in under two minutes</span>
+            </li>
+            <li>
+              <span class="point-marker">02</span>
+              <span class="point-text">Search before you transfer — see if others have already been warned</span>
+            </li>
+            <li>
+              <span class="point-marker">03</span>
+              <span class="point-text">Flag reports you believe are inaccurate, keeping the data trustworthy</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
     <section :ref="setSectionRef" class="flow-section reveal">
       <div class="flow-inner">
@@ -206,7 +205,7 @@ onBeforeUnmount(() => {
         Reports go live immediately after submission so the information is
         useful right away.
         <mark class="highlight">We don't verify claims before
-        publishing</mark> — this keeps the platform fast and free, but it
+          publishing</mark> — this keeps the platform fast and free, but it
         also means every report should be read as one person's account, not
         a proven fact. Anyone can flag a report they believe is inaccurate
         or misleading.
@@ -217,12 +216,18 @@ onBeforeUnmount(() => {
       <div class="signal-tag"><span class="signal-dot" /> SIGNAL DETECTED — WHO'S BEHIND THIS</div>
       <h2 class="block-title">Who's behind this</h2>
       <p class="block-body">
-        Fraud Radar NG is built and maintained by <a :href target="_blank" class="highlight">{{ founderName }}</a>, a
+        Fraud Radar NG is built and maintained by
+
+        <a href="#" class="highlight" @click.prevent="showFounderModal = true"> {{ founderName }}
+        </a>,
+        a
         full-stack developer based in Abuja. It's an independent project
         built to give ordinary Nigerians a place to warn each other,
         without needing a government office or a corporation's permission.
       </p>
     </section>
+
+    <AboutFounderModal v-model="showFounderModal" :founder-name="founderName" :links="founderLinks" />
 
     <section :ref="setSectionRef" class="cta-block reveal">
       <NuxtLink to="/report/new" class="btn btn--accent">Report a scam</NuxtLink>
@@ -244,11 +249,13 @@ onBeforeUnmount(() => {
 .page-hero {
   position: relative;
   min-height: 100vh;
-  min-height: 100dvh; /* accounts for mobile browser chrome */
+  min-height: 100dvh;
+  /* accounts for mobile browser chrome */
   display: flex;
   align-items: center;
   overflow: hidden;
-  margin: -56px -24px 0; /* cancels out .page-shell's own padding so this section is truly full-bleed */
+  margin: -56px -24px 0;
+  /* cancels out .page-shell's own padding so this section is truly full-bleed */
   padding: 0 24px;
 }
 
@@ -311,9 +318,19 @@ onBeforeUnmount(() => {
 .scroll-arrow {
   animation: scroll-bounce 1.8s ease-in-out infinite;
 }
+
 @keyframes scroll-bounce {
-  0%, 100% { transform: translateY(0); opacity: 0.6; }
-  50% { transform: translateY(6px); opacity: 1; }
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
 }
 
 @media (max-width: 720px) {
@@ -329,20 +346,27 @@ onBeforeUnmount(() => {
   border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
   border-radius: 50%;
 }
-.radar-ring--1 { inset: 0; }
-.radar-ring--2 { inset: 90px; }
-.radar-ring--3 { inset: 180px; }
+
+.radar-ring--1 {
+  inset: 0;
+}
+
+.radar-ring--2 {
+  inset: 90px;
+}
+
+.radar-ring--3 {
+  inset: 180px;
+}
 
 .radar-sweep {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    color-mix(in srgb, var(--accent) 55%, transparent) 0deg,
-    transparent 55deg,
-    transparent 360deg
-  );
+  background: conic-gradient(from 0deg,
+      color-mix(in srgb, var(--accent) 55%, transparent) 0deg,
+      transparent 55deg,
+      transparent 360deg);
   animation: radar-spin 4s linear infinite;
 }
 
@@ -355,18 +379,52 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent);
   animation: blip-pulse 2.4s ease-out infinite;
 }
-.radar-blip--1 { top: 65px;  left: 115px; animation-delay: 0s; }
-.radar-blip--2 { top: 195px; left: 360px; animation-delay: 0.6s; }
-.radar-blip--3 { top: 325px; left: 145px; animation-delay: 1.2s; }
-.radar-blip--4 { top: 145px; left: 260px; animation-delay: 1.8s; }
+
+.radar-blip--1 {
+  top: 65px;
+  left: 115px;
+  animation-delay: 0s;
+}
+
+.radar-blip--2 {
+  top: 195px;
+  left: 360px;
+  animation-delay: 0.6s;
+}
+
+.radar-blip--3 {
+  top: 325px;
+  left: 145px;
+  animation-delay: 1.2s;
+}
+
+.radar-blip--4 {
+  top: 145px;
+  left: 260px;
+  animation-delay: 1.8s;
+}
 
 @keyframes radar-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
+
 @keyframes blip-pulse {
-  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); opacity: 1; }
-  70%  { box-shadow: 0 0 0 10px transparent; opacity: 0.4; }
-  100% { box-shadow: 0 0 0 0 transparent; opacity: 1; }
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent);
+    opacity: 1;
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px transparent;
+    opacity: 0.4;
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+    opacity: 1;
+  }
 }
 
 /* Pill eyebrow badge */
@@ -387,6 +445,7 @@ onBeforeUnmount(() => {
   letter-spacing: 0.03em;
   margin-bottom: 28px;
 }
+
 .eyebrow-icon {
   display: flex;
   align-items: center;
@@ -405,54 +464,85 @@ onBeforeUnmount(() => {
   letter-spacing: -0.01em;
   margin-bottom: 22px;
 }
+
 .word {
   display: inline-block;
   opacity: 0;
   transform: translateY(14px);
   animation: word-rise 0.55s ease forwards;
 }
+
 @keyframes word-rise {
-  to { opacity: 1; transform: translateY(0); }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .page-sub {
   position: relative;
   z-index: 1;
-  font-size: 16px; color: var(--text-2); line-height: 1.75; font-weight: 300;
+  font-size: 16px;
+  color: var(--text-2);
+  line-height: 1.75;
+  font-weight: 300;
   max-width: 540px;
 }
 
 /* ---------- Content sections ---------- */
-.content-block { margin-top: 56px; }
+.content-block {
+  margin-top: 56px;
+}
 
 .reveal {
   opacity: 1;
   transform: none;
 }
+
 .reveal.will-animate {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
+
 .reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
 }
+
 .signal-tag {
-  display: inline-flex; align-items: center; gap: 7px;
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
-  text-transform: uppercase; color: #4ade80; margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #4ade80;
+  margin-bottom: 14px;
 }
+
 .signal-dot {
-  width: 5px; height: 5px; border-radius: 50%; background: #4ade80;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #4ade80;
   animation: blip-pulse 2.4s ease-out infinite;
 }
 
 .block-title {
-  font-family: var(--serif); font-size: 20px; color: var(--text-1); margin-bottom: 12px;
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--text-1);
+  margin-bottom: 12px;
 }
+
 .block-body {
-  font-size: 14px; color: var(--text-3); line-height: 1.8; font-weight: 300; margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--text-3);
+  line-height: 1.8;
+  font-weight: 300;
+  margin-bottom: 12px;
 }
 
 .highlight {
@@ -461,15 +551,14 @@ onBeforeUnmount(() => {
   font-weight: 500;
   padding: 0 2px;
   position: relative;
-  background-image: linear-gradient(
-    color-mix(in srgb, var(--accent) 30%, transparent),
-    color-mix(in srgb, var(--accent) 30%, transparent)
-  );
+  background-image: linear-gradient(color-mix(in srgb, var(--accent) 30%, transparent),
+      color-mix(in srgb, var(--accent) 30%, transparent));
   background-repeat: no-repeat;
   background-position: 0 100%;
   background-size: 0% 40%;
   transition: background-size 0.8s ease 0.15s;
 }
+
 .reveal.is-visible .highlight {
   background-size: 100% 40%;
 }
@@ -486,10 +575,12 @@ onBeforeUnmount(() => {
   padding: 0 32px;
   box-sizing: border-box;
 }
+
 .flow-inner {
   max-width: 1200px;
   margin: 0 auto;
 }
+
 .flow-heading {
   font-family: var(--serif);
   font-size: clamp(24px, 3.2vw, 32px);
@@ -498,11 +589,13 @@ onBeforeUnmount(() => {
   text-align: center;
   margin-bottom: 32px;
 }
+
 .flow-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
+
 .flow-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -510,24 +603,29 @@ onBeforeUnmount(() => {
   overflow: hidden;
   transition: transform 0.25s ease, border-color 0.25s ease;
 }
+
 .flow-card:hover {
   transform: translateY(-4px);
   border-color: var(--border-hi);
 }
+
 .flow-image-wrap {
   aspect-ratio: 1 / 1;
   background: var(--surface-2);
   overflow: hidden;
 }
+
 .flow-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
+
 .flow-card-body {
   padding: 18px 18px 22px;
 }
+
 .flow-label {
   display: block;
   font-family: var(--mono);
@@ -537,12 +635,14 @@ onBeforeUnmount(() => {
   color: var(--accent);
   margin-bottom: 8px;
 }
+
 .flow-title {
   font-family: var(--serif);
   font-size: 17px;
   color: var(--text-1);
   margin-bottom: 8px;
 }
+
 .flow-text {
   font-size: 13px;
   line-height: 1.65;
@@ -551,22 +651,43 @@ onBeforeUnmount(() => {
 }
 
 /* ---------- CTA ---------- */
-.cta-block { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 48px; }
+.cta-block {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 48px;
+}
+
 .btn {
-  display: inline-flex; align-items: center; font-family: var(--mono);
-  font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 13px 26px; border-radius: var(--radius); border: 1px solid var(--border);
-  background: var(--surface); color: var(--text-2); text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 13px 26px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  text-decoration: none;
   transition: color 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
+
 .btn:hover {
   color: var(--text-1);
   border-color: var(--border-hi);
   transform: translateY(-2px);
 }
+
 .btn--accent {
-  background: var(--accent); border-color: var(--accent); color: #0a0a0b; font-weight: 700;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0a0a0b;
+  font-weight: 700;
 }
+
 .btn--accent:hover {
   background: #d4eb3c;
   border-color: #d4eb3c;
@@ -575,6 +696,7 @@ onBeforeUnmount(() => {
 
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
+
   .radar-sweep,
   .radar-blip,
   .signal-dot,
@@ -583,11 +705,13 @@ onBeforeUnmount(() => {
     opacity: 1 !important;
     transform: none !important;
   }
+
   .reveal {
     opacity: 1;
     transform: none;
     transition: none;
   }
+
   .highlight {
     background-size: 100% 40% !important;
     transition: none;
@@ -598,13 +722,16 @@ onBeforeUnmount(() => {
   .flow-grid {
     grid-template-columns: 1fr;
   }
+
   .flow-section {
     padding: 0 20px;
   }
 }
 
 @media (max-width: 560px) {
-  .radar-field { display: none; }
+  .radar-field {
+    display: none;
+  }
 }
 
 /* ---------- Deep dive section ---------- */
@@ -654,6 +781,7 @@ onBeforeUnmount(() => {
   padding-top: 16px;
   border-top: 1px solid var(--border);
 }
+
 .deep-dive-points li:first-child {
   padding-top: 0;
   border-top: none;
@@ -680,6 +808,7 @@ onBeforeUnmount(() => {
     grid-template-columns: 1fr;
     gap: 28px;
   }
+
   .deep-dive-image-wrap {
     position: static;
     aspect-ratio: 16 / 10;

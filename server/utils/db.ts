@@ -2,6 +2,8 @@ import { db } from "../utils/firebase-admin"
 import type { Report, NewReportInput } from '#shared/types/report'
 import { FieldValue } from 'firebase-admin/firestore'
 import { normalizeByType } from './identifier-normalize'
+import { randomUUID } from 'node:crypto'
+
 
 function slugify(text: string): string {
   return text
@@ -28,10 +30,6 @@ function buildReportSlug(input: NewReportInput): string {
 const reportsRef = db.collection('reports')
 
 const ESCALATION_THRESHOLD = 3
-// If 3+ distinct fingerprints escalate a report but they all share the same
-// ipHash within this window, treat it as suspicious clustering rather than
-// confirmed independent reporters — route to manual review instead of
-// auto-flagging.
 const SUSPICIOUS_WINDOW_MS = 15 * 60 * 1000 // 15 minutes
 
 function toPublicReport(id: string, data: FirebaseFirestore.DocumentData): Report {
@@ -152,10 +150,14 @@ export async function createReport(
     const existingMeta: ReporterMetaEntry[] = existingData.reporterMeta ?? []
     const isNewReporter = !existingFingerprints.includes(reporterFingerprint)
 
-    const submission: Record<string, unknown> = {
-      description: input.description,
-      createdAt: new Date().toISOString()
-    }
+   const newSubmissionId = randomUUID()
+const submission: Record<string, unknown> = {
+  submissionId: newSubmissionId,
+  fingerprint: reporterFingerprint,
+  description: input.description,
+  createdAt: new Date().toISOString()
+}
+
     if (input.reason !== undefined) submission.reason = input.reason
     if (input.amountInvolved !== undefined) submission.amountInvolved = input.amountInvolved
     if (input.contactPlatform !== undefined) submission.contactPlatform = input.contactPlatform
@@ -188,12 +190,10 @@ export async function createReport(
     if (!existingData.accountNumber && normalized.accountNumber) updatePayload.accountNumber = normalized.accountNumber
     if (input.targetType === 'company' && !existingData.companyName) updatePayload.companyName = normalized.companyName
     if (input.targetType === 'website' && !existingData.websiteUrl) updatePayload.websiteUrl = normalized.websiteUrl
-    // Backfill cross-identifiers even when they weren't the field that
-    // matched this submission — this is what lets a later phone-number
-    // search find a report that was originally filed under a bank account.
     if (!existingData.phoneNumber && normalized.phoneNumber) updatePayload.phoneNumber = normalized.phoneNumber
     if (!existingData.walletTag && normalized.walletTag) updatePayload.walletTag = normalized.walletTag
     if (existingData.reportCount == null) updatePayload.reportCount = 1
+    if (!existingData.state && input.state) updatePayload.state = input.state
 
     if (input.evidenceUrls?.length) {
       updatePayload.evidenceUrls = FieldValue.arrayUnion(...input.evidenceUrls)
@@ -210,29 +210,29 @@ export async function createReport(
     return toPublicReport(refreshed.id, refreshed.data()!)
   }
 
-  const createdAt = new Date().toISOString()
-  const baseSlug = buildReportSlug(input)
+const createdAt = new Date().toISOString()
+const baseSlug = buildReportSlug(input)
+const submissionId = randomUUID()
 
-  const dataToSave: Record<string, unknown> = {
-    ...input,
-    accountNumber: normalized.accountNumber ?? input.accountNumber,
-    companyName: normalized.companyName ?? input.companyName,
-    websiteUrl: normalized.websiteUrl ?? input.websiteUrl,
-    reportCount: 1,
-    status: 'pending' as const,
-    distinctReporterCount: 1,
-    reporterFingerprints: [reporterFingerprint],
-    reporterMeta: [{
-      fingerprint: reporterFingerprint,
-      ipHash: reporterIpHash,
-      deviceId: reporterDeviceId,
-      submittedAt: createdAt
-    }] as ReporterMetaEntry[],
-    createdAt
-  }
+const dataToSave: Record<string, unknown> = {
+  ...input,
+  submissionId,
+  accountNumber: normalized.accountNumber ?? input.accountNumber,
+  companyName: normalized.companyName ?? input.companyName,
+  websiteUrl: normalized.websiteUrl ?? input.websiteUrl,
+  reportCount: 1,
+  status: 'pending' as const,
+  distinctReporterCount: 1,
+  reporterFingerprints: [reporterFingerprint],
+  reporterMeta: [{
+    fingerprint: reporterFingerprint,
+    ipHash: reporterIpHash,
+    deviceId: reporterDeviceId,
+    submittedAt: createdAt
+  }] as ReporterMetaEntry[],
+  createdAt
+}
 
-  // Only store phoneNumber/walletTag when actually provided — omit rather
-  // than write empty strings, so lookup queries never match on blanks.
   if (normalized.phoneNumber) dataToSave.phoneNumber = normalized.phoneNumber
   if (normalized.walletTag) dataToSave.walletTag = normalized.walletTag
 
@@ -277,6 +277,7 @@ export async function searchReports(query: string): Promise<Report[]> {
       (report.companyName?.toLowerCase().includes(lowerQuery) ?? false) ||
       (report.websiteName?.toLowerCase().includes(lowerQuery) ?? false) ||
       (report.websiteUrl?.toLowerCase().includes(lowerQuery) ?? false) ||
+      (report.state?.toLowerCase().includes(lowerQuery) ?? false) ||
       (report.phoneNumber?.includes(query) ?? false) ||
       (report.walletTag?.toLowerCase().includes(lowerQuery) ?? false) ||
       ((report as any).description?.toLowerCase().includes(lowerQuery) ?? false) ||
@@ -470,4 +471,69 @@ export async function resolveFlag(flagId: string, action: 'dismiss' | 'resolved'
     status: action,
     resolvedAt: new Date().toISOString(),
   })
+}
+
+export async function getMainSubmissionFingerprint(id: string): Promise<string | null> {
+  const doc = await reportsRef.doc(id).get()
+  if (!doc.exists) return null
+  const data = doc.data()!
+  return data.reporterFingerprints?.[0] ?? null
+}
+ 
+interface SubmissionUpdateFields {
+  description?: string
+  amountInvolved?: number
+  contactPlatform?: string
+  evidenceUrls?: string[]
+}
+
+export async function updateSubmission(
+  reportId: string,
+  submissionId: string,
+  requesterFingerprint: string,
+  updates: SubmissionUpdateFields
+): Promise<Report | null> {
+  const docRef = reportsRef.doc(reportId)
+  const doc = await docRef.get()
+  if (!doc.exists) return null
+  const data = doc.data()!
+  const updatedAt = new Date().toISOString()
+ 
+  // Case 1: editing the main/original submission.
+  if (data.submissionId === submissionId) {
+    if (data.reporterFingerprints?.[0] !== requesterFingerprint) {
+      throw new Error('FORBIDDEN')
+    }
+    const payload: Record<string, unknown> = { updatedAt }
+    if (updates.description !== undefined) payload.description = updates.description
+    if (updates.amountInvolved !== undefined) payload.amountInvolved = updates.amountInvolved
+    if (updates.contactPlatform !== undefined) payload.contactPlatform = updates.contactPlatform
+    if (updates.evidenceUrls !== undefined) payload.evidenceUrls = updates.evidenceUrls
+    await docRef.update(payload)
+  } else {
+    // Case 2: editing one entry inside additionalReports. Firestore has no
+    // way to update a single array element in place, so we read the whole
+    // array, replace the one matching entry, and write the whole array back.
+    const additional: any[] = data.additionalReports ?? []
+    const idx = additional.findIndex((sub) => sub.submissionId === submissionId)
+    if (idx === -1) return null
+    if (additional[idx].fingerprint !== requesterFingerprint) {
+      throw new Error('FORBIDDEN')
+    }
+ 
+    const updatedEntry = {
+      ...additional[idx],
+      ...(updates.description !== undefined && { description: updates.description }),
+      ...(updates.amountInvolved !== undefined && { amountInvolved: updates.amountInvolved }),
+      ...(updates.contactPlatform !== undefined && { contactPlatform: updates.contactPlatform }),
+      ...(updates.evidenceUrls !== undefined && { evidenceUrls: updates.evidenceUrls }),
+      updatedAt
+    }
+    const newAdditional = [...additional]
+    newAdditional[idx] = updatedEntry
+    await docRef.update({ additionalReports: newAdditional })
+  }
+ 
+  const refreshed = await docRef.get()
+  return toPublicReport(refreshed.id, refreshed.data()!)
 }

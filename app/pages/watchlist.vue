@@ -260,7 +260,7 @@ const howItWorks = [
 
 .page-title {
     font-family: var(--serif);
-    font-size: clamp(88px, 4vw, 36px);
+    font-size: clamp(78px, 4vw, 26px);
     color: var(--text-1);
     margin-bottom: 12px;
 }
@@ -303,10 +303,10 @@ const howItWorks = [
     background: var(--surface);
     border: 1px solid var(--border);
     border-left: 3px solid var(--accent);
-    border-radius: 8px;
     padding: 16px 18px;
     display: flex;
     flex-direction: column;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     gap: 10px;
 }
 
@@ -350,7 +350,6 @@ const howItWorks = [
 .how-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
     padding: 18px;
 }
 
@@ -382,7 +381,6 @@ const howItWorks = [
 .add-section {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
     padding: 22px;
     margin-bottom: 32px;
 }

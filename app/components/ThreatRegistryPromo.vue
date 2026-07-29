@@ -106,7 +106,6 @@ const features: Feature[] = [
   max-width: 920px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius, 20px);
   padding: 3.5rem 2.5rem;
   box-shadow: 0 28px 70px color-mix(in srgb, var(--accent) 8%, transparent),
               0 10px 28px rgba(0, 0, 0, 0.16);
@@ -148,7 +147,6 @@ const features: Feature[] = [
   position: absolute;
   inset: 0;
   border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
-  border-radius: 999px;
   animation: radar-expand 4.5s ease-out infinite;
 }
 

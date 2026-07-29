@@ -61,7 +61,7 @@ function copyEmail() {
     <section class="hero">
       <div class="hero-image-wrap">
         <img
-          src="/parts.png"
+          src="/partner.png"
           alt="Investigators reviewing a fraud case file"
           class="hero-image"
         />
@@ -181,30 +181,35 @@ function copyEmail() {
 /* ============ HERO ============ */
 .hero {
   position: relative;
-  min-height: 88vh;
+  min-height: 65vh;
   display: flex;
   align-items: flex-end;
   overflow: hidden;
+    background-color: black;
 }
 
 .hero-image-wrap {
+  inset: 10;
   position: absolute;
-  inset: 0;
+  display: flex;
+    align-items: flex-end;
+    
 }
+
 .hero-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  filter: grayscale(0.55) contrast(1.05) brightness(0.65);
+  object-fit: contain;
 }
+
 .hero-scrim {
   position: absolute;
-  inset: 0;
+  inset: 10;
   background: linear-gradient(
-    280deg,
-    rgba(10, 10, 11, 0.15) 0%,
-    rgba(10, 10, 11, 0.55) 55%,
-    rgba(10, 10, 11, 0.92) 100%
+    80deg,
+    rgba(27, 199, 124, 0.15) 0%,
+    rgba(28, 63, 39, 0.55) 55%,
+    rgba(19, 19, 20, 0.92) 100%
   );
 }
 
@@ -213,6 +218,10 @@ function copyEmail() {
   z-index: 1;
   padding: 0 44px 72px;
   max-width: 900px;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  
 }
 @media (max-width: 720px) {
   .hero-content { padding: 0 20px 48px; }
@@ -238,6 +247,7 @@ function copyEmail() {
   letter-spacing: -0.02em;
   color: #fdfdfa;
   margin-bottom: 28px;
+  text-shadow: #0a0a0b;
 }
 
 .hero-sub {
@@ -456,7 +466,7 @@ function copyEmail() {
   display: inline-flex;
   align-items: center;
   background: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-1);
   font-weight: 600;
   font-family: var(--mono);
   font-size: 12px;
@@ -465,7 +475,7 @@ function copyEmail() {
   border-radius: var(--radius);
   text-decoration: none;
 }
-.btn-primary:hover { background: #d4eb3c; }
+.btn-primary:hover { background: var(--surface); }
 
 .btn-secondary {
   font-family: var(--mono);

@@ -11,10 +11,7 @@ useHead({
   ]
 })
 
-// Guides tagged under any of these categories show up on this page.
-// Add more category strings here as you tag more political-fraud guides —
-// this was previously hardcoded to a single non-matching category, which
-// silently hid every political guide from this page.
+
 const POLITICAL_CATEGORIES = ['Civic & Election Fraud', 'Political Fraud']
 
 const politicalGuides = computed(() =>
@@ -32,10 +29,6 @@ function formatDate(iso: string) {
     return ''
   }
 }
-
-// Report links now route through /report/new — the consent-gated landing
-// page — rather than straight to /report/form, so these can't be used to
-// bypass the "I agree to the Terms" checkbox that gates real submission.
 const reportLinks = [
   { label: 'Report fraud or cyber crime', to: '/report/new?reason=other', icon: 'megaphone' },
   { label: 'Report vote buying or an election scam', to: '/report/new?reason=other', icon: 'megaphone' },
@@ -43,9 +36,6 @@ const reportLinks = [
   { label: 'Police reporting', to: 'https://police.gov.ng/contact/display', icon: 'shield', external: true }
 ]
 
-// The three-part anatomy of a political scam, mirrored visually from the
-// Vault page's "Anatomy of a Collapse" pattern-card layout so the two
-// fraud-education pages feel like one consistent design language.
 const tactics = [
   {
     mark: '01',
@@ -480,7 +470,6 @@ const galleryImages = [
 .empty-text {
   font-family: var(--mono);
   font-size: 12px;
-  color: var(--text-3);
   padding: 20px 0;
 }
 
@@ -494,7 +483,7 @@ const galleryImages = [
 }
 
 .report-box {
-  background: #0a0a0b;
+  background: var(--surface);
   border-radius: var(--radius);
   overflow: hidden;
 }
@@ -514,11 +503,11 @@ const galleryImages = [
   align-items: center;
   gap: 10px;
   padding: 16px 20px;
-  color: #fdfdfa;
   font-size: 13.5px;
   text-decoration: none;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   transition: background 0.15s;
+
 }
 
 .report-link:hover {
@@ -527,7 +516,6 @@ const galleryImages = [
 
 .report-icon {
   flex-shrink: 0;
-  color: #fdfdfa;
 }
 
 .neutrality-box {
@@ -540,7 +528,6 @@ const galleryImages = [
 .neutrality-title {
   font-family: var(--serif);
   font-size: 15px;
-  color: var(--text-1);
   margin-bottom: 8px;
 }
 

@@ -466,7 +466,6 @@ const regulators = [
   background: var(--surface);
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
-  border-radius: var(--radius);
 }
 .do-this-label {
   display: block; font-family: var(--mono); font-size: 10px;
@@ -512,7 +511,7 @@ const regulators = [
 
 .report-this-btn {
   display: inline-flex; align-items: center;
-  background: var(--accent); color: #0a0a0b; font-weight: 600;
+  background: var(--accent); color: oklch(100% 0.00011 271.152); font-weight: 600;
   font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.03em;
   padding: 14px 22px; border-radius: var(--radius); text-decoration: none;
 }
@@ -557,7 +556,6 @@ const regulators = [
 .regulator-card {
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
   padding: 18px;
   display: flex;
   flex-direction: column;

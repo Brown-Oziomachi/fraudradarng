@@ -155,11 +155,6 @@ const navIcons: Record<string, string> = {
 'shield-alert': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5z"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.5"/></svg>`,
 }
 
-// Each section has one promo (image + eyebrow + headline + short blurb + link)
-// shown as the featured panel on desktop mega-menus, plus a flat list of
-// items (label + route) shown as plain text links — shared by both desktop
-// and mobile navigation. `item.desc` is kept as a hover tooltip on desktop
-// so the descriptive copy isn't lost even though the list is now text-only.
 const mobileSections = [
   {
     id: 'reports',
@@ -339,7 +334,7 @@ async function downloadImage() {
     a.remove()
     URL.revokeObjectURL(blobUrl)
   } catch {
-    // Cross-origin images without CORS headers can't be fetched as a blob —
+      // Cross-origin images without CORS headers can't be fetched as a blob —
     // fall back to just opening it so the user can save it manually.
     window.open(src, '_blank', 'noopener')
   }
@@ -471,7 +466,7 @@ onBeforeUnmount(() => {
         </button>
 
         <button type="button" class="theme-toggle"
-          :aria-label="theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'" @click="toggleTheme">
+          :aria-label="theme === 'light' ? 'Switch to NG mode' : 'Switch to light mode'" @click="toggleTheme">
           <svg v-if="theme === 'light'" viewBox="0 0 24 24" width="15" height="15" fill="none">
             <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79Z" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round" />
@@ -488,9 +483,9 @@ onBeforeUnmount(() => {
           Subscribe
         </button>
 
-        <NuxtLink to="/report/new" class="nav-link nav-link--cta">
-          Report a scam
-        </NuxtLink>
+        <!-- <NuxtLink to="/report/new" class="nav-link nav-link--cta">
+          File a Report
+        </NuxtLink> -->
 
       </nav>
 
@@ -580,11 +575,11 @@ onBeforeUnmount(() => {
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" />
               </svg>
             </span>
-            <span>{{ theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode' }}</span>
+            <span>{{ theme === 'light' ? 'Switch to NG mode' : 'Switch to light mode' }}</span>
           </button>
 
           <NuxtLink to="/report/new" class="mobile-cta" @click="closeMobileMenu">
-            Report a scam
+            File a Report
           </NuxtLink>
         </div>
       </div>
@@ -639,7 +634,7 @@ onBeforeUnmount(() => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-
+  
 }
 
 .site-header {
@@ -653,7 +648,7 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   padding: 1px 44px;
   border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  background: var(--surface);
 
 }
 
@@ -861,7 +856,7 @@ onBeforeUnmount(() => {
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.04em;
-  color: var(--text-2);
+  color: var(--text-1);
   text-decoration: none;
   padding: 8px 14px;
   border-radius: var(--radius);
@@ -874,19 +869,18 @@ onBeforeUnmount(() => {
 
 .nav-link:hover {
   border-color: var(--border-hi);
-  color: var(--text-1);
 }
 
 .nav-link--cta {
   background: var(--accent);
-  color: #0a0a0b;
+  color: hsl(240, 11%, 91%);
   font-weight: 600;
   border-color: var(--accent);
 }
 
 .nav-link--cta:hover {
-  background: #d4eb3c;
-  border-color: #d4eb3c;
+  background: #427d3a;
+  border-color: #2a513b;
 }
 
 /* ============ DESKTOP MEGA-MENU — sidebar list + featured panel ============ */
@@ -900,7 +894,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 5px;
   font-family: var(--sans);
-  font-size: 12px;
+  font-size: 1px;
   font-weight: 700;
   letter-spacing: 0.01em;
   color: var(--text-3);
@@ -1037,7 +1031,6 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
   width: 76px;
   height: 76px;
-  border-radius: 10px;
   object-fit: cover;
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -1056,7 +1049,6 @@ onBeforeUnmount(() => {
   justify-content: center;
   gap: 6px;
   padding: 11px 18px;
-  border-radius: 6px;
   font-family: var(--sans);
   font-size: 12.5px;
   font-weight: 700;
@@ -1070,7 +1062,7 @@ onBeforeUnmount(() => {
 
 .mega-menu-feature-btn--primary {
   background: var(--accent, #2d7a3f);
-  color: #0a0a0b;
+  color: hwb(0 100% 0%);
 }
 
 .mega-menu-feature-btn--primary:hover {
@@ -1413,7 +1405,7 @@ onBeforeUnmount(() => {
   margin-top: 4px;
   padding: 14px;
   background: var(--accent);
-  color: #0a0a0b;
+  color: oklab(96.444% 0.00038 -0.00138);
   font-weight: 600;
   font-family: var(--mono);
   font-size: 13px;
@@ -1424,6 +1416,7 @@ onBeforeUnmount(() => {
 
 .mobile-cta:hover {
   background: #d4eb3c;
+  color: white;
 }
 
 /* Overlay transition */
@@ -1446,15 +1439,18 @@ onBeforeUnmount(() => {
 .search-trigger-kbd {
   font-family: var(--mono);
   font-size: 9.5px;
-  color: var(--text-3);
   border: 1px solid var(--border);
   border-radius: 3px;
   padding: 1px 4px;
+  background: var(--surface-2);
+
 }
 
 @media (max-width: 720px) {
   .search-trigger {
     display: none;
+      background: var(--surface-2);
+
   }
 }
 
@@ -1563,5 +1559,78 @@ onBeforeUnmount(() => {
 
 .custom-context-menu button:hover {
   background: var(--surface-2);
+}
+
+/* ============ DESKTOP: PLAYLOGIQ-STYLE FLOATING PILL NAVBAR ============ */
+@media (min-width: 721px) {
+  .site-header {
+    position: sticky;
+    top: 16px;
+    margin: 16px 24px 0;
+    padding: 8px 12px 8px 20px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+  }
+
+  .site-header.has-announcement {
+    top: 50px;
+    /* 16px gap + ANNOUNCEMENT_BAR_HEIGHT */
+  }
+
+  /* Slightly smaller brand mark so it balances inside the pill */
+  .brand-logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .brand-name {
+    font-size: 32px;
+  }
+
+  /* Plain nav items: bold, uppercase, no border/background — just text */
+  .nav-dropdown-trigger,
+  .nav-link:not(.nav-link--cta) {
+    font-family: var(--sans);
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-1);
+    border: none;
+    background: none;
+    padding: 10px 14px;
+  }
+
+  .nav-dropdown-trigger:hover,
+  .nav-link:not(.nav-link--cta):hover {
+    color: var(--accent);
+    border-color: transparent;
+    background: none;
+  }
+
+  .nav-dropdown-trigger--active {
+    background: none;
+    color: var(--accent);
+  }
+
+  /* Solid pill CTA — the "CONTACT US" treatment */
+  .nav-link--cta {
+    font-family: var(--sans);
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    border-radius: 999px;
+    border: none;
+  }
+
+  /* Icon buttons (search / theme toggle) — match the borderless, compact feel */
+  .theme-toggle,
+  .search-trigger {
+    border-radius: 999px;
+  }
 }
 </style>

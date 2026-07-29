@@ -130,7 +130,6 @@ const hasMore = computed(() => sortedReports.value.length > 5)
 .flagged-card {
   background: var(--surface);
   border: 1px solid rgba(248, 113, 113, 0.3);
-  border-radius: var(--radius);
   padding: 24px;
 }
 

@@ -1,3 +1,47 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const lastUpdated = 'July 13, 2026'
+const href = ref('mailto:privacy@fraudradar.ng')
+
+const sections = [
+  { id: 'data-we-collect', title: 'Data we collect' },
+  { id: 'how-we-use-it', title: 'How we use your data' },
+  { id: 'legal-basis', title: 'Legal basis' },
+  { id: 'third-party-data', title: 'Data about people named in reports' },
+  { id: 'sharing', title: 'How we share data' },
+  { id: 'international-transfer', title: 'International transfers' },
+  { id: 'retention', title: 'Data retention' },
+  { id: 'your-rights', title: 'Your rights' },
+  { id: 'cookies', title: 'Cookies and device identifiers' },
+  { id: 'changes', title: 'Changes' },
+  { id: 'contact', title: 'Contact us' },
+]
+
+const tocOpen = ref(false)
+function closeToc() {
+  tocOpen.value = false
+}
+
+function onToggle(e: Event) {
+  // currentTarget is the <details> element the event is bound to
+  const details = e.currentTarget as HTMLDetailsElement | null
+  tocOpen.value = !!details?.open
+}
+
+useHead({
+  title: 'Privacy Notice — Fraud Radar NG',
+  meta: [
+    {
+      name: 'description',
+      content:
+        'How Fraud Radar NG collects, uses, and protects your personal data.',
+    },
+  ],
+})
+</script>
+
+
 <template>
   <div class="privacy-page">
     <div class="privacy-container">
@@ -213,7 +257,7 @@
               personal data? Reach out via our
               <NuxtLink to="/contact" class="inline-link">contact page</NuxtLink>,
               or email us directly at
-              <a href="mailto:privacy@fraudradar.ng" class="inline-link">privacy@fraudradar.ng</a>.
+              <a :href class="inline-link">privacy@fraudradar.ng</a>.
             </p>
           </section>
         </div>
@@ -222,45 +266,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
-const lastUpdated = 'July 13, 2026'
 
-const sections = [
-  { id: 'data-we-collect', title: 'Data we collect' },
-  { id: 'how-we-use-it', title: 'How we use your data' },
-  { id: 'legal-basis', title: 'Legal basis' },
-  { id: 'third-party-data', title: 'Data about people named in reports' },
-  { id: 'sharing', title: 'How we share data' },
-  { id: 'international-transfer', title: 'International transfers' },
-  { id: 'retention', title: 'Data retention' },
-  { id: 'your-rights', title: 'Your rights' },
-  { id: 'cookies', title: 'Cookies and device identifiers' },
-  { id: 'changes', title: 'Changes' },
-  { id: 'contact', title: 'Contact us' },
-]
-
-const tocOpen = ref(false)
-function closeToc() {
-  tocOpen.value = false
-}
-
-function onToggle(e: Event) {
-  // currentTarget is the <details> element the event is bound to
-  const details = e.currentTarget as HTMLDetailsElement | null
-  tocOpen.value = !!details?.open
-}
-
-useHead({
-  title: 'Privacy Notice — Fraud Radar NG',
-  meta: [
-    {
-      name: 'description',
-      content:
-        'How Fraud Radar NG collects, uses, and protects your personal data.',
-    },
-  ],
-})
-</script>
 
 <style scoped>
 .privacy-page {

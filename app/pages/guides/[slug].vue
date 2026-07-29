@@ -23,7 +23,6 @@ useSeoMeta({
   twitterImage: guide.value.image,
 })
 
-/* ---------- Markdown → HTML renderer ---------- */
 
 function escapeHtml(str: string) {
   return str
@@ -270,7 +269,7 @@ const siteLinks = [
               Verified Safety Resource
             </span>
           </div>
-          <h1 class="article-title">{{ guide.title }}</h1>
+          <h1 class="article-title" v-text="guide.title"></h1>
           <div class="article-meta">
             <span>Fraud Radar NG</span>
             <span class="meta-dot" />
@@ -481,7 +480,7 @@ const siteLinks = [
 
 :deep(.md-h3) {
   font-family: var(--serif);
-  font-size: 17.5px;
+  font-size: 25.5px;
   color: var(--accent);
   line-height: 1.4;
   margin: 32px 0 14px;

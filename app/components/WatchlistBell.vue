@@ -27,7 +27,6 @@ onMounted(() => {
     width: 32px;
     height: 32px;
     border: 1px solid var(--border);
-    border-radius: var(--radius);
     color: var(--text-2);
     text-decoration: none;
     transition: border-color 0.15s, background 0.15s, color 0.15s;

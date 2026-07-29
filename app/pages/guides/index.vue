@@ -79,7 +79,7 @@ useSeoMeta({
     </div>
 
     <div class="guide-grid">
-      <NuxtLink
+      <NuxtLink  
         v-for="guide in filteredGuides"
         :key="guide.slug"
         :to="`/guides/${guide.slug}`"
@@ -95,9 +95,9 @@ useSeoMeta({
         </div>
 
         <div class="guide-card-body">
-          <span class="guide-tag">{{ guide.category }}</span>
-          <h2 class="guide-title">{{ guide.title }}</h2>
-          <p class="guide-preview">{{ guide.preview }}</p>
+          <span class="guide-tag" v-text="guide.category"></span>
+          <h2 class="guide-title" v-text="guide.title"></h2>
+          <p class="guide-preview" v-text="guide.preview"></p>
           <div class="guide-meta">
             <span>{{ getReadingTime(guide.content) }} min read</span>
             <span class="guide-meta-dot" />

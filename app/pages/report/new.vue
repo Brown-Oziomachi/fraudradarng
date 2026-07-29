@@ -341,7 +341,6 @@ const agreedToTerms = ref(false)
 .stat {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
   padding: 18px 16px;
   text-align: center;
 }
@@ -399,7 +398,6 @@ const agreedToTerms = ref(false)
 .testimonial-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
   padding: 20px;
   position: relative;
 }
@@ -453,7 +451,6 @@ const agreedToTerms = ref(false)
   background: rgba(248, 113, 113, 0.06);
   border: 1px solid rgba(248, 113, 113, 0.25);
   border-left: 3px solid #f87171;
-  border-radius: var(--radius);
   padding: 20px 22px;
   margin-bottom: 28px;
 }
@@ -519,15 +516,15 @@ const agreedToTerms = ref(false)
   font-family: var(--mono);
   font-size: 12px;
   letter-spacing: 0.04em;
-  background: var(--accent);
-  color: #0a0a0b;
+  background: var(--surface);
+  color: var(--text-1);
   font-weight: 600;
   border-radius: var(--radius);
   padding: 13px 26px;
   text-decoration: none;
   transition: background 0.15s ease, opacity 0.15s ease;
 }
-.continue-btn:hover { background: #d4eb3c; }
+.continue-btn:hover { background: var(--surface-2); }
 .continue-btn--disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -553,6 +550,8 @@ const agreedToTerms = ref(false)
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
+  margin-bottom: 28px;
+ 
 }
 @media (max-width: 640px) {
   .timeline-grid { grid-template-columns: 1fr; }
@@ -560,7 +559,6 @@ const agreedToTerms = ref(false)
 .timeline-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
   padding: 18px;
 }
 .timeline-label {
@@ -593,8 +591,8 @@ const agreedToTerms = ref(false)
   background: var(--surface);
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
-  border-radius: var(--radius);
   padding: 22px;
+  margin-bottom: 28px;
 }
 .share-title {
   font-family: var(--serif);

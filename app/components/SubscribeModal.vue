@@ -212,7 +212,6 @@ watch(
   max-width: 34rem;
   background: var(--card-bg, #ffffff);
   color: var(--text, #111111);
-  border-radius: 1.25rem;
   padding: 3rem 2.5rem 2.25rem;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
   text-align: center;
@@ -228,8 +227,8 @@ watch(
   align-items: center;
   justify-content: center;
   border: none;
-  background: transparent;
-  color: var(--text, #111111);
+  background: green;
+  color: white;
   cursor: pointer;
   border-radius: 50%;
   transition: background 0.15s ease;
@@ -263,7 +262,6 @@ watch(
   width: 100%;
   padding: 0.9rem 1.1rem;
   font-size: 1rem;
-  border-radius: 0.6rem;
   border: 1px solid var(--border, #dddddd);
   background: var(--input-bg, #f2f2f2);
   color: var(--text, #111111);
@@ -291,7 +289,6 @@ watch(
   font-size: 1rem;
   font-weight: 700;
   border: none;
-  border-radius: 0.6rem;
   background: var(--accent, #17181c);
   color: #ffffff;
   cursor: pointer;

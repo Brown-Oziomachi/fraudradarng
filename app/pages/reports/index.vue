@@ -384,9 +384,7 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <!-- ADDED: "Reports by state" widget — a ranked list stand-in
-               for a geographic heatmap, reusing the same bar-row styling
-               as "Trending scam types" above. -->
+        
           <div v-if="stateBars.length" class="widget">
             <h3 class="widget-title">Reports by state</h3>
             <div v-for="bar in stateBars" :key="bar.key" class="widget-bar-row">
@@ -581,7 +579,6 @@ onBeforeUnmount(() => {
   background: var(--surface);
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
-  border-radius: var(--radius);
   padding: 14px 16px;
   text-decoration: none;
   transition: border-color 0.15s, background 0.15s;

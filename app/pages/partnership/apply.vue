@@ -1,11 +1,4 @@
 <script setup lang="ts">
-/**
- * pages/partnership.vue
- * FRNG — Partnership recruitment page.
- * Form lives in a modal, triggered by CTAs across the page.
- * Uses the existing FRNG design tokens (--bg, --surface, --accent, --border,
- * --text-1/2/3, --mono, --serif, --radius) and [data-theme='dark'] theming.
- */
 
 import { ref, reactive, computed, watch, nextTick } from 'vue'
 
@@ -407,7 +400,7 @@ section {
   font-size: 0.8rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--text-2);
   margin-bottom: 1rem;
 }
 
@@ -429,8 +422,8 @@ section {
 
 /* ---------- Buttons ---------- */
 .btn-primary {
-  background: var(--accent);
-  color: #0b0d08;
+  background: var(--surface-2);
+  color: var(--text-1);
   border: none;
   border-radius: var(--radius);
   padding: 0.85rem 1.75rem;
@@ -452,8 +445,8 @@ section {
 }
 
 .btn-ghost {
-  background: transparent;
-  color: var(--accent);
+  background: var(--surface-2);
+  color: var(--text-1);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 0.65rem 1.25rem;

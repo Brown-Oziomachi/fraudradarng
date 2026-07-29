@@ -1,7 +1,7 @@
-import { createReport, checkRateLimit, recordSubmission } from '../utils/db'
-import { getReporterFingerprint, getReporterIpHash, getReporterDeviceId } from '../utils/reporterFingerprint'
-import { checkBlocked, getStrikeCount, WARN_AT } from '../utils/abuse-tracking'
-import { looksLikeInjectionAttempt, logSecurityIncident } from '../utils/security-incidents'
+import { createReport, checkRateLimit, recordSubmission } from '../../utils/db'
+import { getReporterFingerprint, getReporterIpHash, getReporterDeviceId } from '../../utils/reporterFingerprint'
+import { checkBlocked, getStrikeCount, WARN_AT } from '../../utils/abuse-tracking'
+import { looksLikeInjectionAttempt, logSecurityIncident } from '../../utils/security-incidents'
 import type { NewReportInput } from '#shared/types/report'
 
 export default defineEventHandler(async (event) => {
@@ -45,13 +45,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid target type' })
   }
 
-  // Check every free-text field a user could inject through — this fires
-  // rarely, only on actual attack-shaped payloads, matching the narrow scope
-  // described in the Privacy Notice.
   const fieldsToCheck = [
     body.description, body.companyName, body.companyAddress,
     body.websiteUrl, body.websiteName, body.bankName,
-    body.accountName, body.contactPlatform, body.state
+    body.accountName, body.contactPlatform,
   ]
   const suspiciousField = fieldsToCheck.find(looksLikeInjectionAttempt)
 
@@ -65,8 +62,8 @@ export default defineEventHandler(async (event) => {
   }
 
   const MAX_IMAGES = 5
-  const evidenceUrls = body.evidenceUrls?.slice(0, MAX_IMAGES)
-
+    const evidenceUrls = body.evidenceUrls?.slice(0, MAX_IMAGES)
+    
   const report = await createReport(
     {
       targetType: body.targetType,
@@ -77,12 +74,12 @@ export default defineEventHandler(async (event) => {
       companyName: body.companyName,
       companyAddress: body.companyAddress,
       websiteUrl: body.websiteUrl,
+      state: body.state,
       websiteName: body.websiteName,
       phoneNumber: body.phoneNumber,
       walletTag: body.walletTag,
       description: body.description,
       reason: body.reason,
-      state: body.state,
       amountInvolved: body.amountInvolved,
       contactPlatform: body.contactPlatform,
       evidenceUrls

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const messages = [
+  'Please wait...',
   'Loading reports…',
   'Getting community reports…',
   'Cross-checking flagged accounts…',
@@ -21,7 +22,7 @@ let timer: ReturnType<typeof setInterval> | null = null
 onMounted(() => {
   timer = setInterval(() => {
     index.value = (index.value + 1) % messages.length
-  }, 1300)
+  }, 1900)
 
   // lock page scroll while the modal is up
   document.body.style.overflow = 'hidden'
@@ -70,7 +71,6 @@ onUnmounted(() => {
   padding: 32px 40px;
   background: var(--surface);
   border: 1px solid var(--border-hi);
-  border-radius: 12px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
   min-width: 220px;
 }

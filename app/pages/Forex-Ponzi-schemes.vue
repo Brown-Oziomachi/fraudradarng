@@ -244,7 +244,6 @@ onMounted(() => {
   max-width: 600px;
   margin-bottom: 36px;
 }
-.section-title--light { color: #fff; }
 
 .steps-list {
   display: flex;
@@ -285,15 +284,15 @@ onMounted(() => {
 
 /* WHY SECTION — dark inverted panel for contrast */
 .why-section {
-  background: #0d1410;
+  background: var(--surface-2);
   padding: 64px 24px;
 }
 
 .why-inner {
   max-width: 1000px;
   margin: 0 auto;
+  
 }
-.why-inner .eyebrow { color: rgba(255,255,255,0.55); }
 
 .why-grid {
   display: grid;
@@ -306,9 +305,8 @@ onMounted(() => {
 }
 
 .why-card {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius);
   padding: 22px;
 }
 
@@ -321,7 +319,6 @@ onMounted(() => {
 
 .why-body {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
   line-height: 1.7;
   font-weight: 300;
 }
@@ -336,7 +333,6 @@ onMounted(() => {
 .pattern-frame {
   position: relative;
   border: 1px solid var(--border-hi);
-  border-radius: 18px;
   padding: 44px 28px 28px;
 }
 
@@ -347,7 +343,6 @@ onMounted(() => {
   transform: translateY(-50%);
   background: var(--bg);
   border: 1px solid var(--border-hi);
-  border-radius: 8px;
   padding: 7px 16px;
   font-family: var(--mono);
   font-size: 11px;
@@ -435,10 +430,10 @@ onMounted(() => {
 .btn--accent {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0a0a0b;
+  color: oklab(100% 0 -0.00011);
   font-weight: 700;
 }
-.btn--accent:hover { background: #d4eb3c; border-color: #d4eb3c; }
+.btn--accent:hover { background: #3c8e4d; border-color: #d4eb3c; }
 
 .btn--outline-dark {
   background: transparent;

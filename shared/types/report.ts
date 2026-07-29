@@ -32,7 +32,7 @@ export interface Report {
   companyAddress?: string
   websiteUrl?: string
   websiteName?: string
-
+  state?: string
   regulatoryStatus?: 'unregistered' | 'probation' | 'registered'
   regulatoryStatusNote?: string
   regulatoryStatusUpdatedAt?: string
@@ -63,7 +63,7 @@ export type NewReportInput = Pick<
   | 'bankName' | 'accountName' | 'accountNumber'
   | 'companyName' | 'companyAddress'
   | 'websiteUrl' | 'websiteName'
-  | 'phoneNumber'                    // NEW LOOKUP
+  | 'phoneNumber' | 'state'                   // NEW LOOKUP
   | 'walletProvider' | 'walletTag'   // NEW LOOKUP
   | 'description' | 'reason' | 'amountInvolved' | 'contactPlatform' | 'evidenceUrls'
 >

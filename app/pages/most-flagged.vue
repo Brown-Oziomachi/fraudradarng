@@ -181,7 +181,6 @@ const totalReportsAcrossFlagged = computed(() =>
   padding: 16px 24px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
   min-width: 160px;
 }
 .stat-value {

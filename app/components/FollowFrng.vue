@@ -1,15 +1,11 @@
 <script setup>
-/**
- * <FollowFrng />
- * Drop into any page: <FollowFrng />
- * Put your illustration in /public (e.g. /images/follow-illustration.svg or .png)
- * and set the `illustration` prop, or just edit the default below.
- */
+import FrngWordmark from './FrngWordmark.vue';
+
 
 const props = defineProps({
   illustration: {
     type: String,
-    default: '/FRLOGO.png',
+    default: '/follow.png',
   },
   hashtag: {
     type: String,
@@ -89,7 +85,7 @@ const platforms = computed(() => [
     id: 'youtube',
     label: 'YouTube',
     handle: props.handles.youtube,
-    href: `https://youtube.com/${props.handles.youtube.replace('@', '')}`,
+    href: `https://youtube.com/${props.handles.youtube.replace('@', '@')}`,
     bg: '#e02323',
   },
   {
@@ -172,7 +168,9 @@ const platforms = computed(() => [
       </div>
     </Transition>
   </section>
+ 
 </template>
+
 
 <script>
 // Inline icon set — no external icon package required.
@@ -186,7 +184,6 @@ const icons = {
 }
 export default { data: () => ({ icons }) }
 </script>
-
 <style scoped>
 .follow {
   background: var(--bg);

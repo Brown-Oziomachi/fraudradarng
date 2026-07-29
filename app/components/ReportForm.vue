@@ -337,9 +337,9 @@ async function submitReport() {
       })
 
       try {
-        const mine = JSON.parse(localStorage.getItem('myReportIds') || '[]')
-        mine.push(report.id)
-        localStorage.setItem('myReportIds', JSON.stringify(mine))
+        const mine = JSON.parse(localStorage.getItem('myReportSubmissions') || '[]')
+        mine.push({ reportId: report.id, submissionId: (report as any).submissionId })
+        localStorage.setItem('myReportSubmissions', JSON.stringify(mine))
       } catch {
       }
 
@@ -955,19 +955,25 @@ function finishSuccess() {
 }
 
 /* ============ SHARED ============ */
-.dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+.dot { 
+  width: 6px; 
+  height: 6px;
+   background: var(--accent); 
+   border-radius: 50%; }
 
 .form-group {
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  
 }
 
 .field-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+  
 }
 @media (max-width: 640px) {
   .field-grid { grid-template-columns: 1fr; }
@@ -979,18 +985,20 @@ label {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-3);
+  
 }
 
 .type-tabs {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  
 }
 .type-tab {
   font-family: var(--mono);
   font-size: 12px;
   letter-spacing: 0.04em;
-  background: var(--bg);
+  background: var(--surface);
   color: var(--text-3);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -1010,8 +1018,8 @@ label {
 }
 
 .input {
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: var(--surface);
+    border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px 16px;
   color: var(--text-1);
@@ -1149,8 +1157,8 @@ select.input {
 }
 
 .btn-submit {
-  background: var(--accent);
-  color: #0a0a0b;
+  background: var(--surface-2);
+  color: var(--text-1);
   font-weight: 600;
   font-family: var(--mono);
   font-size: 12.5px;
@@ -1161,7 +1169,7 @@ select.input {
   cursor: pointer;
   min-height: 50px;
 }
-.btn-submit:hover { background: #d4eb3c; }
+.btn-submit:hover { background: #2a7e50; }
 .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .back-link {
@@ -1378,21 +1386,22 @@ select.input {
 .step-card {
   order: 1;
   width: 100%;
+  
 }
 
 .step-rail {
   order: 2;
-  display: flex;              /* was: flex-direction: column */
+  display: flex;             
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
   gap: 24px;
   padding-top: 0;
-  position: static;           /* drop sticky, it doesn't make sense below content */
+  position: static;          
 }
 
 @media (max-width: 640px) {
-  .step-card { padding: 26px 22px; min-height: 0; }
+  .step-card { padding: 26px 22px; min-height: 0;  }
 }
 
 .step {
@@ -1426,6 +1435,7 @@ select.input {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  
 }
 
 .option-card {
@@ -1433,7 +1443,7 @@ select.input {
   align-items: center;
   gap: 16px;
   text-align: left;
-  background: var(--bg);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 20px 22px;
@@ -1473,6 +1483,7 @@ select.input {
   margin-top: 10px;
   padding-top: 24px;
   border-top: 1px solid var(--border);
+  
 }
 
 /* Review step */
@@ -1484,6 +1495,7 @@ select.input {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  
 }
 .review-row {
   display: flex;
@@ -1491,7 +1503,7 @@ select.input {
   gap: 18px;
   padding: 16px 20px;
   border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--surface);
 }
 .review-row:last-child { border-bottom: none; }
 .review-row--desc {

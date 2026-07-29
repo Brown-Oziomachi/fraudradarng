@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Report, ScamCategory } from '#shared/types/report'
-
+definePageMeta({
+  hideFooter: true,
+})
 const route = useRoute()
 const router = useRouter()
 const id = route.params.id as string
@@ -31,11 +33,49 @@ function goBack() {
   }
 }
 
+// after
 const showUnverifiedInfo = ref(false)
 
 function toggleUnverifiedInfo() {
   showUnverifiedInfo.value = !showUnverifiedInfo.value
 }
+
+interface OwnedSubmission {
+  reportId: string
+  submissionId: string
+}
+
+const isOwner = ref(false)
+const ownedSubmissionId = ref<string | undefined>(undefined)
+
+function checkOwnership() {
+  try {
+    const mine: OwnedSubmission[] = JSON.parse(localStorage.getItem('myReportSubmissions') || '[]')
+    const match = mine.find(m => m.reportId === id)
+    if (match) {
+      isOwner.value = true
+      ownedSubmissionId.value = match.submissionId
+      return
+    }
+  } catch {
+    // localStorage unavailable or malformed — treat as not-owner
+  }
+  try {
+    const legacyMine: string[] = JSON.parse(localStorage.getItem('myReportIds') || '[]')
+    if (legacyMine.includes(id)) {
+      isOwner.value = true
+    }
+  } catch {
+    // same as above
+  }
+}
+
+const editLink = computed(() => {
+  if (!isOwner.value) return null
+  return ownedSubmissionId.value
+    ? `/reports/${id}/edit?submissionId=${ownedSubmissionId.value}`
+    : `/reports/${id}/edit`
+})
 
 const displayTitle = computed(() => {
   const r = report.value
@@ -152,8 +192,6 @@ const sharedFields = computed(() => {
   if (r.contactPlatform) {
     fields.push({ label: 'Contact platform', value: r.contactPlatform })
   }
-  // ADDED: surfaces the state field captured on the report form, alongside
-  // the other cross-cutting details that aren't tied to a specific target type.
   if (r.state) {
     fields.push({ label: 'State', value: r.state })
   }
@@ -228,14 +266,12 @@ function handleLightboxKeydown(e: KeyboardEvent) {
   else if (e.key === 'Escape') closeImage()
 }
 
-onMounted(() => window.addEventListener('keydown', handleLightboxKeydown))
+onMounted(() => {
+  checkOwnership()
+  window.addEventListener('keydown', handleLightboxKeydown)
+})
 onUnmounted(() => window.removeEventListener('keydown', handleLightboxKeydown))
 
-// ============ ADDED: everything below is new — nothing above was changed ============
-
-// --- Verification progress meter ---
-// Mirrors the "3 independent reports = Highly Suspicious" rule already
-// explained in the unverified-badge popover above.
 const confirmationsNeeded = 3
 const confirmationsCount = computed(() => {
   const r = report.value
@@ -243,12 +279,6 @@ const confirmationsCount = computed(() => {
   return Math.min(r.distinctReporterCount ?? r.reportCount ?? 1, confirmationsNeeded)
 })
 const confirmationsPct = computed(() => Math.round((confirmationsCount.value / confirmationsNeeded) * 100))
-
-// --- Trust & similar-reports sidebar ---
-// Client-only supplementary fetch — pulls the general reports feed and
-// filters to the same category on the client so it doesn't block or slow
-// down the main report's SSR render. If a dedicated `/api/reports?category=`
-// filter exists server-side, swapping this fetch to use it would be cheaper.
 const { data: relatedFeed } = await useLazyFetch<{ reports: Report[] }>('/api/reports', {
   server: false
 })
@@ -314,9 +344,6 @@ useHead(() => ({
       This report could not be found. It may have been removed.
     </p>
 
-    <!-- ADDED: detail-grid wraps the article in a main column and introduces
-         a sidebar (desktop only, from 1080px). The article's own markup is
-         completely unchanged apart from the two new panels marked below. -->
     <div v-if="report" class="detail-grid">
       <div class="main-col">
         <article class="post">
@@ -402,6 +429,11 @@ useHead(() => ({
             </div>
           </div>
 
+        <div v-if="editLink" class="own-report-banner">
+            <span>This is your report</span>
+            <NuxtLink :to="editLink" class="own-report-edit-btn">Edit report →</NuxtLink>
+          </div>
+
           <p class="post-desc">{{ report.description }}</p>
 
           <div v-if="images.length" class="gallery-carousel-wrap">
@@ -429,17 +461,26 @@ useHead(() => ({
             </dl>
           </div>
 
-          <div v-if="sharedFields.length" class="details-panel">
-            <h2 class="details-heading">Additional details</h2>
-            <dl class="details-list">
-              <div v-for="field in sharedFields" :key="field.label" class="details-row">
-                <dt>{{ field.label }}</dt>
-                <dd>{{ field.value }}</dd>
-              </div>
-            </dl>
-          </div>
+        <div v-if="sharedFields.length" class="details-panel">
+          <h2 class="details-heading">Additional details</h2>
+          
+          <dl class="details-list">
+            <div v-for="field in sharedFields" :key="field.label" class="details-row">
+              <dt>{{ field.label }}</dt>
+              <dd>{{ field.value }}</dd>
+            </div>
+          </dl>
+          <p 
+            v-if="report?.state && !['unspecified', 'prefer not to say'].includes(report.state.toLowerCase())" 
+            class="details-note"
+          >
+            <strong>Note:</strong> This event occurred in {{ report.state }} State, Nigeria.
+          </p>
+          <p v-else class="details-note">
+            <strong>Note:</strong> The location state for this event was not specified.
+          </p>
+        </div>
 
-          <!-- Other reporters' submissions on the same target -->
           <div v-if="report.additionalReports?.length" class="details-panel details-panel--reporters">
             <h2 class="details-heading">
               Also reported by {{ report.additionalReports.length }} other{{ report.additionalReports.length > 1 ? 's' :
@@ -474,7 +515,7 @@ useHead(() => ({
               </div>
             </div>
           </div>
-
+          <ReportersPanel :report="report"/>
           <div class="post-footer">
             <span class="footer-label">Reported</span>
             <span>{{ timeAgo || 'recently' }}</span>
@@ -581,7 +622,9 @@ useHead(() => ({
     </div>
 
     <!-- ADDED: sticky mobile action bar -->
+    <!-- after -->
     <div v-if="report" class="mobile-sticky-bar">
+      <NuxtLink v-if="editLink" :to="editLink" class="mobile-sticky-btn">Edit</NuxtLink>
       <NuxtLink :to="`/flag/report?reportId=${id}`" class="mobile-sticky-btn">
         <svg viewBox="0 0 24 24" width="16" height="16">
           <path fill="currentColor" d="M4 2v20h2v-7h13l-2.5-5L19 5H6V2z" />
@@ -676,7 +719,6 @@ useHead(() => ({
 .detail-grid .post {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -698,7 +740,6 @@ useHead(() => ({
   background: var(--surface-2);
   border: 1px solid var(--border);
   padding: 2px 8px;
-  border-radius: 3px;
 }
 
 .category-chip {
@@ -710,7 +751,6 @@ useHead(() => ({
   background: var(--accent-dim, rgba(232, 255, 71, 0.08));
   border: 1px solid rgba(232, 255, 71, 0.25);
   padding: 2px 8px;
-  border-radius: 3px;
 }
 
 .badge-count {
@@ -721,7 +761,6 @@ useHead(() => ({
   background: rgba(74, 222, 128, 0.07);
   border: 1px solid rgba(74, 222, 128, 0.18);
   padding: 2px 8px;
-  border-radius: 3px;
 }
 
 .badge-count.high {
@@ -749,14 +788,12 @@ useHead(() => ({
   /* FIXED: keep the bar from collapsing to nothing when wrapped */
   height: 6px;
   background: var(--surface-2);
-  border-radius: 4px;
   overflow: hidden;
 }
 
 .verify-meter-fill {
   height: 100%;
   background: linear-gradient(90deg, #eab308, var(--accent));
-  border-radius: 4px;
   transition: width 0.5s ease;
 }
 
@@ -771,7 +808,6 @@ useHead(() => ({
 .verify-meter--complete {
   background: rgba(74, 222, 128, 0.07);
   border: 1px solid rgba(74, 222, 128, 0.18);
-  border-radius: 6px;
   padding: 8px 12px;
 }
 
@@ -843,12 +879,36 @@ useHead(() => ({
   white-space: pre-wrap;
 }
 
+.own-report-banner {
+  margin: 14px 16px 0;
+  padding: 10px 14px;
+  background: var(--accent-dim, rgba(232, 255, 71, 0.08));
+  border: 1px solid rgba(232, 255, 71, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text-2);
+}
+
+.own-report-edit-btn {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.own-report-edit-btn:hover {
+  text-decoration: underline;
+}
+
 .details-panel {
   margin: 18px 16px 0;
   padding: 14px;
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: 8px;
 }
 
 .details-heading {
@@ -925,7 +985,6 @@ useHead(() => ({
   flex: 0 0 auto;
   width: 160px;
   height: 160px;
-  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
   scroll-snap-align: start;
@@ -948,7 +1007,6 @@ useHead(() => ({
   color: #fff;
   background: rgba(0, 0, 0, 0.6);
   padding: 2px 6px;
-  border-radius: 4px;
 }
 
 .gallery-arrow {
@@ -1041,7 +1099,7 @@ useHead(() => ({
   }
 
   .details-row dd {
-    text-align: left;
+    text-align: center;
   }
 
   .post-footer {
@@ -1058,7 +1116,6 @@ useHead(() => ({
   .gallery-thumb {
     width: 45vw;
     height: 45vw;
-    border-radius: 8px;
   }
 
   .gallery-thumb-index {
@@ -1180,7 +1237,6 @@ useHead(() => ({
   width: 64px;
   height: 64px;
   object-fit: cover;
-  border-radius: 6px;
   border: 1px solid var(--border-hi);
   cursor: pointer;
 }
@@ -1198,7 +1254,6 @@ useHead(() => ({
   padding: 18px;
   background: var(--accent-dim, rgba(232, 255, 71, 0.06));
   border: 1px solid rgba(232, 255, 71, 0.25);
-  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1225,7 +1280,6 @@ useHead(() => ({
   font-size: 12px;
   letter-spacing: 0.03em;
   padding: 12px 20px;
-  border-radius: 6px;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -1243,7 +1297,6 @@ useHead(() => ({
   background: rgba(248, 113, 113, 0.08);
   border: 1px solid rgba(248, 113, 113, 0.25);
   padding: 2px 8px;
-  border-radius: 3px;
 }
 
 .badge-unverified-wrap {
@@ -1262,7 +1315,6 @@ useHead(() => ({
   background: rgba(234, 179, 8, 0.08);
   border: 1px solid rgba(234, 179, 8, 0.25);
   padding: 2px 8px;
-  border-radius: 3px;
 }
 
 .badge-info-btn {
@@ -1300,7 +1352,6 @@ useHead(() => ({
   max-width: 260px;
   background: var(--surface);
   border: 1px solid var(--border-hi);
-  border-radius: 8px;
   padding: 12px 14px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   animation: popover-drop-in 0.15s ease-out;
@@ -1349,7 +1400,6 @@ useHead(() => ({
   .badge-popover {
     position: fixed;
     top: auto;
-    bottom: 20px;
     left: 16px;
     right: 16px;
     max-width: none;
@@ -1392,6 +1442,16 @@ useHead(() => ({
   margin-bottom: 8px;
 }
 
+.details-note {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--accent-bdr);
+  border-left: 4px solid #2b6e4d;
+  font-size: 0.875rem;
+  color: var(--text-2);
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+
 .reporter-badge {
   display: inline-block;
   font-family: var(--mono);
@@ -1402,7 +1462,6 @@ useHead(() => ({
   background: rgba(248, 113, 113, 0.08);
   border: 1px solid rgba(248, 113, 113, 0.25);
   padding: 3px 9px;
-  border-radius: 4px;
 }
 
 /* ADDED: printable evidence packet panel */
@@ -1411,7 +1470,6 @@ useHead(() => ({
   padding: 16px;
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1448,7 +1506,6 @@ useHead(() => ({
   background: none;
   color: var(--text-1);
   border: 1px solid var(--border-hi);
-  border-radius: 6px;
   padding: 10px 16px;
   cursor: pointer;
   white-space: nowrap;
@@ -1476,7 +1533,6 @@ useHead(() => ({
 .regulatory-badge {
   margin: 0 16px 14px;
   padding: 12px 14px;
-  border-radius: 8px;
   font-size: 12.5px;
   line-height: 1.6;
 }
@@ -1525,7 +1581,6 @@ useHead(() => ({
 .widget {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius, 8px);
   padding: 16px;
 }
 
@@ -1581,7 +1636,6 @@ useHead(() => ({
   gap: 10px;
   padding: 8px 4px;
   text-decoration: none;
-  border-radius: 6px;
   transition: background 0.15s;
 }
 
@@ -1667,7 +1721,6 @@ useHead(() => ({
   justify-content: center;
   gap: 6px;
   padding: 11px 8px;
-  border-radius: 8px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--text-1);

@@ -111,10 +111,36 @@ const previewDescription = computed(() => {
 })
 
 const isOwner = ref(false)
+const ownSubmissionId = ref<string | undefined>(undefined)
+
 onMounted(() => {
+  // Only the MAIN reporter gets an Edit button on the card itself.
+  // Additional reporters' edit access lives inside ReportersPanel, next to
+  // their own row/detail — not here, to avoid implying this card edits
+  // "the whole report" when an additional reporter only owns their slice.
+  const mainSubmissionId = (props.report as any).submissionId as string | undefined
+
   try {
-    const mine: string[] = JSON.parse(localStorage.getItem('myReportIds') || '[]')
-    isOwner.value = mine.includes(props.report.id)
+    const mine: { reportId: string; submissionId: string }[] =
+      JSON.parse(localStorage.getItem('myReportSubmissions') || '[]')
+    const match = mine.find(m => m.reportId === props.report.id)
+    if (match && mainSubmissionId && match.submissionId === mainSubmissionId) {
+      isOwner.value = true
+      ownSubmissionId.value = match.submissionId
+      return
+    }
+    // A match that isn't the main submission means this browser owns one
+    // of the additionalReports entries instead — deliberately leave
+    // isOwner false here; that ownership surfaces in ReportersPanel.
+    if (match) return
+  } catch { }
+
+  // Legacy fallback predates submissionId entirely — a match here only
+  // ever meant "I was the original/main reporter", so it's safe to grant
+  // main-card ownership.
+  try {
+    const legacyMine: string[] = JSON.parse(localStorage.getItem('myReportIds') || '[]')
+    isOwner.value = legacyMine.includes(props.report.id)
   } catch {
     isOwner.value = false
   }
@@ -136,45 +162,49 @@ async function shareReport() {
     // user cancelled share sheet or clipboard blocked — no-op
   }
 }
+
+const editLink = computed(() => {
+  if (ownSubmissionId.value) {
+    return `/reports/${props.report.id}/edit?submissionId=${ownSubmissionId.value}`
+  }
+  return `/reports/${props.report.id}/edit`
+})
 </script>
 
 <template>
   <article class="card">
-  <div class="card-top">
-  <span class="type-chip">{{ typeLabel }}</span>
-  <span v-if="categoryLabel" class="category-chip">{{ categoryLabel }}</span>
-  <span class="badge-count" :class="{ high: report.reportCount ? report.reportCount >= 3 : false }">
-    Flagged {{ report.reportCount ?? 1 }}x
-  </span>
-  <span
-    v-if="regulatoryBadge"
-    class="regulatory-chip"
-    :class="`regulatory-chip--${regulatoryBadge.tone}`"
-    :title="report.regulatoryStatusNote || 'Reflects regulatory registration status only — does not confirm or resolve this fraud report.'"
-  >
-    {{ regulatoryBadge.label }}
-  </span>
-</div>
+    <div class="card-top">
+      <span class="type-chip">{{ typeLabel }}</span>
+      <span v-if="categoryLabel" class="category-chip">{{ categoryLabel }}</span>
+      <span class="badge-count" :class="{ high: report.reportCount ? report.reportCount >= 3 : false }">
+        Flagged {{ report.reportCount ?? 1 }}x
+      </span>
+      <span v-if="regulatoryBadge" class="regulatory-chip" :class="`regulatory-chip--${regulatoryBadge.tone}`"
+        :title="report.regulatoryStatusNote || 'Reflects regulatory registration status only — does not confirm or resolve this fraud report.'">
+        {{ regulatoryBadge.label }}
+      </span>
+    </div>
 
-   <NuxtLink :to="`/reports/${report.id}`" class="post-header-link">
-  <div class="post-header">
-    <div class="avatar avatar--flagged">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-        <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-    <div class="post-header-text">
-      <span class="post-name-label">Flagged Account | Illegal Operator</span>
-      <span class="post-name">{{ displayTitle }}</span>
-      <div class="post-meta">
-        <span>{{ displaySubtitle }}</span>
-        <span v-if="timeAgo" class="post-dot">·</span>
-        <span v-if="timeAgo">reported {{ timeAgo }}</span>
+    <NuxtLink :to="`/reports/${report.id}`" class="post-header-link">
+      <div class="post-header">
+        <div class="avatar avatar--flagged">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+            <path
+              d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div class="post-header-text">
+          <span class="post-name-label">Flagged Account | Illegal Operator</span>
+          <span class="post-name">{{ displayTitle }}</span>
+          <div class="post-meta">
+            <span>{{ displaySubtitle }}</span>
+            <span v-if="timeAgo" class="post-dot">·</span>
+            <span v-if="timeAgo">reported {{ timeAgo }}</span>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</NuxtLink>
+    </NuxtLink>
 
     <div class="card-body">
       <p class="card-desc">
@@ -185,17 +215,9 @@ async function shareReport() {
       </p>
     </div>
 
-    <NuxtLink
-      v-if="previewImages.length"
-      :to="`/reports/${report.id}`"
-      class="gallery"
-      :class="`gallery-${previewImages.length}`"
-    >
-      <div
-        v-for="(img, index) in previewImages"
-        :key="index"
-        class="gallery-cell"
-      >
+    <NuxtLink v-if="previewImages.length" :to="`/reports/${report.id}`" class="gallery"
+      :class="`gallery-${previewImages.length}`">
+      <div v-for="(img, index) in previewImages" :key="index" class="gallery-cell">
         <img :src="img" class="gallery-img" :alt="`Evidence ${index + 1}`" />
         <span v-if="index === 2 && remainingCount > 0" class="gallery-more-overlay">
           +{{ remainingCount }} more
@@ -207,20 +229,28 @@ async function shareReport() {
       <span class="tag">{{ displayChip }}</span>
     </div>
 
-    <!-- ACTION BAR — edit (owner only), report, share -->
+    <!-- ACTION BAR — edit (main reporter only), report, share -->
     <div class="action-bar">
-      <NuxtLink v-if="isOwner" :to="`/reports/${report.id}/edit`" class="action-btn">
-        <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z"/></svg>
+      <NuxtLink v-if="isOwner" :to="editLink" class="action-btn">
+        <svg viewBox="0 0 24 24" width="15" height="15">
+          <path fill="currentColor"
+            d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z" />
+        </svg>
         Edit
       </NuxtLink>
 
-    <NuxtLink :to="`/flag/report?reportId=${report.id}`" class="action-btn">
-        <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M4 2v20h2v-7h13l-2.5-5L19 5H6V2z"/></svg>
+      <NuxtLink :to="`/flag/report?reportId=${report.id}`" class="action-btn">
+        <svg viewBox="0 0 24 24" width="15" height="15">
+          <path fill="currentColor" d="M4 2v20h2v-7h13l-2.5-5L19 5H6V2z" />
+        </svg>
         Dispute
       </NuxtLink>
 
       <button type="button" class="action-btn" @click="shareReport">
-        <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 1 0-3-3c0 .24.04.47.09.7L8.04 9.81A2.99 2.99 0 0 0 3 12a3 3 0 0 0 5.04 2.19l7.12 4.16c-.05.21-.08.43-.08.65a3 3 0 1 0 3-3z"/></svg>
+        <svg viewBox="0 0 24 24" width="15" height="15">
+          <path fill="currentColor"
+            d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 1 0-3-3c0 .24.04.47.09.7L8.04 9.81A2.99 2.99 0 0 0 3 12a3 3 0 0 0 5.04 2.19l7.12 4.16c-.05.21-.08.43-.08.65a3 3 0 1 0 3-3z" />
+        </svg>
         {{ copied ? 'Link copied!' : 'Share' }}
       </button>
     </div>
@@ -231,12 +261,10 @@ async function shareReport() {
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
   overflow: hidden;
   transition: border-color 0.2s, transform 0.2s;
   margin-bottom: 16px;
 }
-.card:hover { border-color: var(--border-hi); }
 
 .card-top {
   display: flex;
@@ -248,32 +276,47 @@ async function shareReport() {
 }
 
 .type-chip {
-  font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--text-3);
-  background: var(--surface-2); border: 1px solid var(--border);
-  padding: 2px 8px; border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
 }
 
 .category-chip {
-  font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--accent);
-  background: var(--accent-dim, rgba(232,255,71,0.08));
-  border: 1px solid rgba(232,255,71,0.25);
-  padding: 2px 8px; border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-dim, rgba(232, 255, 71, 0.08));
+  border: 1px solid rgba(232, 255, 71, 0.25);
+  padding: 2px 8px;
 }
 
 .badge-count {
-  font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em;
-  color: #4ade80; background: rgba(74,222,128,0.07);
-  border: 1px solid rgba(74,222,128,0.18);
-  padding: 2px 8px; border-radius: 3px;
-}
-.badge-count.high {
-  color: #f87171; background: rgba(248,113,113,0.08);
-  border-color: rgba(248,113,113,0.25);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.07);
+  border: 1px solid rgba(74, 222, 128, 0.18);
+  padding: 2px 8px;
 }
 
-.post-header-link { text-decoration: none; display: block; }
+.badge-count.high {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+  border-color: rgba(248, 113, 113, 0.25);
+}
+
+.post-header-link {
+  text-decoration: none;
+  display: block;
+}
 
 .post-header {
   display: flex;
@@ -298,7 +341,10 @@ async function shareReport() {
   flex-shrink: 0;
 }
 
-.post-header-text { flex: 1; min-width: 0; }
+.post-header-text {
+  flex: 1;
+  min-width: 0;
+}
 
 .post-name {
   font-family: var(--serif);
@@ -308,19 +354,28 @@ async function shareReport() {
 }
 
 .post-meta {
-  display: flex; align-items: center; gap: 6px;
-  font-family: var(--mono); font-size: 11px; color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-3);
   margin-top: 2px;
 }
-.post-dot { color: var(--border-hi); }
 
-.card-body { padding: 10px 14px; }
+.post-dot {
+  color: var(--border-hi);
+}
 
-/* Preserve real line breaks and spacing from the original text
-   instead of letting HTML collapse them */
+.card-body {
+  padding: 10px 14px;
+}
+
 .card-desc {
-  font-size: 13px; color: var(--text-2);
-  line-height: 1.6; font-weight: 300;
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.6;
+  font-weight: 300;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -333,40 +388,76 @@ async function shareReport() {
   margin-left: 4px;
   white-space: nowrap;
 }
-.continue-inline:hover { text-decoration: underline; }
+
+.continue-inline:hover {
+  text-decoration: underline;
+}
 
 .gallery {
   display: grid;
   gap: 3px;
   margin: 0 14px 12px;
-  border-radius: 8px;
   overflow: hidden;
   text-decoration: none;
 }
 
-.gallery-1 { grid-template-columns: 1fr; }
-.gallery-1 .gallery-cell { aspect-ratio: 16 / 9; }
-
-.gallery-2 { grid-template-columns: 1fr 1fr; }
-.gallery-2 .gallery-cell { aspect-ratio: 1; }
-
-.gallery-3 { grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; height: 220px; }
-.gallery-3 .gallery-cell:first-child { grid-row: 1 / span 2; }
-
-.gallery-cell { position: relative; overflow: hidden; }
-.gallery-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-.gallery-more-overlay {
-  position: absolute; inset: 0;
-  background: rgba(10,10,11,0.6);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--mono); font-size: 13px; color: #fff;
+.gallery-1 {
+  grid-template-columns: 1fr;
 }
 
-.card-footer { padding: 10px 14px 0; }
+.gallery-1 .gallery-cell {
+  aspect-ratio: 16 / 9;
+}
+
+.gallery-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.gallery-2 .gallery-cell {
+  aspect-ratio: 1;
+}
+
+.gallery-3 {
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  height: 220px;
+}
+
+.gallery-3 .gallery-cell:first-child {
+  grid-row: 1 / span 2;
+}
+
+.gallery-cell {
+  position: relative;
+  overflow: hidden;
+}
+
+.gallery-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-more-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 11, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: #fff;
+}
+
+.card-footer {
+  padding: 10px 14px 0;
+}
 
 .tag {
-  font-family: var(--mono); font-size: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
   color: var(--text-3);
   word-break: break-all;
 }
@@ -377,6 +468,7 @@ async function shareReport() {
   border-top: 1px solid var(--border);
   margin-top: 10px;
 }
+
 .action-btn {
   flex: 1;
   display: flex;
@@ -392,15 +484,24 @@ async function shareReport() {
   color: var(--text-3);
   text-decoration: none;
 }
-.action-btn:hover { background: var(--surface-2); color: var(--text-1); }
+
+.action-btn:hover {
+  background: var(--surface-2);
+  color: var(--text-1);
+}
 
 /* MODAL */
 .modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 200; padding: 20px;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
 }
+
 .modal {
   background: var(--surface);
   border: 1px solid var(--border-hi);
@@ -409,8 +510,21 @@ async function shareReport() {
   max-width: 380px;
   width: 100%;
 }
-.modal-title { font-family: var(--serif); font-size: 17px; color: var(--text-1); margin-bottom: 6px; }
-.modal-sub { font-size: 12px; color: var(--text-3); margin-bottom: 14px; line-height: 1.6; }
+
+.modal-title {
+  font-family: var(--serif);
+  font-size: 17px;
+  color: var(--text-1);
+  margin-bottom: 6px;
+}
+
+.modal-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+
 .modal-select {
   width: 100%;
   background: var(--bg);
@@ -421,20 +535,47 @@ async function shareReport() {
   font-size: 13px;
   margin-bottom: 14px;
 }
-.modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .modal-cancel {
-  background: none; border: 1px solid var(--border);
-  color: var(--text-3); font-family: var(--mono); font-size: 11px;
-  padding: 8px 14px; border-radius: var(--radius); cursor: pointer;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-3);
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
 }
+
 .modal-submit {
-  background: var(--accent); color: #0a0a0b; font-weight: 600;
-  font-family: var(--mono); font-size: 11px;
-  padding: 8px 14px; border-radius: var(--radius); border: none; cursor: pointer;
+  background: var(--accent);
+  color: #0a0a0b;
+  font-weight: 600;
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
 }
-.modal-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.modal-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .modal-success {
-  font-family: var(--mono); font-size: 13px; color: #4ade80; text-align: center; padding: 10px 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: #4ade80;
+  text-align: center;
+  padding: 10px 0;
 }
 
 .avatar--flagged {
@@ -454,18 +595,30 @@ async function shareReport() {
 }
 
 .regulatory-chip {
-  font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 2px 8px; border-radius: 3px;
+  padding: 2px 8px;
+  border-radius: 3px;
   cursor: help;
 }
+
 .regulatory-chip--unregistered {
-  color: #f87171; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.25);
 }
+
 .regulatory-chip--probation {
-  color: #eab308; background: rgba(234,179,8,0.08); border: 1px solid rgba(234,179,8,0.25);
+  color: #eab308;
+  background: rgba(234, 179, 8, 0.08);
+  border: 1px solid rgba(234, 179, 8, 0.25);
 }
+
 .regulatory-chip--registered {
-  color: #4ade80; background: rgba(74,222,128,0.07); border: 1px solid rgba(74,222,128,0.18);
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.07);
+  border: 1px solid rgba(74, 222, 128, 0.18);
 }
 </style>
