@@ -302,9 +302,8 @@ useHead({
 }
 
 .pillar-card {
-  background: var(--card-bg, rgba(128, 128, 128, 0.05));
+  background: var(--surface);
   border: 1px solid var(--border-color, rgba(128, 128, 128, 0.15));
-  border-radius: 12px;
   padding: 1.25rem 1.5rem;
   display: grid;
   grid-template-columns: auto 1fr;
@@ -420,7 +419,6 @@ useHead({
    instead of shrinking to fit the viewport. */
 .flow-scroll-wrap {
   width: 100%;
-  border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--border-color, rgba(128, 128, 128, 0.15));
   margin-bottom: 0.6rem;
@@ -451,7 +449,7 @@ useHead({
     width: auto;
     max-width: none;
     min-width: 820px; /* keeps each of the 6 steps at a readable size */
-    height: 320px;
+    height: 420px;
     object-fit: cover;
   }
   .scroll-hint {
@@ -473,9 +471,8 @@ useHead({
 }
 
 .benefit-card {
-  background: var(--card-bg, rgba(128, 128, 128, 0.05));
+  background: var(--surface, rgba(128, 128, 128, 0.05));
   border: 1px solid var(--border-color, rgba(128, 128, 128, 0.15));
-  border-radius: 12px;
   padding: 1.5rem 1.75rem;
 }
 

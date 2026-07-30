@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { Report, ScamCategory } from '#shared/types/report'
+
+type ReportWithState = Report & { state?: string; additionalReports?: ReportWithState[] }
+
 definePageMeta({
   hideFooter: true,
 })
@@ -8,8 +11,8 @@ const router = useRouter()
 const id = route.params.id as string
 const detailCache = useReportDetailCache()
 
-const cached = detailCache.value[id]
-const report = ref<Report & { state?: string } | null>(cached ?? null)
+const cached = detailCache.value[id] as ReportWithState | undefined
+const report = ref<ReportWithState | null>(cached ?? null)
 const pending = ref(!cached)
 const error = ref<any>(null)
 
@@ -17,8 +20,8 @@ if (!cached) {
   const { data, pending: fetchPending, error: fetchError } = await useLazyFetch<Report>(`/api/reports/${id}`)
   watch(data, (val) => {
     if (val) {
-      report.value = val
-      detailCache.value[id] = val
+      report.value = val as ReportWithState
+      detailCache.value[id] = val as ReportWithState
     }
   }, { immediate: true })
   watch(fetchPending, (val) => { pending.value = val }, { immediate: true })
@@ -29,7 +32,7 @@ function goBack() {
   if (window.history.state?.back) {
     router.back()
   } else {
-    router.push('/reports')
+    router.push('/reports') 
   }
 }
 
@@ -45,37 +48,45 @@ interface OwnedSubmission {
   submissionId: string
 }
 
-const isOwner = ref(false)
-const ownedSubmissionId = ref<string | undefined>(undefined)
+// --- Ownership (main report + each additional reporter's own submission) ---
+const ownedSubmissionIds = ref<Set<string>>(new Set())
+const legacyOwnsMain = ref(false)
 
 function checkOwnership() {
   try {
     const mine: OwnedSubmission[] = JSON.parse(localStorage.getItem('myReportSubmissions') || '[]')
-    const match = mine.find(m => m.reportId === id)
-    if (match) {
-      isOwner.value = true
-      ownedSubmissionId.value = match.submissionId
-      return
-    }
+    ownedSubmissionIds.value = new Set(
+      mine.filter(m => m.reportId === id).map(m => m.submissionId)
+    )
   } catch {
-    // localStorage unavailable or malformed — treat as not-owner
+    ownedSubmissionIds.value = new Set()
   }
   try {
     const legacyMine: string[] = JSON.parse(localStorage.getItem('myReportIds') || '[]')
-    if (legacyMine.includes(id)) {
-      isOwner.value = true
-    }
+    legacyOwnsMain.value = legacyMine.includes(id)
   } catch {
-    // same as above
+    legacyOwnsMain.value = false
   }
 }
 
-const editLink = computed(() => {
-  if (!isOwner.value) return null
-  return ownedSubmissionId.value
-    ? `/reports/${id}/edit?submissionId=${ownedSubmissionId.value}`
+const isMainOwner = computed(() => {
+  const r = report.value as any
+  if (r?.submissionId && ownedSubmissionIds.value.has(r.submissionId)) return true
+  return legacyOwnsMain.value
+})
+
+const mainEditLink = computed(() => {
+  if (!isMainOwner.value) return null
+  const r = report.value as any
+  return r?.submissionId
+    ? `/reports/${id}/edit?submissionId=${r.submissionId}`
     : `/reports/${id}/edit`
 })
+
+function subEditLink(sub: any): string | null {
+  if (!sub?.submissionId || !ownedSubmissionIds.value.has(sub.submissionId)) return null
+  return `/reports/${id}/edit?submissionId=${sub.submissionId}`
+}
 
 const displayTitle = computed(() => {
   const r = report.value
@@ -126,10 +137,8 @@ const regulatoryBadge = computed(() => {
   return REGULATORY_LABELS[r.regulatoryStatus] ?? null
 })
 
-const timeAgo = computed(() => {
-  const r = report.value
-  if (!r?.createdAt) return ''
-  const diffMs = Date.now() - new Date(r.createdAt).getTime()
+function formatTimeAgo(dateVal: string | number | Date) {
+  const diffMs = Date.now() - new Date(dateVal).getTime()
   const minutes = Math.floor(diffMs / 60000)
   const hours = Math.floor(minutes / 60)
   const days = Math.floor(hours / 24)
@@ -137,9 +146,15 @@ const timeAgo = computed(() => {
   if (minutes < 60) return `${minutes}m ago`
   if (hours < 24) return `${hours}h ago`
   if (days < 7) return `${days}d ago`
-  return new Date(r.createdAt).toLocaleDateString('en-NG', {
+  return new Date(dateVal).toLocaleDateString('en-NG', {
     day: 'numeric', month: 'short', year: 'numeric'
   })
+}
+
+const timeAgo = computed(() => {
+  const r = report.value
+  if (!r?.createdAt) return ''
+  return formatTimeAgo(r.createdAt)
 })
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -167,7 +182,7 @@ const initials = computed(() => {
     .toUpperCase()
 })
 
-const images = computed(() => {
+const rawMainImages = computed(() => {
   const r = report.value
   if (!r) return []
   if (r.evidenceUrls?.length) return r.evidenceUrls
@@ -175,87 +190,127 @@ const images = computed(() => {
   return legacy ? [legacy] : []
 })
 
+const images = computed(() => {
+  const r = report.value
+  if (!r) return []
+  const subSet = new Set(
+    (r.additionalReports ?? []).flatMap((sub: any) => sub.evidenceUrls ?? [])
+  )
+  return rawMainImages.value.filter(img => !subSet.has(img))
+})
+
+const subImagesList = computed(() => {
+  const r = report.value
+  if (!r) return [] as string[][]
+  const seen = new Set<string>()
+  return (r.additionalReports ?? []).map((sub: any) => {
+    const urls: string[] = (sub.evidenceUrls ?? []).filter((img: string) => !seen.has(img))
+    urls.forEach((img: string) => seen.add(img))
+    return urls
+  })
+})
+
 const reportForShare = computed<Report | null>(() => {
   const r = report.value
   if (!r) return null
-  // ensure non-optional fields expected by ShareableWarningCard
   return ({ ...r, bankName: r.bankName ?? '' }) as Report
 })
 
-const sharedFields = computed(() => {
-  const r = report.value
-  if (!r) return []
-  const fields = []
-  if (r.amountInvolved != null) {
-    fields.push({ label: 'Amount involved', value: `₦${r.amountInvolved.toLocaleString()}` })
-  }
-  if (r.contactPlatform) {
-    fields.push({ label: 'Contact platform', value: r.contactPlatform })
-  }
-  if (r.state) {
-    fields.push({ label: 'State', value: r.state })
-  }
-  return fields
-})
 
-const detailFields = computed(() => {
-  const r = report.value
-  if (!r) return []
-  if (r.targetType === 'company') {
+function detailFieldsFor(targetType: string | undefined, src: any) {
+  if (!src) return []
+  if (targetType === 'company') {
     return [
-      { label: 'Company name', value: r.companyName },
-      { label: 'Address', value: r.companyAddress },
+      { label: 'Company name', value: src.companyName },
+      { label: 'Address', value: src.companyAddress },
     ].filter(f => f.value)
   }
-  if (r.targetType === 'website') {
+  if (targetType === 'website') {
     return [
-      { label: 'Website name', value: r.websiteName },
-      { label: 'Website URL', value: r.websiteUrl },
+      { label: 'Website name', value: src.websiteName },
+      { label: 'Website URL', value: src.websiteUrl },
     ].filter(f => f.value)
   }
   return [
-    { label: 'Account name', value: r.accountName },
-    { label: 'Bank name', value: r.bankName },
-    { label: 'Account number', value: r.accountNumber },
+    { label: 'Account name', value: src.accountName },
+    { label: 'Bank name', value: src.bankName },
+    { label: 'Account number', value: src.accountNumber },
   ].filter(f => f.value)
-})
-
-const galleryScrollRef = ref<HTMLElement | null>(null)
-
-// Main gallery images support prev/next navigation.
-// Additional-reporter evidence images (separate arrays) open standalone, no navigation.
-const activeGalleryIndex = ref<number | null>(null)
-const activeStandaloneImage = ref<string | null>(null)
-
-const lightboxOpen = computed(() => activeGalleryIndex.value !== null || activeStandaloneImage.value !== null)
-const lightboxSrc = computed(() => {
-  if (activeGalleryIndex.value !== null) return images.value[activeGalleryIndex.value]
-  return activeStandaloneImage.value
-})
-const canNavigate = computed(() => activeGalleryIndex.value !== null && images.value.length > 1)
-
-function openImage(index: number) {
-  activeGalleryIndex.value = index
-  activeStandaloneImage.value = null
 }
-function openStandaloneImage(src: string) {
-  activeStandaloneImage.value = src
-  activeGalleryIndex.value = null
+
+function sharedFieldsFor(src: any, includeState = true) {
+  if (!src) return []
+  const fields: { label: string; value: string }[] = []
+  if (src.amountInvolved != null) {
+    fields.push({ label: 'Amount involved', value: `₦${Number(src.amountInvolved).toLocaleString()}` })
+  }
+  if (src.contactPlatform) {
+    fields.push({ label: 'Contact platform', value: src.contactPlatform })
+  }
+  if (includeState && src.state) {
+    fields.push({ label: 'State', value: src.state })
+  }
+  return fields
+}
+
+const sharedFields = computed(() => sharedFieldsFor(report.value))
+const detailFields = computed(() => detailFieldsFor(report.value?.targetType, report.value))
+
+function additionalDetailFields(sub: any) {
+  return detailFieldsFor(report.value?.targetType, sub)
+}
+function additionalSharedFields(sub: any) {
+  return sharedFieldsFor(sub)
+}
+
+// --- Description clamping ("Read more") for additional reporters ---
+const expandedDescriptions = ref<Set<number>>(new Set())
+function isDescLong(desc: string | undefined) {
+  return !!desc && desc.length > 180
+}
+function toggleDescription(index: number) {
+  const next = new Set(expandedDescriptions.value)
+  if (next.has(index)) next.delete(index)
+  else next.add(index)
+  expandedDescriptions.value = next
+}
+
+// --- Galleries + shared lightbox (main report + each reporter has its own
+// separate image set; the lightbox just navigates whichever set was opened) ---
+const galleryScrollRef = ref<HTMLElement | null>(null)
+const subGalleryRefs = ref<Record<number, HTMLElement | null>>({})
+
+function setSubGalleryRef(index: number, el: any) {
+  subGalleryRefs.value[index] = el
+}
+
+const lightbox = ref<{ images: string[]; index: number } | null>(null)
+const lightboxOpen = computed(() => lightbox.value !== null)
+const lightboxSrc = computed(() => lightbox.value ? lightbox.value.images[lightbox.value.index] : null)
+const canNavigate = computed(() => !!lightbox.value && lightbox.value.images.length > 1)
+
+function openLightbox(imgs: string[], index: number) {
+  if (!imgs?.length) return
+  lightbox.value = { images: imgs, index }
 }
 function closeImage() {
-  activeGalleryIndex.value = null
-  activeStandaloneImage.value = null
+  lightbox.value = null
 }
 function nextImage() {
-  if (activeGalleryIndex.value === null) return
-  activeGalleryIndex.value = (activeGalleryIndex.value + 1) % images.value.length
+  if (!lightbox.value) return
+  lightbox.value.index = (lightbox.value.index + 1) % lightbox.value.images.length
 }
 function prevImage() {
-  if (activeGalleryIndex.value === null) return
-  activeGalleryIndex.value = (activeGalleryIndex.value - 1 + images.value.length) % images.value.length
+  if (!lightbox.value) return
+  lightbox.value.index = (lightbox.value.index - 1 + lightbox.value.images.length) % lightbox.value.images.length
 }
 function scrollGallery(direction: number) {
   const el = galleryScrollRef.value
+  if (!el) return
+  el.scrollBy({ left: direction * el.clientWidth * 0.8, behavior: 'smooth' })
+}
+function scrollSubGallery(index: number, direction: number) {
+  const el = subGalleryRefs.value[index]
   if (!el) return
   el.scrollBy({ left: direction * el.clientWidth * 0.8, behavior: 'smooth' })
 }
@@ -296,6 +351,30 @@ function similarTargetName(r: Report) {
   if (r.targetType === 'website') return r.websiteName || r.websiteUrl || 'Unknown website'
   return r.accountName ?? 'Unknown account'
 }
+
+// --- Report snapshot: all reporters' states, horizontally scrollable ---
+const statesScrollRef = ref<HTMLElement | null>(null)
+const allStates = computed(() => {
+  const r = report.value
+  if (!r) return []
+  const list: string[] = []
+  if (r.state) list.push(r.state)
+  for (const sub of (r.additionalReports ?? []) as any[]) {
+    if (sub?.state) list.push(sub.state)
+  }
+  return list
+})
+function scrollStates(direction: number) {
+  const el = statesScrollRef.value
+  if (!el) return
+  el.scrollBy({ left: direction * 90, behavior: 'smooth' })
+}
+
+const totalReporters = computed(() => {
+  const r = report.value
+  if (!r) return 0
+  return 1 + (r.additionalReports?.length ?? 0)
+})
 
 // --- Sticky mobile action bar (share) ---
 const copied = ref(false)
@@ -355,7 +434,7 @@ useHead(() => ({
               ⚠ Highly Suspicious — {{ report.distinctReporterCount ?? report.reportCount ?? 1 }} independent reports
             </span>
 
-           <span v-else class="badge-unverified-wrap">
+            <span v-else class="badge-unverified-wrap">
               <span class="badge-unverified">Unverified</span>
               <button type="button" class="badge-info-btn" aria-label="Why is this unverified?"
                 @click="toggleUnverifiedInfo">
@@ -365,8 +444,6 @@ useHead(() => ({
                 </svg>
               </button>
 
-              <!-- FIXED: backdrop is now just a click-catcher, no longer wraps the popover,
-       so it can't hijack the popover's absolute-positioning containing block -->
               <div v-if="showUnverifiedInfo" class="badge-popover-backdrop" @click="showUnverifiedInfo = false"></div>
 
               <div v-if="showUnverifiedInfo" class="badge-popover">
@@ -392,7 +469,6 @@ useHead(() => ({
             </div>
           </div>
 
-          <!-- ADDED: verification progress meter -->
           <div class="verify-meter-wrap">
             <div v-if="report.status === 'flagged'" class="verify-meter verify-meter--complete">
               <span class="verify-meter-icon">✓</span>
@@ -425,13 +501,13 @@ useHead(() => ({
                 <span>{{ displaySubtitle }}</span>
                 <span v-if="timeAgo" class="post-dot">·</span>
                 <span v-if="timeAgo">reported {{ timeAgo }}</span>
+                <template v-if="isMainOwner">
+                  <span class="post-dot">·</span>
+                  <span class="owner-tag"></span>
+                  <NuxtLink v-if="mainEditLink" :to="mainEditLink" class="owner-edit-link">Edit →</NuxtLink>
+                </template>
               </div>
             </div>
-          </div>
-
-        <div v-if="editLink" class="own-report-banner">
-            <span>This is your report</span>
-            <NuxtLink :to="editLink" class="own-report-edit-btn">Edit report →</NuxtLink>
           </div>
 
           <p class="post-desc">{{ report.description }}</p>
@@ -441,7 +517,8 @@ useHead(() => ({
               aria-label="Scroll images left" @click="scrollGallery(-1)">‹</button>
 
             <div ref="galleryScrollRef" class="gallery-scroll">
-              <div v-for="(img, index) in images" :key="index" class="gallery-thumb" @click="openImage(index)">
+              <div v-for="(img, index) in images" :key="index" class="gallery-thumb"
+                @click="openLightbox(images, index)">
                 <img :src="img" :alt="`Evidence ${index + 1}`" />
                 <span class="gallery-thumb-index">{{ index + 1 }}/{{ images.length }}</span>
               </div>
@@ -451,7 +528,7 @@ useHead(() => ({
               aria-label="Scroll images right" @click="scrollGallery(1)">›</button>
           </div>
 
-          <div v-if="detailFields.length" class="details-panel">
+          <div v-if="detailFields.length" class="details-panel details-panel--primary">
             <h2 class="details-heading">Reported details</h2>
             <dl class="details-list">
               <div v-for="field in detailFields" :key="field.label" class="details-row">
@@ -461,61 +538,104 @@ useHead(() => ({
             </dl>
           </div>
 
-        <div v-if="sharedFields.length" class="details-panel">
-          <h2 class="details-heading">Additional details</h2>
-          
-          <dl class="details-list">
-            <div v-for="field in sharedFields" :key="field.label" class="details-row">
-              <dt>{{ field.label }}</dt>
-              <dd>{{ field.value }}</dd>
-            </div>
-          </dl>
-          <p 
-            v-if="report?.state && !['unspecified', 'prefer not to say'].includes(report.state.toLowerCase())" 
-            class="details-note"
-          >
-            <strong>Note:</strong> This event occurred in {{ report.state }} State, Nigeria.
-          </p>
-          <p v-else class="details-note">
-            <strong>Note:</strong> The location state for this event was not specified.
-          </p>
-        </div>
+          <div v-if="sharedFields.length" class="details-panel details-panel--primary">
+            <h2 class="details-heading">Additional details</h2>
+
+            <dl class="details-list">
+              <div v-for="field in sharedFields" :key="field.label" class="details-row">
+                <dt>{{ field.label }}</dt>
+                <dd>{{ field.value }}</dd>
+              </div>
+            </dl>
+            <p v-if="report?.state && !['unspecified', 'prefer not to say'].includes(report.state.toLowerCase())"
+              class="details-note">
+              <strong>Note:</strong> This event occurred in {{ report.state }} State, Nigeria.
+            </p>
+            <p v-else class="details-note">
+              <strong>Note:</strong> The location state for this event was not specified.
+            </p>
+          </div>
 
           <div v-if="report.additionalReports?.length" class="details-panel details-panel--reporters">
-            <h2 class="details-heading">
-              Also reported by {{ report.additionalReports.length }} other{{ report.additionalReports.length > 1 ? 's' :
-                '' }}
-            </h2>
             <p class="reporters-intro">
               These are separate people who independently reported the same account, number, or website.
             </p>
 
+            <hr class="line-through"/>
+
+            <h2 class="details-heading">
+              Also reported by {{ report.additionalReports.length }} other{{ report.additionalReports.length > 1 ? 's' :
+                '' }}
+            </h2>
+           
+
             <div v-for="(sub, index) in report.additionalReports" :key="index" class="additional-report-item">
               <div class="additional-report-header">
                 <span class="reporter-badge">Reporter #{{ index + 2 }}</span>
-                <span class="additional-report-date">{{ sub.createdAt }}</span>
+                <div class="additional-report-header-right">
+                  <span class="additional-report-date">{{ sub.createdAt }}</span>
+                  <NuxtLink v-if="subEditLink(sub)" :to="subEditLink(sub)!" class="sub-owner-edit-link">
+                    Yours · Edit →
+                  </NuxtLink>
+                </div>
               </div>
 
-              <p class="post-desc post-desc--nested">{{ sub.description }}</p>
+              <p class="post-desc post-desc--nested"
+                :class="{ 'post-desc--clamped': isDescLong(sub.description) && !expandedDescriptions.has(index) }">{{
+                  sub.description }}</p>
+              <button v-if="isDescLong(sub.description)" type="button" class="read-more-btn"
+                @click="toggleDescription(index)">
+                {{ expandedDescriptions.has(index) ? 'Read less' : 'Read more' }}
+              </button>
 
-              <dl v-if="sub.amountInvolved || sub.contactPlatform" class="details-list">
-                <div v-if="sub.amountInvolved" class="details-row">
-                  <dt>Amount involved</dt>
-                  <dd>₦{{ sub.amountInvolved.toLocaleString() }}</dd>
-                </div>
-                <div v-if="sub.contactPlatform" class="details-row">
-                  <dt>Contact platform</dt>
-                  <dd>{{ sub.contactPlatform }}</dd>
-                </div>
-              </dl>
-
-              <div v-if="sub.evidenceUrls?.length" class="additional-evidence">
-                <img v-for="(img, i) in sub.evidenceUrls" :key="i" :src="img" alt="Evidence"
-                  class="additional-evidence-thumb" @click="openStandaloneImage(img)" />
+              <div v-if="additionalDetailFields(sub).length" class="details-panel details-panel--nested">
+                <h2 class="details-heading">Reported details</h2>
+                <dl class="details-list">
+                  <div v-for="field in additionalDetailFields(sub)" :key="field.label" class="details-row">
+                    <dt>{{ field.label }}</dt>
+                    <dd>{{ field.value }}</dd>
+                  </div>
+                </dl>
               </div>
+
+
+
+              <div v-if="subImagesList[index]?.length" class="gallery-carousel-wrap gallery-carousel-wrap--nested">
+                <button v-if="subImagesList[index].length > 1" type="button" class="gallery-arrow gallery-arrow--left"
+                  aria-label="Scroll images left" @click="scrollSubGallery(index, -1)">‹</button>
+
+                <div :ref="(el) => setSubGalleryRef(index, el)" class="gallery-scroll">
+                  <div v-for="(img, i) in subImagesList[index]" :key="i" class="gallery-thumb gallery-thumb--sm"
+                    @click="openLightbox(subImagesList[index], i)">
+                    <img :src="img" :alt="`Evidence ${i + 1}`" />
+                    <span class="gallery-thumb-index">{{ i + 1 }}/{{ subImagesList[index].length }}</span>
+                  </div>
+                </div>
+
+                <button v-if="subImagesList[index].length > 1" type="button" class="gallery-arrow gallery-arrow--right"
+                  aria-label="Scroll images right" @click="scrollSubGallery(index, 1)">›</button>
+              </div>
+              <div v-if="additionalSharedFields(sub).length" class="details-panel details-panel--nested">
+                <h2 class="details-heading">Additional details</h2>
+                <dl class="details-list">
+                  <div v-for="field in additionalSharedFields(sub)" :key="field.label" class="details-row">
+                    <dt>{{ field.label }}</dt>
+                    <dd>{{ field.value }}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              <p v-if="sub?.state && !['unspecified', 'prefer not to say'].includes(String(sub.state).toLowerCase())"
+                class="details-note details-note--nested">
+                <strong>Note:</strong> This event occurred in {{ sub.state }} State, Nigeria.
+              </p>
+              <p v-else class="details-note details-note--nested">
+                <strong>Note:</strong> The location state for this event was not specified.
+              </p>
             </div>
           </div>
-          <ReportersPanel :report="report"/>
+          <ReportersPanel :report="report" />
+
           <div class="post-footer">
             <span class="footer-label">Reported</span>
             <span>{{ timeAgo || 'recently' }}</span>
@@ -530,7 +650,6 @@ useHead(() => ({
             </NuxtLink>
           </div>
 
-          <!-- ADDED: printable evidence packet -->
           <div class="evidence-packet-panel">
             <div class="evidence-packet-text">
               <span class="evidence-packet-title">Evidence packet</span>
@@ -560,7 +679,6 @@ useHead(() => ({
         </article>
       </div>
 
-      <!-- ADDED: trust & similar-reports sidebar (desktop only) -->
       <aside class="side-col">
         <div class="widget widget--snapshot">
           <h3 class="widget-title">Report snapshot</h3>
@@ -572,10 +690,21 @@ useHead(() => ({
             <span>Type</span>
             <span>{{ typeLabel }}</span>
           </div>
-          <!-- ADDED: state row, only shown when the report has one set -->
-          <div v-if="report.state" class="widget-snap-row">
-            <span>State</span>
-            <span>{{ report.state }}</span>
+          <div class="widget-snap-row">
+            <span>Reporters</span>
+            <span>{{ totalReporters }}</span>
+          </div>
+          <div v-if="allStates.length" class="widget-snap-row widget-snap-row--states">
+            <span>States</span>
+          </div>
+          <div v-if="allStates.length" class="widget-states-scroll-wrap">
+            <button v-if="allStates.length > 3" type="button" class="widget-states-arrow"
+              aria-label="Scroll states left" @click="scrollStates(-1)">‹</button>
+            <div ref="statesScrollRef" class="widget-states-scroll">
+              <span v-for="(st, i) in allStates" :key="i" class="widget-state-chip">{{ st }}</span>
+            </div>
+            <button v-if="allStates.length > 3" type="button" class="widget-states-arrow"
+              aria-label="Scroll states right" @click="scrollStates(1)">›</button>
           </div>
           <div class="widget-snap-row">
             <span>Reported</span>
@@ -615,16 +744,14 @@ useHead(() => ({
         @click.stop="nextImage">›</button>
 
       <span v-if="canNavigate" class="lightbox-counter">
-        {{ (activeGalleryIndex ?? 0) + 1 }} / {{ images.length }}
+        {{ (lightbox?.index ?? 0) + 1 }} / {{ lightbox?.images.length ?? 0 }}
       </span>
 
       <button type="button" class="lightbox-close" aria-label="Close" @click.stop="closeImage">×</button>
     </div>
 
-    <!-- ADDED: sticky mobile action bar -->
-    <!-- after -->
     <div v-if="report" class="mobile-sticky-bar">
-      <NuxtLink v-if="editLink" :to="editLink" class="mobile-sticky-btn">Edit</NuxtLink>
+      <NuxtLink v-if="mainEditLink" :to="mainEditLink" class="mobile-sticky-btn">Edit</NuxtLink>
       <NuxtLink :to="`/flag/report?reportId=${id}`" class="mobile-sticky-btn">
         <svg viewBox="0 0 24 24" width="16" height="16">
           <path fill="currentColor" d="M4 2v20h2v-7h13l-2.5-5L19 5H6V2z" />
@@ -651,8 +778,6 @@ useHead(() => ({
   padding: 24px 24px 60px;
 }
 
-/* FIXED: give the page more room once the sidebar kicks in, so the main
-   card isn't squeezed to fit both columns inside the old 720px cap */
 @media (min-width: 1080px) {
   .page-body {
     max-width: 1120px;
@@ -666,8 +791,6 @@ useHead(() => ({
   }
 }
 
-/* ADDED: extra bottom padding on mobile so the sticky action bar never
-   covers the last bit of content */
 @media (max-width: 720px) {
   .page-body.has-sticky-bar {
     padding-bottom: 96px;
@@ -695,11 +818,9 @@ useHead(() => ({
   padding: 24px 0;
 }
 
-/* ADDED: two-column layout — article + sidebar (desktop only) */
 .detail-grid {
   display: grid;
   grid-template-columns: 1fr;
-  /* mobile/tablet: single column, full width */
   gap: 24px;
 }
 
@@ -707,7 +828,6 @@ useHead(() => ({
   .detail-grid {
     grid-template-columns: 1fr 320px;
     gap: 32px;
-    /* FIXED: a bit more breathing room between columns on desktop */
   }
 }
 
@@ -769,7 +889,6 @@ useHead(() => ({
   border-color: rgba(248, 113, 113, 0.25);
 }
 
-/* ADDED: verification progress meter */
 .verify-meter-wrap {
   padding: 10px 16px 0;
 }
@@ -779,13 +898,11 @@ useHead(() => ({
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  /* FIXED: allow the row to wrap instead of forcing overflow */
 }
 
 .verify-meter-track {
   flex: 1;
   min-width: 60px;
-  /* FIXED: keep the bar from collapsing to nothing when wrapped */
   height: 6px;
   background: var(--surface-2);
   overflow: hidden;
@@ -802,7 +919,6 @@ useHead(() => ({
   font-size: 10px;
   color: var(--text-3);
   white-space: normal;
-  /* FIXED: was nowrap, which pushed text outside the card */
 }
 
 .verify-meter--complete {
@@ -860,6 +976,7 @@ useHead(() => ({
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
   font-family: var(--mono);
   font-size: 11px;
   color: var(--text-3);
@@ -868,6 +985,30 @@ useHead(() => ({
 
 .post-dot {
   color: var(--border-hi);
+}
+
+/* Owner tag + edit link inline in the main report's header meta.
+   Hidden on mobile because the sticky action bar already exposes Edit
+   there — this avoids showing the edit action twice. */
+.owner-tag {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.owner-edit-link {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.owner-edit-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 720px) {
+  .owner-edit-link {
+    display: none;
+  }
 }
 
 .post-desc {
@@ -879,36 +1020,16 @@ useHead(() => ({
   white-space: pre-wrap;
 }
 
-.own-report-banner {
-  margin: 14px 16px 0;
-  padding: 10px 14px;
-  background: var(--accent-dim, rgba(232, 255, 71, 0.08));
-  border: 1px solid rgba(232, 255, 71, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  font-family: var(--mono);
-  font-size: 11.5px;
-  color: var(--text-2);
-}
-
-.own-report-edit-btn {
-  color: var(--accent);
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.own-report-edit-btn:hover {
-  text-decoration: underline;
-}
-
 .details-panel {
   margin: 18px 16px 0;
   padding: 14px;
-  background: var(--surface-2);
+  background: var(--surface);
   border: 1px solid var(--border);
+}
+
+.details-panel--nested {
+  margin: 12px 0 0;
+  background: var(--surface-2);
 }
 
 .details-heading {
@@ -961,6 +1082,10 @@ useHead(() => ({
   margin: 14px 16px 0;
 }
 
+.gallery-carousel-wrap--nested {
+  margin: 12px 0 0;
+}
+
 .gallery-scroll {
   display: flex;
   gap: 8px;
@@ -989,6 +1114,11 @@ useHead(() => ({
   cursor: pointer;
   scroll-snap-align: start;
   border: 1px solid var(--border);
+}
+
+.gallery-thumb--sm {
+  width: 120px;
+  height: 120px;
 }
 
 .gallery-thumb img {
@@ -1045,7 +1175,7 @@ useHead(() => ({
 .lightbox {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--surface-2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1057,7 +1187,6 @@ useHead(() => ({
 .lightbox img {
   max-width: 100%;
   max-height: 100%;
-  border-radius: 8px;
   cursor: default;
 }
 
@@ -1067,12 +1196,10 @@ useHead(() => ({
   transform: translateY(-50%);
   width: 44px;
   height: 44px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--surface-2);
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
-/* Responsive adjustments */
 @media (max-width: 639px) {
   .post-name {
     font-size: 16px;
@@ -1113,9 +1240,18 @@ useHead(() => ({
     margin: 12px;
   }
 
+  .gallery-carousel-wrap--nested {
+    margin: 12px 0 0;
+  }
+
   .gallery-thumb {
     width: 45vw;
     height: 45vw;
+  }
+
+  .gallery-thumb--sm {
+    width: 38vw;
+    height: 38vw;
   }
 
   .gallery-thumb-index {
@@ -1222,28 +1358,68 @@ useHead(() => ({
   border-bottom: none;
 }
 
-.post-desc--nested {
-  padding: 0 0 10px;
+.additional-report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
 }
 
-.additional-evidence {
+.additional-report-header-right {
   display: flex;
-  gap: 8px;
-  margin-top: 10px;
+  align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
-.additional-evidence-thumb {
-  width: 64px;
-  height: 64px;
-  object-fit: cover;
-  border: 1px solid var(--border-hi);
+.details-panel--primary {
+  background: var(--surface-2);
+  border-color: var(--border-hi);
+}
+
+.sub-owner-edit-link {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sub-owner-edit-link:hover {
+  text-decoration: underline;
+}
+
+.post-desc--nested {
+  padding: 0 0 6px;
+}
+
+.post-desc--clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.read-more-btn {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--accent);
+  background: none;
+  border: none;
+  padding: 0 0 8px;
   cursor: pointer;
 }
 
+.read-more-btn:hover {
+  text-decoration: underline;
+}
+
 .additional-report-date {
-  display: block;
-  margin-top: 8px;
   font-family: var(--mono);
   font-size: 10px;
   color: var(--text-3);
@@ -1428,28 +1604,26 @@ useHead(() => ({
 }
 
 .reporters-intro {
-  font-size: 12px;
-  color: var(--text-3);
-  font-weight: 300;
+  font-size: 10px;
+  color: var(--text-2);
+  font-weight: 600;
   line-height: 1.6;
   margin-bottom: 14px;
-}
-
-.additional-report-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
+  text-align: center;
+  background-color: var(--accent-dim);
 }
 
 .details-note {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
   background-color: var(--accent-bdr);
-  border-left: 4px solid #2b6e4d;
+  border-left: 10px solid #2b6e4d;
   font-size: 0.875rem;
   color: var(--text-2);
-  border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.details-note--nested {
+  margin: 12px 0 0;
 }
 
 .reporter-badge {
@@ -1464,7 +1638,6 @@ useHead(() => ({
   padding: 3px 9px;
 }
 
-/* ADDED: printable evidence packet panel */
 .evidence-packet-panel {
   margin: 18px 16px 0;
   padding: 16px;
@@ -1563,7 +1736,6 @@ useHead(() => ({
   font-size: 11.5px;
 }
 
-/* ============ ADDED: sidebar widgets (desktop only) ============ */
 .side-col {
   display: none;
 }
@@ -1576,6 +1748,12 @@ useHead(() => ({
     position: sticky;
     top: 96px;
   }
+}
+
+.widget--snapshot {
+  position: sticky;
+  top: 120px;
+  z-index: 5;
 }
 
 .widget {
@@ -1606,6 +1784,11 @@ useHead(() => ({
   border-bottom: none;
 }
 
+.widget-snap-row--states {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
 .widget-snap-row>span:first-child {
   font-family: var(--mono);
   font-size: 10px;
@@ -1628,6 +1811,60 @@ useHead(() => ({
 
 .snap-tone--registered {
   color: #4ade80;
+}
+
+.widget-states-scroll-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.widget-states-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.widget-states-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.widget-state-chip {
+  flex: 0 0 auto;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 4px 9px;
+  scroll-snap-align: start;
+  white-space: nowrap;
+}
+
+.widget-states-arrow {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: none;
+  border: 1px solid var(--border-hi);
+  color: var(--text-2);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.widget-states-arrow:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .widget-similar-row {
@@ -1693,7 +1930,6 @@ useHead(() => ({
   margin-top: 4px;
 }
 
-/* ============ ADDED: sticky mobile action bar ============ */
 .mobile-sticky-bar {
   display: none;
 }
@@ -1735,5 +1971,11 @@ useHead(() => ({
   background: var(--accent);
   border-color: var(--accent);
   color: #0a0a0b;
+}
+
+.line-through {
+background: var(--accent);
+  border-color: var(--accent);
+  margin-bottom: 20px;
 }
 </style>

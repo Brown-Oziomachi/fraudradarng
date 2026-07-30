@@ -154,7 +154,7 @@ const categoryOptions: { value: ScamCategory; label: string; hint: string }[] = 
   { value: 'fintech_ussd', label: 'Fintech & USSD exploit', hint: 'OPay/PalmPay/Moniepoint impersonation, SIM swap, USSD fraud' },
   { value: 'social_commerce', label: 'Social commerce scam', hint: 'Instagram/Twitter/TikTok vendor who took payment and vanished' },
   { value: 'visa_travel', label: 'Visa / travel logistics fraud', hint: 'Fake agent promising a Canada, UK, or other visa' },
-  { value: 'job_ponzi', label: 'Job or Ponzi scheme', hint: 'Task-based app or investment platform promising daily returns' },
+  { value: 'job_ponzi', label: 'Job | Business or Ponzi scheme', hint: 'Task-based app or investment platform promising daily returns' },
   { value: 'other', label: 'None of the above', hint: 'A different kind of fraud' }
 ]
 
@@ -166,7 +166,7 @@ function selectCategory(value: ScamCategory) {
 const reasonOptions: { value: FormState['reason']; label: string }[] = [
   { value: 'fake_transfer', label: 'Fake transfer / "sent by mistake" alert' },
   { value: 'romance_scam', label: 'Romance scam' },
-  { value: 'job_scam', label: 'Fake job offer' },
+  { value: 'job_scam', label: 'Fake job or business offer' },
   { value: 'investment_scam', label: 'Investment / "double your money" scam' },
   { value: 'other', label: 'Other fraud' }
 ]
@@ -338,7 +338,8 @@ async function submitReport() {
 
       try {
         const mine = JSON.parse(localStorage.getItem('myReportSubmissions') || '[]')
-        mine.push({ reportId: report.id, submissionId: (report as any).submissionId })
+        const savedSubmissionId = (report as any).yourSubmissionId ?? (report as any).submissionId
+        mine.push({ reportId: report.id, submissionId: savedSubmissionId })
         localStorage.setItem('myReportSubmissions', JSON.stringify(mine))
       } catch {
       }

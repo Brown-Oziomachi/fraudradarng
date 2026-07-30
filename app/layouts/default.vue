@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useAnnouncementBar, ANNOUNCEMENT_BAR_HEIGHT } from '~/composables/useAnnouncementBar'
-import { ref } from 'vue'
+import { useAnnouncementBar } from '~/composables/useAnnouncementBar'
+import { ref, computed, watch, nextTick } from 'vue'
 const route = useRoute()
 const { theme, toggleTheme, initTheme } = useTheme()
 const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()
@@ -41,6 +41,43 @@ function scheduleSubmenuClose() {
 const desktopMenuRefs = ref<Record<string, HTMLElement | null>>({})
 const openSubmenu = ref(null)
 
+// Header measurements & scroll state
+const headerEl = ref<HTMLElement | null>(null)
+const headerHeight = ref(0)
+let headerResizeObserver: ResizeObserver | null = null
+const isHeaderTransparent = ref(false)
+
+// Only pages that opt in via definePageMeta({ transparentHeader: true })
+// get the see-through header.
+const hasHero = computed(() => route.meta.transparentHeader === true)
+
+function measureHeader() {
+  if (!headerEl.value || typeof window === 'undefined') return
+  // getBoundingClientRect instead of offsetHeight — this naturally
+  // includes the header's own top margin (the desktop pill gap) and
+  // wherever the announcement bar has actually pushed it to.
+  const rect = headerEl.value.getBoundingClientRect()
+  headerHeight.value = Math.round(rect.bottom + window.scrollY)
+}
+
+function handleScroll() {
+  isHeaderTransparent.value = hasHero.value && window.scrollY < 10
+}
+
+watch(isAnnouncementVisible, () => {
+  nextTick(measureHeader)
+})
+
+watch(
+  () => route.fullPath,
+  () => {
+    nextTick(() => {
+      measureHeader()
+      handleScroll()
+    })
+  }
+)
+
 
 let hoverCloseTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -63,12 +100,22 @@ onMounted(() => {
   initTheme()
   document.addEventListener('click', handleClickOutside)
   document.addEventListener('keydown', handleGlobalKeydown)
+
+  measureHeader()
+  if (headerEl.value && typeof ResizeObserver !== 'undefined') {
+    headerResizeObserver = new ResizeObserver(measureHeader)
+    headerResizeObserver.observe(headerEl.value)
+  }
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll()
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
   document.removeEventListener('keydown', handleGlobalKeydown)
   if (hoverCloseTimer) clearTimeout(hoverCloseTimer)
+  window.removeEventListener('scroll', handleScroll)
+  headerResizeObserver?.disconnect()
 })
 
 function handleClickOutside(event: MouseEvent) {
@@ -152,7 +199,7 @@ const navIcons: Record<string, string> = {
   cpu: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>`,
   domainScan: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h6l3 3h5a2 2 0 0 1 2 2v1"/><circle cx="10" cy="16" r="5"/><path d="m17.5 19.5-3-3M8 16h4"/></svg>`,
   bell: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
-'shield-alert': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5z"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.5"/></svg>`,
+  'shield-alert': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5z"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.5"/></svg>`,
 }
 
 const mobileSections = [
@@ -334,7 +381,7 @@ async function downloadImage() {
     a.remove()
     URL.revokeObjectURL(blobUrl)
   } catch {
-      // Cross-origin images without CORS headers can't be fetched as a blob —
+    // Cross-origin images without CORS headers can't be fetched as a blob —
     // fall back to just opening it so the user can save it manually.
     window.open(src, '_blank', 'noopener')
   }
@@ -357,7 +404,7 @@ function checkPageOnRegistry() {
 
 onMounted(() => {
   document.addEventListener('contextmenu', handleContextMenu)
-  document.addEventListener('click', closeCustomMenu) // closes it on any normal left-click elsewhere
+  document.addEventListener('click', closeCustomMenu)
 })
 onBeforeUnmount(() => {
   document.removeEventListener('contextmenu', handleContextMenu)
@@ -366,10 +413,11 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="page">
+  <div class="page" :style="{ '--site-header-height': headerHeight + 'px' }">
     <AnnouncementBar />
 
-    <header class="site-header" :class="{ 'has-announcement': isAnnouncementVisible }">
+    <header ref="headerEl" class="site-header"
+      :class="{ 'has-announcement': isAnnouncementVisible, 'site-header--transparent': isHeaderTransparent }">
       <NuxtLink to="/" class="brand">
         <img src="/FRLOGO.png" alt="Fraud Radar NG" class="brand-logo" />
         <span class="brand-text">
@@ -453,10 +501,10 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <NuxtLink to="/contact" class="nav-link">Contact us</NuxtLink>
+        <NuxtLink to="/contact" class="nav-link" title="contact FRNG">Contact us</NuxtLink>
 
         <!-- Inside .nav, alongside theme-toggle -->
-        <button type="button" class="search-trigger" aria-label="Search reports and guides"
+        <button type="button" class="search-trigger" aria-label="Search reports and guides" title="Search Reports"
           @click="isSearchOpen = true">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none">
             <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
@@ -466,7 +514,8 @@ onBeforeUnmount(() => {
         </button>
 
         <button type="button" class="theme-toggle"
-          :aria-label="theme === 'light' ? 'Switch to NG mode' : 'Switch to light mode'" @click="toggleTheme">
+          :aria-label="theme === 'light' ? 'Switch to NG mode' : 'Switch to light mode'" @click="toggleTheme"
+          title="switch Mode">
           <svg v-if="theme === 'light'" viewBox="0 0 24 24" width="15" height="15" fill="none">
             <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79Z" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round" />
@@ -478,8 +527,8 @@ onBeforeUnmount(() => {
               stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
         </button>
-        <WatchlistBell />
-        <button type="button" class="nav-link" @click="isSubscribeOpen = true">
+        <WatchlistBell title="WatchList" />
+        <button type="button" class="nav-link" @click="isSubscribeOpen = true" title="Subscribe to FRNG">
           Subscribe
         </button>
 
@@ -585,7 +634,7 @@ onBeforeUnmount(() => {
       </div>
     </Transition>
 
-    <main class="content" :class="{ 'has-announcement': isAnnouncementVisible }">
+   <main class="content" :class="{ 'has-announcement': isAnnouncementVisible, 'content--hero': hasHero }">
       <slot />
     </main>
 
@@ -594,7 +643,7 @@ onBeforeUnmount(() => {
     <SubscribeModal v-model="isSubscribeOpen" privacy-notice-url="/privacy-notice" />
   </div>
 
-<Teleport to="body">
+  <Teleport to="body">
     <div v-if="customMenu.visible" class="custom-context-menu"
       :style="{ top: customMenu.y + 'px', left: customMenu.x + 'px' }" @click.stop>
 
@@ -634,7 +683,7 @@ onBeforeUnmount(() => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  
+
 }
 
 .site-header {
@@ -649,7 +698,33 @@ onBeforeUnmount(() => {
   padding: 1px 44px;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
 
+
+.site-header.site-header--transparent {
+  background: transparent;
+  border-bottom-color: transparent;
+  box-shadow: none;
+}
+
+.site-header.site-header--transparent .brand-name,
+.site-header.site-header--transparent .brand-subtext,
+.site-header.site-header--transparent .nav-dropdown-trigger,
+.site-header.site-header--transparent .nav-link:not(.nav-link--cta),
+.site-header.site-header--transparent .theme-toggle,
+.site-header.site-header--transparent .search-trigger,
+.site-header.site-header--transparent .search-trigger-kbd,
+.site-header.site-header--transparent .hamburger-btn,
+.site-header.site-header--transparent .mobile-search-btn {
+  color: #fff;
+}
+
+.site-header.site-header--transparent .theme-toggle,
+.site-header.site-header--transparent .search-trigger,
+.site-header.site-header--transparent .search-trigger-kbd {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .site-header.has-announcement {
@@ -789,6 +864,7 @@ onBeforeUnmount(() => {
   background: var(--border);
   margin: 4px 2px;
 }
+
 /* accent underline that draws in beneath the subtext */
 .brand-subtext::after {
   content: '';
@@ -1149,13 +1225,13 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 790px) {
   .mobile-icon-group {
     display: flex;
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 790px) {
   .nav {
     display: none;
   }
@@ -1449,7 +1525,7 @@ onBeforeUnmount(() => {
 @media (max-width: 720px) {
   .search-trigger {
     display: none;
-      background: var(--surface-2);
+    background: var(--surface-2);
 
   }
 }
@@ -1465,18 +1541,21 @@ onBeforeUnmount(() => {
 
   .site-header.has-announcement {
     top: 34px;
-    /* ANNOUNCEMENT_BAR_HEIGHT */
   }
 
-  .content {
-    padding-top: 68px;
-  }
+ .content {
+   padding-top: 68px;
+ }
 
-  .content.has-announcement {
-    padding-top: 102px;
-    /* 68px header + 34px bar */
-  }
-}
+ .content.has-announcement {
+   padding-top: 102px;
+   /* 68px header + 34px bar */
+ }
+ .content.content--hero,
+ .content.content--hero.has-announcement {
+   padding-top: 0;
+ }
+ }
 
 .mega-menu-list-item-wrap {
   position: relative;
@@ -1561,7 +1640,6 @@ onBeforeUnmount(() => {
   background: var(--surface-2);
 }
 
-/* ============ DESKTOP: PLAYLOGIQ-STYLE FLOATING PILL NAVBAR ============ */
 @media (min-width: 721px) {
   .site-header {
     position: sticky;
@@ -1593,9 +1671,9 @@ onBeforeUnmount(() => {
   .nav-dropdown-trigger,
   .nav-link:not(.nav-link--cta) {
     font-family: var(--sans);
-    font-size: 12.5px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
+    font-size: 10.5px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--text-1);
     border: none;

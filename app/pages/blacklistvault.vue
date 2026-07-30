@@ -858,7 +858,7 @@ const hasResults = computed(() => resultCount.value > 0)
   font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--accent);
+  color: var(--text-2);
 }
 
 .v-anatomy-title {
@@ -935,7 +935,6 @@ const hasResults = computed(() => resultCount.value > 0)
   font-weight: 600;
   color: var(--text-1);
   background: var(--surface);
-  border-radius: 999px;
   padding: 0.75rem 1.5rem;
   text-decoration: none;
   box-shadow: 0 0 0 1px var(--accent-bdr);

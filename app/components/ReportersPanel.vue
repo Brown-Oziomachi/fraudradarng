@@ -80,7 +80,7 @@ function isOwnedReporter(r: { submissionId?: string }): boolean {
 }
 
 function editLinkFor(r: { submissionId?: string }): string {
-  return `/reports/${props.report.id}/edit?submissionId=${r.submissionId}`
+  return `/reports/${props.report.id}/edit?submissionId=${encodeURIComponent(r.submissionId ?? '')}`
 }
 
 const visibleReporters = computed(() => reportersList.value.slice(0, 6))
@@ -109,6 +109,7 @@ const detailModalOpen = ref(false)
 
 function openModal() {
   modalOpen.value = true
+  nextTick(() => updateImageScrollState())
 }
 function closeModal() {
   modalOpen.value = false
@@ -160,8 +161,31 @@ function handleKeydown(e: KeyboardEvent) {
   else if (modalOpen.value) closeModal()
 }
 
-onMounted(() => window.addEventListener('keydown', handleKeydown))
-onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+  window.addEventListener('resize', updateImageScrollState)
+})
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
+  window.removeEventListener('resize', updateImageScrollState)
+})
+
+const imageGridRef = ref<HTMLElement | null>(null)
+const canScrollImagesRight = ref(false)
+
+function updateImageScrollState() {
+  const el = imageGridRef.value
+  if (!el) {
+    canScrollImagesRight.value = false
+    return
+  }
+  canScrollImagesRight.value = el.scrollWidth - el.clientWidth - el.scrollLeft > 4
+}
+
+function scrollImagesRight() {
+  imageGridRef.value?.scrollBy({ left: 240, behavior: 'smooth' })
+}
+
 </script>
 
 <template>
@@ -190,8 +214,9 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
           <div class="rp-table-col">
             <h4 class="rp-table-heading">Reporters</h4>
             <div class="rp-reporter-rows">
-              <button v-for="r in reportersList" :key="r.number" type="button" class="rp-reporter-row"
-                @click="selectReporter(r.number)">
+              <div v-for="r in reportersList" :key="r.number" class="rp-reporter-row" role="button" tabindex="0"
+                @click="selectReporter(r.number)" @keydown.enter="selectReporter(r.number)"
+                @keydown.space.prevent="selectReporter(r.number)">
                 <span class="rp-reporter-badge">#{{ r.number }}</span>
                 <span class="rp-reporter-meta">
                   <span class="rp-reporter-date">{{ formatTimestamp(r.createdAt) }}</span>
@@ -201,17 +226,23 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
                   Edit
                 </NuxtLink>
                 <span class="rp-reporter-arrow">→</span>
-              </button>
+              </div>
             </div>
           </div>
 
           <div class="rp-table-col">
             <h4 class="rp-table-heading">Images uploaded ({{ allImages.length }})</h4>
-            <div v-if="allImages.length" class="rp-image-grid">
-              <button v-for="(img, i) in allImages" :key="i" type="button" class="rp-image-thumb"
-                @click="openLightbox(img.url)">
-                <img :src="img.url" :alt="`Evidence from reporter ${img.reporterNumber}`" />
-                <span class="rp-image-tag">#{{ img.reporterNumber }}</span>
+            <div v-if="allImages.length" class="rp-image-scroll-wrap">
+              <div ref="imageGridRef" class="rp-image-grid" @scroll="updateImageScrollState">
+                <button v-for="(img, i) in allImages" :key="i" type="button" class="rp-image-thumb"
+                  @click="openLightbox(img.url)">
+                  <img :src="img.url" :alt="`Evidence from reporter ${img.reporterNumber}`" />
+                  <span class="rp-image-tag">#{{ img.reporterNumber }}</span>
+                </button>
+              </div>
+              <button v-if="canScrollImagesRight" type="button" class="rp-image-scroll-btn" aria-label="Scroll images"
+                @click="scrollImagesRight">
+                ›
               </button>
             </div>
             <p v-else class="rp-empty-note">No images uploaded yet.</p>
@@ -301,7 +332,6 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   padding: 14px;
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: 8px;
 }
 
 .rp-heading {
@@ -337,7 +367,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   font-weight: 600;
   letter-spacing: 0.03em;
   background: none;
-  color: var(--accent);
+  color: var(--text-1);
   border: none;
   padding: 0;
   cursor: pointer;
@@ -368,7 +398,6 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--border-hi);
-  border-radius: 16px;
   padding: 32px;
 }
 
@@ -447,7 +476,6 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   text-align: left;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 8px;
   padding: 10px 12px;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, transform 0.15s;
@@ -459,6 +487,11 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   transform: translateX(2px);
 }
 
+.rp-reporter-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .rp-reporter-badge {
   flex-shrink: 0;
   font-family: var(--mono);
@@ -467,7 +500,6 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   color: #f87171;
   background: rgba(248, 113, 113, 0.08);
   border: 1px solid rgba(248, 113, 113, 0.25);
-  border-radius: 4px;
   padding: 3px 8px;
 }
 
@@ -500,6 +532,10 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   transition: transform 0.15s, color 0.15s;
 }
 
+.rp-table-col {
+  min-width: 0;
+}
+
 .rp-reporter-edit {
   flex-shrink: 0;
   font-family: var(--mono);
@@ -510,7 +546,6 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   color: var(--accent);
   background: var(--accent-dim, rgba(232, 255, 71, 0.08));
   border: 1px solid rgba(232, 255, 71, 0.25);
-  border-radius: 4px;
   padding: 3px 8px;
   text-decoration: none;
 }
@@ -525,7 +560,44 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   transform: translateX(3px);
 }
 
+.rp-image-scroll-wrap {
+  position: relative;
+}
+
 .rp-image-grid {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 4px;
+}
+
+.rp-image-grid .rp-image-thumb {
+  flex: 0 0 96px;
+  width: 96px;
+}
+
+.rp-image-scroll-btn {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border-hi);
+  background: var(--surface);
+  color: var(--text-1);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.rp-image-scroll-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}.rp-image-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
@@ -537,7 +609,6 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   position: relative;
   padding: 0;
   border: 1px solid var(--border);
-  border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
   aspect-ratio: 1;
@@ -564,7 +635,6 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   color: #fff;
   background: rgba(0, 0, 0, 0.65);
   padding: 1px 5px;
-  border-radius: 4px;
 }
 
 .rp-empty-note {
@@ -594,7 +664,6 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--border-hi);
-  border-radius: 18px;
   padding: 36px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
 }
@@ -645,7 +714,6 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   color: var(--accent);
   background: var(--accent-dim, rgba(232, 255, 71, 0.08));
   border: 1px solid rgba(232, 255, 71, 0.25);
-  border-radius: 6px;
   padding: 7px 12px;
   text-decoration: none;
 }

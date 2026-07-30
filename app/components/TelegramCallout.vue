@@ -49,7 +49,6 @@ withDefaults(defineProps<{
     background: var(--surface);
     border: 1px solid var(--border);
     border-left: 3px solid #229ed9;
-    border-radius: var(--radius, 10px);
     padding: 18px 20px;
     flex-wrap: wrap;
     max-width: 640px;
@@ -96,14 +95,13 @@ withDefaults(defineProps<{
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: #229ed9;
+    background: var(--surface-2);
     color: #fff;
     font-weight: 600;
     font-family: var(--mono);
     font-size: 12px;
     letter-spacing: 0.03em;
     padding: 11px 18px;
-    border-radius: var(--radius, 6px);
     text-decoration: none;
     white-space: nowrap;
     flex-shrink: 0;

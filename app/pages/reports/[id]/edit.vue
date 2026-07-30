@@ -25,16 +25,27 @@ interface OwnedSubmission {
   submissionId: string
 }
 
-onMounted(async () => {
+// Extracted so it can run on first mount AND whenever the submissionId
+// query changes without a full reload — Nuxt reuses this page component
+// when only the query changes (e.g. editing reporter #2, then #3, on the
+// same report), so onMounted alone would never re-run and the page would
+// stay stuck on whatever loaded first.
+async function loadEditTarget(targetSubmissionId: string | undefined) {
+  isLoading.value = true
+  loadError.value = ''
+  isOwner.value = false
+  resolvedSubmissionId.value = targetSubmissionId
+  report.value = null
+
   try {
     const mine: OwnedSubmission[] = JSON.parse(localStorage.getItem('myReportSubmissions') || '[]')
-    const match = queryySubmissionId
-      ? mine.find(m => m.reportId === reportId && m.submissionId === queryySubmissionId)
+    const match = targetSubmissionId
+      ? mine.find(m => m.reportId === reportId && m.submissionId === targetSubmissionId)
       : mine.find(m => m.reportId === reportId)
 
     if (match) {
       isOwner.value = true
-      resolvedSubmissionId.value = match.submissionId || queryySubmissionId
+      resolvedSubmissionId.value = match.submissionId || targetSubmissionId
     }
   } catch {
     isOwner.value = false
@@ -68,9 +79,35 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
-})
+}
+
+onMounted(() => loadEditTarget(queryySubmissionId))
+
+watch(
+  () => route.query.submissionId as string | undefined,
+  (newId, oldId) => {
+    if (newId !== oldId) loadEditTarget(newId)
+  }
+)
 
 const isMainSubmission = computed(() => (report.value as any)?.submissionId === resolvedSubmissionId.value)
+
+// The top-level evidenceUrls array gets polluted with every additional
+// reporter's photos too (the backend currently merges them all into it
+// with arrayUnion), so strip out anything that belongs to a specific
+// additional reporter — what's left is the main submission's own images.
+const mainOwnImages = computed(() => {
+  if (!report.value) return []
+  const subSet = new Set(
+    (report.value.additionalReports ?? []).flatMap((sub: any) => sub.evidenceUrls ?? [])
+  )
+  return ((report.value as any).evidenceUrls ?? []).filter((img: string) => !subSet.has(img))
+})
+
+const reportForEdit = computed(() => {
+  if (!report.value) return null
+  return { ...report.value, evidenceUrls: mainOwnImages.value }
+})
 
 const ownSubmissionEntry = computed(() => {
   if (!report.value || isMainSubmission.value) return null
@@ -92,8 +129,7 @@ function handleSubmitted(id: string) {
 
     <div v-else-if="loadError" class="state-msg error">{{ loadError }}</div>
 
-
-    <ReportForm v-else-if="isMainSubmission && report" :report="report" @submitted="handleSubmitted" />
+    <ReportForm v-else-if="isMainSubmission && reportForEdit" :report="reportForEdit" @submitted="handleSubmitted" />
 
     <EditSubmissionForm v-else-if="ownSubmissionEntry && report" :report-id="reportId"
       :submission-id="resolvedSubmissionId!" :submission="ownSubmissionEntry" @submitted="handleSubmitted" />

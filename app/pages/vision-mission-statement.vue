@@ -47,6 +47,7 @@ const branches = [
           before their money leaves their account</mark>, not after. We
           want checking a name, number, or account before you trust it to
           become as ordinary as checking a price before you buy.
+        
         </p>
       </section>
 
@@ -61,7 +62,10 @@ const branches = [
           shared, growing defense that gets stronger every time someone
           chooses to speak up instead of staying silent.
           <mark class="highlight">No report is too small, and no warning
-          comes too late for the next person searching that name.</mark>
+          comes too late for the next person searching that name.</mark> 
+          <br />
+          <mark class="highlight"> Our mission is to protect Nigerians
+          from financial fraud </mark>
         </p>
       </section>
 

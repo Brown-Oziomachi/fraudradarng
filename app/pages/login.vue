@@ -48,11 +48,11 @@ async function handleSubmit() {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 280px;
+  width: 580px;
+  height: 280px;
   padding: 28px;
   background: var(--surface, #14171a);
   border: 1px solid var(--border, #232629);
-  border-radius: 12px;
 }
 .login-card h1 {
   font-size: 18px;

@@ -40,7 +40,7 @@ useHead({
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--accent, #dc3333);
+  color: var(--text-2);
   margin-bottom: 16px;
 }
 .dot {

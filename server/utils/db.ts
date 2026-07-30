@@ -137,7 +137,7 @@ export async function createReport(
   reporterFingerprint: string,
   reporterIpHash: string,
   reporterDeviceId?: string
-): Promise<Report> {
+): Promise<Report & { yourSubmissionId?: string }> {
 
   const normalized = normalizeInput(input)
   const match = await findExistingReport(input.targetType, normalized)
@@ -150,17 +150,18 @@ export async function createReport(
     const existingMeta: ReporterMetaEntry[] = existingData.reporterMeta ?? []
     const isNewReporter = !existingFingerprints.includes(reporterFingerprint)
 
-   const newSubmissionId = randomUUID()
-const submission: Record<string, unknown> = {
-  submissionId: newSubmissionId,
-  fingerprint: reporterFingerprint,
-  description: input.description,
-  createdAt: new Date().toISOString()
-}
+    const newSubmissionId = randomUUID()
+    const submission: Record<string, unknown> = {
+      submissionId: newSubmissionId,
+      fingerprint: reporterFingerprint,
+      description: input.description,
+      createdAt: new Date().toISOString()
+    }
 
     if (input.reason !== undefined) submission.reason = input.reason
     if (input.amountInvolved !== undefined) submission.amountInvolved = input.amountInvolved
     if (input.contactPlatform !== undefined) submission.contactPlatform = input.contactPlatform
+    if (input.state !== undefined) submission.state = input.state
     if (input.evidenceUrls?.length) submission.evidenceUrls = input.evidenceUrls
 
     const newDistinctCount = (existingData.distinctReporterCount ?? 1) + (isNewReporter ? 1 : 0)
@@ -195,10 +196,6 @@ const submission: Record<string, unknown> = {
     if (existingData.reportCount == null) updatePayload.reportCount = 1
     if (!existingData.state && input.state) updatePayload.state = input.state
 
-    if (input.evidenceUrls?.length) {
-      updatePayload.evidenceUrls = FieldValue.arrayUnion(...input.evidenceUrls)
-    }
-
     if (isNewReporter) {
       updatePayload.reporterFingerprints = FieldValue.arrayUnion(reporterFingerprint)
       updatePayload.reporterMeta = updatedMeta
@@ -207,9 +204,12 @@ const submission: Record<string, unknown> = {
 
     await doc.ref.update(updatePayload)
     const refreshed = await doc.ref.get()
-    return toPublicReport(refreshed.id, refreshed.data()!)
+    return {
+      ...toPublicReport(refreshed.id, refreshed.data()!),
+      yourSubmissionId: newSubmissionId
+    }
   }
-
+  
 const createdAt = new Date().toISOString()
 const baseSlug = buildReportSlug(input)
 const submissionId = randomUUID()

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 
+definePageMeta({ transparentHeader: true })
+
 useSeoMeta({
   title: 'Fraud Radar NG',
   description: 'Help protect citizens by flagging ongoing internet fraud immediately.',
@@ -739,6 +741,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   border-radius: 0 0 48px 48px;
+  margin-top: calc(-1 * var(--site-header-height, 99px));
+  padding-top: var(--site-header-height, 99px);
 }
 
 .hero-bg-image {
@@ -760,7 +764,7 @@ onUnmounted(() => {
   }
 
   100% {
-    transform: scale(1.08);
+    transform: scale(1.48);
   }
 }
 
