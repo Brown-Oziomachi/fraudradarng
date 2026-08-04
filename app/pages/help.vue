@@ -692,8 +692,8 @@ onBeforeUnmount(() => {
   text-decoration: none;
   transition: background 0.15s ease, transform 0.15s ease;
 }
-.btn--accent { background: var(--accent); color: #0a0a0b; }
-.btn--accent:hover { background: #d4eb3c; transform: translateY(-2px); }
+.btn--accent { background: var(--accent); color: var(--text-2); }
+.btn--accent:hover { background: var(--bg); transform: translateY(-2px); }
 
 @media (prefers-reduced-motion: reduce) {
   .word, .reveal, .eyebrow-dot {

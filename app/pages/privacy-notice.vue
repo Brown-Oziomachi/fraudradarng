@@ -46,15 +46,17 @@ useHead({
   <div class="privacy-page">
     <div class="privacy-container">
       <p class="eyebrow">Legal</p>
-      <h1 class="page-title">Privacy Notice</h1>
-      <p class="last-updated">Last updated: {{ lastUpdated }}</p>
-
-      <p class="intro">
-        Fraud Radar NG ("we", "us", "our") helps Nigerians report and
-        research suspected fraud. This notice explains what personal data we
-        collect when you use our site, why we collect it, and the choices
-        you have.
-      </p>
+      <div class="page-contain">
+        <h1 class="page-title">Privacy Notice</h1>
+        <p class="last-updated">Last updated: {{ lastUpdated }}</p>
+  
+        <p class="intro">
+          Fraud Radar NG ("we", "us", "our") helps Nigerians report and
+          research suspected fraud. This notice explains what personal data we
+          collect when you use our site, why we collect it, and the choices
+          you have.
+        </p>
+      </div>
 
       <!-- MOBILE / TABLET: collapsible jump-to-section dropdown -->
       <details class="toc-mobile" :open="tocOpen" @toggle="onToggle">
@@ -279,6 +281,8 @@ useHead({
 .privacy-container {
   max-width: 64rem;
   margin: 0 auto;
+  background-color: var(--surface);
+  padding: 25px;
 }
 
 .eyebrow {
@@ -299,6 +303,12 @@ useHead({
   color: var(--text-1);
   margin: 0 0 0.5rem;
   line-height: 1.1;
+  
+}
+
+.page-contain {
+  background-color: var(--surface-2);
+  padding: 20px;
 }
 
 .last-updated {
@@ -422,6 +432,7 @@ useHead({
     top: 2rem;
     padding: 1.25rem 0.25rem;
     border-right: 1px solid var(--border);
+        background-color: var(--surface-2);
   }
 
   .toc-desktop-label {
@@ -432,6 +443,7 @@ useHead({
     color: var(--text-3);
     margin-bottom: 0.75rem;
     padding: 0 0.5rem;
+    
   }
 
   .toc-desktop-link {
@@ -455,7 +467,7 @@ useHead({
   .toc-desktop-num {
     font-family: var(--mono);
     font-size: 0.68rem;
-    color: var(--accent);
+    color: var(--text-1);
     flex-shrink: 0;
   }
 }

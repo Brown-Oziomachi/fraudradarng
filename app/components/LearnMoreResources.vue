@@ -64,19 +64,21 @@ function formatDate(dateString: string) {
     <div class="learn-inner">
       <header class="learn-header">
         <div class="eyebrow-badge">
-          <svg class="badge-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 4.5h9a2.5 2.5 0 012.5 2.5v9H6.5A2.5 2.5 0 014 13.5v-9z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
-            <path d="M4 4.5v9A2.5 2.5 0 006.5 16H4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
-            <path d="M7.5 8h5M7.5 10.5h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          </svg>
-          <span class="eyebrow-text">Keep Learning</span>
-        </div>
-        <h2 class="learn-title">
-          Know the pattern <span class="accent-word">before it reaches you</span>
-        </h2>
-        <p class="learn-subtitle">
-          Every scam follows a script. The more of them you recognize, the harder you are to catch off guard.
-        </p>
+          <div class="eyebrow-center">
+            <svg class="badge-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 4.5h9a2.5 2.5 0 012.5 2.5v9H6.5A2.5 2.5 0 014 13.5v-9z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+              <path d="M4 4.5v9A2.5 2.5 0 006.5 16H4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+              <path d="M7.5 8h5M7.5 10.5h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+            <span class="eyebrow-text">Keep Learning</span>
+            <h2 class="learn-title">
+              Know the pattern <span class="accent-word">before it reaches you</span>
+            </h2>
+            <p class="learn-subtitle">
+              Every scam follows a script. The more of them you recognize, the harder you are to catch off guard.
+            </p>
+          </div>
+          </div>
       </header>
 
       <div class="guide-strip">
@@ -143,6 +145,11 @@ function formatDate(dateString: string) {
   padding: 2rem 1.25rem 4rem;
 }
 
+.eyebrow-center {
+  background: var(--surface);
+  padding: 10px;
+}
+
 .learn-inner {
   width: 100%;
   max-width: 920px;
@@ -162,6 +169,7 @@ function formatDate(dateString: string) {
   text-align: center;
   gap: 0.85rem;
   margin-bottom: 2.5rem;
+  background-image: url('/def.png');
 }
 
 .eyebrow-badge {
@@ -181,13 +189,15 @@ function formatDate(dateString: string) {
   color: var(--accent);
 }
 
+
+
 .eyebrow-text {
   font-family: var(--mono);
   font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--accent);
+  color: var(--text-2);
 }
 
 .learn-title {
@@ -223,15 +233,16 @@ function formatDate(dateString: string) {
 .guide-card {
   display: flex;
   flex-direction: column;
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border);
   overflow: hidden;
   text-decoration: none;
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 .guide-card:hover {
-  border-color: var(--accent-bdr);
+  border-color: var(--accent);
   transform: translateY(-2px);
+  background-color: var(--surface);
 }
 
 .guide-image-wrap {
@@ -261,7 +272,7 @@ function formatDate(dateString: string) {
   padding: 0.2rem 0.5rem;
   background: color-mix(in srgb, var(--bg) 70%, transparent);
   backdrop-filter: blur(4px);
-  color: var(--accent);
+  color: var(--text-2);
   border: 1px solid var(--accent-bdr);
 }
 

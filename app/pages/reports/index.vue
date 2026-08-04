@@ -659,7 +659,7 @@ onBeforeUnmount(() => {
 .category-filter-chip.active {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-2);
   font-weight: 600;
 }
 

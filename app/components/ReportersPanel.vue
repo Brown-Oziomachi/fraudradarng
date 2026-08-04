@@ -251,10 +251,7 @@ function scrollImagesRight() {
       </div>
     </div>
   </Teleport>
-
-  <!-- ============ REPORTER DETAIL MODAL — stacks on top of the list modal.
-       Opens on clicking any reporter row. X returns to the list underneath,
-       it does not close everything. ============ -->
+  
   <Teleport to="body">
     <div v-if="detailModalOpen && selectedReporter" class="rd-overlay" @click.self="closeDetailModal">
       <div class="rd-modal" role="dialog" aria-modal="true" :aria-label="`Reporter ${selectedReporter.number} report`">
@@ -382,7 +379,7 @@ function scrollImagesRight() {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(2, 6, 4, 0.72);
+  background: var(--surface-2);
   backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
@@ -394,21 +391,19 @@ function scrollImagesRight() {
   position: relative;
   width: 100%;
   max-width: 760px;
-  max-height: 88vh;
+  max-height: 98vh;
   overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--border-hi);
   padding: 32px;
 }
 
-/* On desktop, let the modal claim most of the viewport instead of staying
-   pinned at a flat 760px — scales with the window, capped so it never
-   goes edge-to-edge or absurdly wide on ultra-wide monitors. */
 @media (min-width: 1024px) {
   .rp-modal {
     width: 88vw;
     max-width: 1200px;
-    max-height: 85vh;
+    max-height: 95vh;
+    height: 90vw;
   }
 }
 
@@ -443,7 +438,7 @@ function scrollImagesRight() {
 .rp-tables {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 10px;
 }
 
 @media (max-width: 620px) {
@@ -632,9 +627,9 @@ function scrollImagesRight() {
   right: 4px;
   font-family: var(--mono);
   font-size: 9px;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.65);
-  padding: 1px 5px;
+  color: #ad1111;
+  background: var(--surface);
+    padding: 1px 5px;
 }
 
 .rp-empty-note {
@@ -643,12 +638,11 @@ function scrollImagesRight() {
   font-style: italic;
 }
 
-/* ============ REPORTER DETAIL MODAL — "pro" styled, stacks on top ============ */
 .rd-overlay {
   position: fixed;
   inset: 0;
   z-index: 1050;
-  background: rgba(2, 6, 4, 0.82);
+  background: var(--surface);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -660,7 +654,7 @@ function scrollImagesRight() {
   position: relative;
   width: 100%;
   max-width: 540px;
-  max-height: 88vh;
+  max-height: 98vh;
   overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--border-hi);
@@ -668,14 +662,11 @@ function scrollImagesRight() {
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
 }
 
-/* Desktop: wider than the flat 540px cap, but narrower than rp-modal above
-   since this only ever holds one reporter's content, not two side-by-side
-   tables — doesn't need as much horizontal room. */
 @media (min-width: 1024px) {
   .rd-modal {
     width: 70vw;
-    max-width: 720px;
-    max-height: 85vh;
+    max-width: 1220px;
+    max-height: 95vh;
   }
 }
 
@@ -688,7 +679,7 @@ function scrollImagesRight() {
   border-radius: 50%;
   border: 1px solid var(--border-hi);
   background: var(--bg);
-  color: var(--text-2);
+  color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -776,7 +767,6 @@ function scrollImagesRight() {
   padding: 16px 18px;
   background: var(--bg);
   border-left: 3px solid var(--accent);
-  border-radius: 0 8px 8px 0;
   font-size: 14.5px;
   line-height: 1.75;
   color: var(--text-2);
@@ -835,7 +825,6 @@ function scrollImagesRight() {
   position: relative;
   padding: 0;
   border: 1px solid var(--border-hi);
-  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
   aspect-ratio: 1;
@@ -855,12 +844,12 @@ function scrollImagesRight() {
 
 .rd-evidence-zoom {
   position: absolute;
-  inset: 0;
+  inset: 0; 
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.35);
+  color: var(--text-1);
+  background: var(--surface);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -889,7 +878,7 @@ function scrollImagesRight() {
 .rp-lightbox {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -901,7 +890,6 @@ function scrollImagesRight() {
 .rp-lightbox img {
   max-width: 100%;
   max-height: 100%;
-  border-radius: 8px;
   cursor: default;
 }
 
@@ -912,9 +900,9 @@ function scrollImagesRight() {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--accent);
   border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
+  color: var(--text-1);
   font-size: 18px;
   cursor: pointer;
   z-index: 1101;

@@ -4,9 +4,11 @@ import type { Report } from '#shared/types/report'
 
 useHead({ title: 'Most Flagged Accounts — Fraud Radar NG' })
 
-const { data: reports, pending, error } = await useLazyFetch<Report[]>('/api/reports', {
-  default: () => []
+const { data, pending, error } = await useLazyFetch<{ reports: Report[]; nextCursor: string | null }>('/api/reports', {
+  default: () => ({ reports: [], nextCursor: null })
 })
+
+const reports = computed(() => data.value?.reports ?? [])
 
 function displayName(r: Report) {
   if (r.targetType === 'company') return r.companyName ?? 'Unknown company'
@@ -42,7 +44,7 @@ function formatAmount(r: Report) {
 
 // Only accounts that have actually been flagged (auto-escalated by 3+ distinct reporters)
 const flaggedOnly = computed(() =>
-  (reports.value ?? []).filter(r => r.status === 'flagged')
+  reports.value.filter(r => r.status === 'flagged')
 )
 
 // Most-reported first
@@ -136,13 +138,15 @@ const totalReportsAcrossFlagged = computed(() =>
 
 <style scoped>
 .page-shell {
-  max-width: 1120px;
   margin: 0 auto;
   padding: 56px 24px 100px;
+  background-image: url('/def.png');
 }
 
 .page-header {
   margin-bottom: 32px;
+  background-color: var(--surface);
+  padding: 20px;
 }
 
 .eyebrow {
@@ -298,10 +302,10 @@ const totalReportsAcrossFlagged = computed(() =>
   display: inline-flex; align-items: center; font-family: var(--mono);
   font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
   padding: 13px 26px; border-radius: var(--radius); border: 1px solid var(--accent);
-  background: var(--accent); color: #0a0a0b; text-decoration: none;
+  background: var(--accent); color: var(--text-1); text-decoration: none;
   transition: background 0.15s ease, transform 0.15s ease;
 }
-.btn:hover { background: #d4eb3c; transform: translateY(-2px); }
+.btn:hover { background: var(--bg); transform: translateY(-2px); }
 
 @media (max-width: 640px) {
   .flagged-table { font-size: 12px; }

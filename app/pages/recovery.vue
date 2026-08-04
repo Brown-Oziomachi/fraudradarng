@@ -567,7 +567,7 @@ const agencies = [
 }
 .rail-pill--active .rail-pill-num,
 .rail-pill--done .rail-pill-num {
-  background: var(--accent); border-color: var(--accent); color: #0a0a0b; font-weight: 700;
+  background: var(--accent); border-color: var(--accent); color: var(--text-1); font-weight: 700;
 }
 .rail-pill-text { display: flex; flex-direction: column; line-height: 1.2; }
 .rail-pill-label { font-family: var(--mono); font-size: 11.5px; color: var(--text-1); }
@@ -668,7 +668,7 @@ label {
   display: inline-flex;
   align-items: center;
   background: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-1);
   font-weight: 600;
   font-family: var(--mono);
   font-size: 12.5px;
@@ -679,7 +679,7 @@ label {
   cursor: pointer;
   text-decoration: none;
 }
-.btn-primary:hover { background: #d4eb3c; }
+.btn-primary:hover { background: var(--bg); }
 
 .btn-secondary {
   display: inline-flex;

@@ -478,8 +478,8 @@ function finishSuccess() {
             <div class="form-group">
               <label for="state">State where this happened (optional)</label>
               <select id="state" v-model="form.state" class="input">
-                <option value="">Prefer not to say</option>
-                <option v-for="s in NIGERIA_STATES" :key="s" :value="s">{{ s }}</option>
+                <option value="" >Prefer not to say</option>
+                <option v-for="s in NIGERIA_STATES" :key="s" :value="s" >{{ s }}</option>
               </select>
             </div>
           </section>
@@ -967,7 +967,6 @@ function finishSuccess() {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  
 }
 
 .field-grid {
@@ -985,7 +984,7 @@ label {
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--text-1);
   
 }
 
@@ -999,7 +998,7 @@ label {
   font-family: var(--mono);
   font-size: 12px;
   letter-spacing: 0.04em;
-  background: var(--surface);
+  background: var(--surface-2);
   color: var(--text-3);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -1012,14 +1011,14 @@ label {
   color: var(--text-1);
 }
 .type-tab.active {
-  background: var(--accent);
+  background-color: var(--surface);
   border-color: var(--accent);
   color: #0a0a0b;
   font-weight: 600;
 }
 
 .input {
-  background: var(--surface);
+  background: var(--surface-2);
     border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px 16px;
@@ -1072,8 +1071,8 @@ select.input {
   font-family: var(--mono);
   font-size: 11.5px;
   letter-spacing: 0.02em;
-  background: var(--bg);
-  color: var(--text-3);
+  background-color: var(--surface-2);
+    color: var(--text-3);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 9px 16px;
@@ -1085,9 +1084,9 @@ select.input {
   color: var(--text-1);
 }
 .platform-chip.active {
-  background: var(--accent);
+  background: var(--surface);
   border-color: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-2);
   font-weight: 600;
 }
 
@@ -1098,6 +1097,7 @@ select.input {
   padding: 26px;
   text-align: center;
   margin-bottom: 14px;
+  background-color: var(--surface-2);
 }
 .file-input {
   position: absolute;
@@ -1107,11 +1107,12 @@ select.input {
   opacity: 0;
   cursor: pointer;
 }
+
 .upload-hint {
   font-family: var(--mono);
   font-size: 12px;
   color: var(--text-3);
-}
+  }
 
 .preview-grid {
   display: grid;
@@ -1120,7 +1121,6 @@ select.input {
 }
 .preview-item {
   position: relative;
-  border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--border-hi);
   aspect-ratio: 1;
@@ -1143,7 +1143,7 @@ select.input {
   font-family: var(--mono);
   font-size: 11px;
   background: rgba(10,10,11,0.85);
-  color: #f87171;
+  color: #f20202;
   border: 1px solid rgba(248,113,113,0.3);
   border-radius: 50%;
   cursor: pointer;
@@ -1153,7 +1153,7 @@ select.input {
 .error-text {
   font-family: var(--mono);
   font-size: 12px;
-  color: #f87171;
+  color: #ff0000;
   margin-bottom: 14px;
 }
 
@@ -1194,7 +1194,7 @@ select.input {
   max-width: 820px;
   margin: 0 auto;
 }
-@media (max-width: 640px) {
+@media (max-width: 900px) {
   .edit-card { padding: 24px; }
 }
 
@@ -1263,12 +1263,12 @@ select.input {
   display: flex;
   flex-direction: column;
   gap: 32px;
-  max-width: 100%;   /* let the card use full available width */
+  max-width: 100%;  
   width: 100%;
   margin: 0 auto;
 }
 
-@media (max-width: 900px) {   /* was 760px */
+@media (max-width: 900px) {  
   .wizard-shell {
     grid-template-columns: 1fr;
     gap: 0;
@@ -1293,7 +1293,7 @@ select.input {
   min-width: 100px;
 }
 
-.rail-step--clickable { cursor: pointer; }
+.rail-step--clickable { cursor: pointer;  }
 .rail-step:last-child { padding-bottom: 0; }
 
 .rail-marker {
@@ -1302,7 +1302,7 @@ select.input {
   flex-shrink: 0;
   border-radius: 50%;
   border: 1px solid var(--border-hi);
-  background: var(--bg);
+  background-color: var(--surface);  
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1314,14 +1314,14 @@ select.input {
 }
 .rail-step--active .rail-marker {
   border-color: var(--accent);
-  background: var(--accent);
-  color: #0a0a0b;
+  background: var(--surface);
+  color: var(--text-2);
   font-weight: 700;
 }
 .rail-step--done .rail-marker {
   border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-dim, rgba(232,255,71,0.08));
+  color: var(--text-2);
+  background: var(--accent-bdr, rgba(232,255,71,0.08));
 }
 
 .rail-line {
@@ -1329,7 +1329,7 @@ select.input {
 }
 
 .rail-step--done .rail-line {
-  background: var(--accent);
+  background: var(--surface);
   opacity: 0.4;
 }
 
@@ -1349,7 +1349,7 @@ select.input {
   font-weight: 600;
 }
 .rail-hint {
-  display: none;   /* keep the horizontal strip compact — hint text can crowd it */
+  display: none;  
 }
 
 /* Mobile progress bar */
@@ -1360,7 +1360,8 @@ select.input {
   margin-bottom: 24px;
   padding: 0 4px;
 }
-@media (max-width: 760px) {
+
+@media (max-width: 900px) {
   .progress-row { display: flex; }
 }
 .progress-label {
@@ -1378,16 +1379,9 @@ select.input {
 }
 .progress-fill {
   height: 100%;
-  background: var(--accent);
-  border-radius: 999px;
+  background-color: var(--surface); 
+   border-radius: 999px;
   transition: width 0.3s ease;
-}
-
-/* Step content card */
-.step-card {
-  order: 1;
-  width: 100%;
-  
 }
 
 .step-rail {
@@ -1398,11 +1392,18 @@ select.input {
   justify-content: center;
   gap: 24px;
   padding-top: 0;
-  position: static;          
+  position: static;
+      
 }
 
 @media (max-width: 640px) {
   .step-card { padding: 26px 22px; min-height: 0;  }
+    .step-card {
+      order: 1;
+      width: 100%;
+      background-color: var(--surface);
+  
+    }
 }
 
 .step {
@@ -1422,6 +1423,7 @@ select.input {
 }
 @media (max-width: 640px) {
   .step-title { font-size: 23px; }
+  
 }
 .step-sub {
   font-size: 14.5px;
@@ -1545,9 +1547,9 @@ select.input {
   z-index: 300;
   padding: 20px;
   display: flex;
-  align-items: flex-start;   /* was: center — flex-start avoids the clip-with-no-scroll bug */
+  align-items: flex-start;   
   justify-content: center;
-  overflow-y: auto;          /* was missing — this is what actually lets it scroll */
+  overflow-y: auto;
 }
 
 .success-modal {
@@ -1555,7 +1557,7 @@ select.input {
   border: 1px solid var(--border-hi);
   border-radius: var(--radius);
   padding: 36px 32px;
-  max-width: 380px;   /* mobile default stays narrow */
+  max-width: 380px;   
   width: 100%;
   text-align: center;
   margin: auto 20;
@@ -1563,7 +1565,7 @@ select.input {
 
 @media (min-width: 640px) {
   .success-modal {
-    max-width: 780px;   /* a bit more breathing room on desktop, not a big jump */
+    max-width: 780px;   
     padding: 10px 70px;
   }
 }

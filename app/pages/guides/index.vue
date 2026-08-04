@@ -117,23 +117,44 @@ useSeoMeta({
   align-items: center;
   justify-content: center;
   text-align: center;
+  background-color: var(--surface);
+  margin-bottom: 50px;
+}
+
+.page-hero {
+  background-position: center;
+  background-size: cover;
+    background-image: url('/def.png');
+  }
+@media (max-width: 740px) {
+.page-hero {
+    background-image: url('/def.png');
+}
 }
 
 .eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--text-3); margin-bottom: 16px;
+  text-transform: uppercase; color: var(--text-1); margin-bottom: 16px; background-color: var(--surface); padding: 5px;
 }
 .eyebrow-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; }
 
 .page-title {
-  font-family: var(--serif); font-size: clamp(88px, 7vw, 62px);
-  color: var(--text-1); line-height: 1.2; margin-bottom: 14px; 
-
+  font-family: var(--serif); font-size: clamp(58px, 7vw, 82px);
+  color: var(--text-2); line-height: 1.2; margin-bottom: 14px; 
+  background-color: var(--surface);
+  margin: 10px;
+  padding: 10px;
 }
 .page-sub {
-  font-size: 14.5px; color: var(--text-2); line-height: 1.75; font-weight: 300;
-  max-width: 620px;
+  font-size: 14.5px; 
+  color: var(--text-2); 
+  line-height: 1.75; 
+  font-weight: 300; 
+  padding: 30px; 
+  background-color: var(--surface);
+  border: 1px solid var(--bg); 
+  background-size: cover; 
 }
 
 .filter-row {
@@ -161,7 +182,7 @@ useSeoMeta({
 .filter-chip.active {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-2);
   font-weight: 600;
 }
 
@@ -177,7 +198,7 @@ useSeoMeta({
 .guide-card {
   display: flex;
   flex-direction: column;
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border);
   overflow: hidden;
   text-decoration: none;
@@ -186,11 +207,12 @@ useSeoMeta({
 .guide-card:hover {
   border-color: var(--border-hi);
   transform: translateY(-2px);
+  background-color: var(--surface);
 }
 
 .guide-image-wrap {
   width: 100%;
-  height: 160px;
+  height: 190px;
   overflow: hidden;
   background: var(--bg);
 }
@@ -222,7 +244,7 @@ useSeoMeta({
   padding: 3px 8px;
   border-radius: 3px;
   background: var(--accent-dim, rgba(232,255,71,0.08));
-  color: var(--accent);
+  color: var(--text-1);
   border: 1px solid rgba(232,255,71,0.2);
   margin-bottom: 14px;
 }

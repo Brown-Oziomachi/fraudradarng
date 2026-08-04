@@ -186,8 +186,8 @@ export default { data: () => ({ icons }) }
 </script>
 <style scoped>
 .follow {
-  background: var(--bg);
-  padding: 72px clamp(20px, 5vw, 64px);
+  background: var(--surface);
+  padding: 72px clamp(20px, 2vw, 4px);
 }
 
 .follow-inner {
@@ -197,6 +197,8 @@ export default { data: () => ({ icons }) }
   gap: 48px;
   max-width: 1240px;
   margin: 0 auto;
+  background-color: var(--surface);
+  padding: 10px;
 }
 @media (max-width: 900px) {
   .follow-inner {
@@ -247,7 +249,6 @@ export default { data: () => ({ icons }) }
   justify-content: center;
   gap: 6px;
   padding: 22px 12px;
-  border-radius: 16px;
   color: #fff;
   text-decoration: none;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -325,7 +326,6 @@ export default { data: () => ({ icons }) }
   max-width: min(560px, 92vw);
   max-height: 88vh;
   background: var(--bg);
-  border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
   display: flex;
@@ -345,7 +345,7 @@ export default { data: () => ({ icons }) }
   padding: 16px 20px;
   text-align: center;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--text-2);
   font-size: 15px;
 }
 

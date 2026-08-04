@@ -18,10 +18,10 @@ const props = withDefaults(defineProps<{
     founderName: 'Sir Brown AD',
     role: 'Full-Stack Developer | Blogger',
     breadcrumb: '#StopScamsNG / Fraud Radar NG',
-    avatar: '/ad.jpeg',
-    backgroundImage: '/ngf.png',
+    avatar: '/meme.png',
+    backgroundImage: '/USE.png',
     bio: () => [
-        'Sir Brown AD is a full-stack developer based in Abuja, building web platforms that solve problems most people don\'t realize are solvable — from fraud awareness to tools that quietly save someone an afternoon. He has been building full-stack web applications since training through EarlyCode Institute, working across React, Next.js, Vue, vite and Nuxt.',
+        'Sir Brown AD is a full-stack developer and a blogger based in Abuja, building web platforms that solve problems most people don\'t realize are solvable — from fraud awareness to tools that quietly save someone an afternoon. He has been building full-stack web applications since training through EarlyCode Institute, working across React, Next.js, Vue, vite and Nuxt.',
         'Fraud Radar NG started from a simple observation: the same fraudulent account, the same fake company, the same cloned website gets reused on victim after victim because nobody warns the next person in time. Reports filed with banks and agencies disappear into case numbers — nothing public, nothing searchable, nothing that stops the next transfer.',
         'FRNG closes that gap — a free, instant, no-login way to warn everyone else before they lose anything. No approval queue, no bureaucracy, no waiting for a case to be "reviewed." A report goes live the moment it\'s submitted, because the five minutes it takes to publish a warning could be the five minutes that saves someone\'s savings.',
         'It\'s an idependent project — not a bank, not a government agency, not a law firm — built and maintained solo, for Nigerians, by a Nigerian who got tired of watching the same scripts work twice. Every part of it, from the report form to the internal moderation dashboard, was designed, built, and shipped by one person working out of Abuja.',
@@ -38,6 +38,7 @@ function close() {
 function onKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape') close()
 }
+
 
 watch(() => props.modelValue, (open) => {
     if (import.meta.client) {
@@ -60,7 +61,7 @@ onBeforeUnmount(() => {
                 :style="backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : undefined">
                 <div class="modal-topbar" aria-hidden="true" />
 
-                <button class="modal-close" aria-label="Close" @click="close">
+              <button class="modal-close" aria-label="Close" @click="close">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
                         <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                     </svg>
@@ -72,7 +73,7 @@ onBeforeUnmount(() => {
 
                         <div class="modal-content">
                             <div class="modal-avatar-wrap">
-                                <img :src="avatar" :alt="founderName" class="modal-avatar" loading="lazy" />
+                                <img :src="avatar" :alt="founderName" class="modal-avatar" loading="lazy" title="Sir Brown AD" />
                             </div>
 
                             <div class="modal-copy">
@@ -86,12 +87,12 @@ onBeforeUnmount(() => {
                                 <div v-if="links.length" class="modal-links">
                                     <a v-for="link in links" :key="link.href" :href="link.href" target="_blank"
                                         rel="noopener noreferrer" class="modal-link-btn" :aria-label="link.label">
-                                        <svg v-if="link.icon === 'x'" viewBox="0 0 24 24" width="16" height="16"
+                                        <svg title="X Twitter" v-if="link.icon === 'x'" viewBox="0 0 24 24" width="16" height="16"
                                             fill="currentColor">
                                             <path
                                                 d="M18.3 2H21l-6.7 7.6L22 22h-6.6l-5.2-6.8L4.2 22H1.5l7.2-8.2L1 2h6.7l4.7 6.2L18.3 2Zm-1.2 18h1.8L7 4H5.1l12 16Z" />
                                         </svg>
-                                        <svg v-else-if="link.icon === 'github'" viewBox="0 0 24 24" width="16" height="16"
+                                        <svg title="Github" v-else-if="link.icon === 'github'" viewBox="0 0 24 24" width="16" height="16"
                                             fill="currentColor">
                                             <path
                                                 d="M12 2C6.5 2 2 6.5 2 12c0 4.4 2.9 8.1 6.9 9.4.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.5-1.1-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.7.4-1.1.6-1.4-2.3-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.5-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 4.9 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7 1 .7 2v3c0 .3.2.6.7.5A10 10 0 0 0 22 12c0-5.5-4.5-10-10-10Z" />
@@ -102,7 +103,7 @@ onBeforeUnmount(() => {
                                             <path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18" stroke="currentColor"
                                                 stroke-width="1.8" />
                                         </svg>
-                                        <svg v-else-if="link.icon === 'linkedin'" viewBox="0 0 24 24" width="16" height="16"
+                                        <svg  v-else-if="link.icon === 'linkedin'" viewBox="0 0 24 24" width="16" height="16"
                                             fill="currentColor">
                                             <path
                                                 d="M4.98 3.5a2.5 2.5 0 11-.02 5 2.5 2.5 0 01.02-5ZM3 8.98h4V21H3V8.98ZM9 8.98h3.8v1.64h.05c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.4c0-1.29-.02-2.94-1.8-2.94-1.8 0-2.08 1.4-2.08 2.85V21H9V8.98Z" />
@@ -131,8 +132,8 @@ onBeforeUnmount(() => {
     width: 100vw;
     height: 100vh;
     height: 100dvh;
-    background: #318939 center / cover no-repeat;
     overflow: hidden;
+    background-size: cover;
 }
 
 /* Thin accent strip across the very top edge, matching the reference */
@@ -168,10 +169,6 @@ onBeforeUnmount(() => {
     color: var(--accent);
     border-color: var(--accent);
 }
-
-/* The floating card that sits ON TOP of the background photo, not covering it.
-   Positioned with insets (not margin) so it fills the available height exactly
-   and never needs to scroll — content is sized to fit inside it instead. */
 .modal-panel {
     position: absolute;
     z-index: 1;
@@ -182,7 +179,6 @@ onBeforeUnmount(() => {
     overflow: hidden;
     padding: clamp(24px, 4vh, 44px) clamp(24px, 3.5vw, 44px);
     box-sizing: border-box;
-    border-radius: 20px;
     background: var(--surface);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -194,7 +190,7 @@ onBeforeUnmount(() => {
 .modal-breadcrumb {
     font-family: var(--mono);
     font-size: 12px;
-    color: color-mix(in srgb, white 65%, transparent);
+    color: var(--text-1);
     margin-bottom: clamp(14px, 3vh, 26px);
     flex-shrink: 0;
 }
@@ -236,7 +232,7 @@ onBeforeUnmount(() => {
     font-family: var(--serif);
     font-weight: 700;
     font-size: clamp(22px, 3.4vh, 34px);
-    color: #fff;
+    color: var(--text-1);
     line-height: 1.15;
     margin-bottom: 4px;
     flex-shrink: 0;
@@ -245,7 +241,7 @@ onBeforeUnmount(() => {
 .modal-role {
     font-size: clamp(14px, 1.9vh, 17px);
     font-weight: 400;
-    color: color-mix(in srgb, white 60%, transparent);
+    color: var(--text-1);
     margin-bottom: clamp(10px, 2.2vh, 18px);
     flex-shrink: 0;
 }
@@ -253,7 +249,7 @@ onBeforeUnmount(() => {
 .modal-bio {
     font-size: clamp(12px, 1.6vh, 14px);
     line-height: 1.65;
-    color: color-mix(in srgb, white 90%, transparent);
+    color: var(--text-1);
     font-weight: 300;
     margin-bottom: clamp(8px, 1.4vh, 12px);
 }
@@ -274,7 +270,7 @@ onBeforeUnmount(() => {
     justify-content: center;
     border-radius: calc(var(--radius) - 2px);
     background: var(--accent);
-    color: #0a0a0b;
+    color: var(--text-1);
     transition: transform 0.15s, box-shadow 0.15s;
 }
 

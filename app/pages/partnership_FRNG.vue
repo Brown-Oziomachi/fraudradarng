@@ -40,32 +40,64 @@ const audiences = [
 
 const stats = [
   { value: '1,240+', label: 'Reports filed' },
-  { value: '38', label: 'States covered' },
-  { value: '< 48h', label: 'Typical response time' }
+  { value: '36', label: 'States covered' },
+  { value: '48h', label: 'Typical response time' }
 ]
 
 const emailAddress = 'partnerships@fraudradar.ng'
 const copied = ref(false)
+const copyFailed = ref(false)
 
-function copyEmail() {
-  navigator.clipboard.writeText(emailAddress)
-  copied.value = true
-  setTimeout(() => { copied.value = false }, 2000)
+async function copyEmail() {
+  copyFailed.value = false
+  try {
+    await navigator.clipboard.writeText(emailAddress)
+    copied.value = true
+    setTimeout(() => { copied.value = false }, 2000)
+  } catch {
+    // clipboard API unavailable (insecure context, permission denied, etc.)
+    copyFailed.value = true
+    setTimeout(() => { copyFailed.value = false }, 2500)
+  }
 }
+
+/* ---------- Scroll-triggered reveal, consistent with other pages ---------- */
+const pageRoot = ref<HTMLElement | null>(null)
+
+onMounted(() => {
+  nextTick(() => {
+    const targets = pageRoot.value?.querySelectorAll('.reveal')
+    if (!targets || !targets.length) return
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      targets.forEach((t) => t.classList.add('is-visible'))
+      return
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            io.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+    )
+    targets.forEach((t) => io.observe(t))
+  })
+})
 </script>
 
 <template>
-  <div class="partner-page">
+  <div ref="pageRoot" class="partner-page">
 
     <!-- ===================== HERO — image first, oversized type ===================== -->
     <section class="hero">
       <div class="hero-image-wrap">
-        <img
-          src="/partner.png"
-          alt="Investigators reviewing a fraud case file"
-          class="hero-image"
-        />
-        <div class="hero-scrim" />
+        <img src="/partner.png" alt="Investigators reviewing a fraud case file" class="hero-image" />
+        <div class="hero-scrim" aria-hidden="true" />
       </div>
 
       <div class="hero-content">
@@ -89,47 +121,46 @@ function copyEmail() {
     </section>
 
     <!-- ===================== AUDIENCE CARDS ===================== -->
-    <section class="audience-section">
+    <section class="audience-section reveal reveal--up">
       <p class="section-eyebrow">Who we talk to</p>
       <h2 class="section-title">Three kinds of conversations we have often</h2>
 
       <div class="audience-grid">
-  <div v-for="a in audiences" :key="a.title" class="audience-card">
-    <div class="audience-image-wrap">
-      <img :src="a.image" :alt="a.title" class="audience-image" />
-    </div>
-    <span class="audience-tag">{{ a.tag }}</span>
-    <h3 class="audience-title">{{ a.title }}</h3>
-    <p class="audience-body">{{ a.body }}</p>
-    <div class="audience-send">
-      <span class="send-label">Include in your first message</span>
-      <span class="send-text">{{ a.send }}</span>
-    </div>
-  </div>
-</div>
+        <div v-for="(a, i) in audiences" :key="a.title" class="audience-card reveal reveal--up"
+          :style="{ transitionDelay: `${i * 0.1}s` }">
+          <div class="audience-image-wrap">
+            <img :src="a.image" :alt="a.title" class="audience-image" loading="lazy" />
+          </div>
+          <span class="audience-tag">{{ a.tag }}</span>
+          <h3 class="audience-title">{{ a.title }}</h3>
+          <p class="audience-body">{{ a.body }}</p>
+          <div class="audience-send">
+            <span class="send-label">Include in your first message</span>
+            <span class="send-text">{{ a.send }}</span>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ===================== INFOGRAPHIC SECTION ===================== -->
-<section class="infographic-section">
-  <p class="section-eyebrow">The full picture</p>
-  <h2 class="section-title">Why organizations choose to partner with us</h2>
-  <p class="infographic-sub">
-    A quick overview of how we collaborate, and what partnering with
-    Fraud Radar NG actually looks like in practice.
-  </p>
+    <section class="infographic-section reveal reveal--up">
+      <p class="section-eyebrow">The full picture</p>
+      <h2 class="section-title">Why organizations choose to partner with us</h2>
+      <p class="infographic-sub">
+        A quick overview of how we collaborate, and what partnering with
+        Fraud Radar NG actually looks like in practice.
+      </p>
 
-  <div class="infographic-frame">
-    <!-- Replace with your actual filename once added to /public -->
-    <img
-      src="/part.png"
-      alt="Fraud Radar NG partnership overview — strategic collaborations, media partnerships, regulatory engagement, and community impact"
-      class="infographic-image"
-    />
-  </div>
-</section>
+      <div class="infographic-frame">
+        <!-- Replace with your actual filename once added to /public -->
+        <img src="/part.png"
+          alt="Fraud Radar NG partnership overview — strategic collaborations, media partnerships, regulatory engagement, and community impact"
+          class="infographic-image" loading="lazy" />
+      </div>
+    </section>
 
     <!-- ===================== CONTACT CTA — signature stamp ===================== -->
-    <section class="contact-section">
+    <section class="contact-section reveal reveal--up">
       <div class="contact-inner">
         <div class="contact-copy">
           <h2 class="contact-title">Reach the team directly</h2>
@@ -140,16 +171,16 @@ function copyEmail() {
           </p>
 
           <div class="contact-actions">
-  <NuxtLink to="/partnership/apply" class="btn-primary">
-    Apply for Partnership
-  </NuxtLink>
-  <a :href="`mailto:${emailAddress}`" class="btn-secondary">
-    Email {{ emailAddress }}
-  </a>
-  <button type="button" class="btn-secondary" @click="copyEmail">
-    {{ copied ? 'Copied ✓' : 'Copy address' }}
-  </button>
-</div>
+            <NuxtLink to="/partnership/apply" class="btn-primary">
+              Apply for Partnership
+            </NuxtLink>
+            <a :href="`mailto:${emailAddress}`" class="btn-secondary">
+              Email {{ emailAddress }}
+            </a>
+            <button type="button" class="btn-secondary" @click="copyEmail">
+              {{ copied ? 'Copied ✓' : copyFailed ? 'Copy failed — email above' : 'Copy address' }}
+            </button>
+          </div>
         </div>
 
         <div class="stamp-wrap" aria-hidden="true">
@@ -160,7 +191,7 @@ function copyEmail() {
               </defs>
               <text class="stamp-text">
                 <textPath href="#stamp-circle" startOffset="0%">
-                  VERIFIED CONTACT · FRAUD RADAR NG · VERIFIED CONTACT · 
+                  VERIFIED CONTACT · FRAUD RADAR NG · VERIFIED CONTACT ·
                 </textPath>
               </text>
             </svg>
@@ -181,36 +212,36 @@ function copyEmail() {
 /* ============ HERO ============ */
 .hero {
   position: relative;
+  isolation: isolate;
   min-height: 65vh;
   display: flex;
   align-items: flex-end;
+  justify-content: center;
   overflow: hidden;
-    background-color: black;
+  background-color: var(--surface);
 }
 
 .hero-image-wrap {
-  inset: 10;
   position: absolute;
-  display: flex;
-    align-items: flex-end;
-    
+  inset: 0;
+  z-index: 0;
 }
 
 .hero-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 .hero-scrim {
   position: absolute;
-  inset: 10;
-  background: linear-gradient(
-    80deg,
-    rgba(27, 199, 124, 0.15) 0%,
-    rgba(28, 63, 39, 0.55) 55%,
-    rgba(19, 19, 20, 0.92) 100%
-  );
+  inset: 0;
+  background: linear-gradient(80deg,
+      rgba(27, 199, 124, 0.15) 0%,
+      rgba(28, 63, 39, 0.55) 55%,
+      rgba(19, 19, 20, 0.92) 100%);
 }
 
 .hero-content {
@@ -218,13 +249,13 @@ function copyEmail() {
   z-index: 1;
   padding: 0 44px 72px;
   max-width: 900px;
-  align-items: center;
   text-align: center;
-  justify-content: center;
-  
 }
-@media (max-width: 720px) {
-  .hero-content { padding: 0 20px 48px; }
+
+@media (max-width: 968px) {
+  .hero-content {
+    padding: 0 20px 48px;
+  }
 }
 
 .hero-eyebrow {
@@ -238,24 +269,31 @@ function copyEmail() {
   color: var(--accent);
   margin-bottom: 20px;
 }
-.dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+
+.dot {
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+}
 
 .hero-title {
   font-family: var(--serif);
   font-size: clamp(48px, 9vw, 108px);
   line-height: 0.98;
   letter-spacing: -0.02em;
-  color: #fdfdfa;
+  color: var(--accent);
   margin-bottom: 28px;
-  text-shadow: #0a0a0b;
 }
 
 .hero-sub {
   font-size: clamp(16px, 2vw, 20px);
   line-height: 1.6;
-  font-weight: 300;
-  color: rgba(253, 253, 250, 0.82);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
   max-width: 620px;
+  margin: 0 auto;
 }
 
 /* ============ STATS STRIP ============ */
@@ -264,8 +302,11 @@ function copyEmail() {
   grid-template-columns: repeat(3, 1fr);
   border-bottom: 1px solid var(--border);
 }
+
 @media (max-width: 640px) {
-  .stats-strip { grid-template-columns: 1fr; }
+  .stats-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .stat-block {
@@ -275,10 +316,20 @@ function copyEmail() {
   padding: 32px 44px;
   border-right: 1px solid var(--border);
 }
-.stat-block:last-child { border-right: none; }
+
+.stat-block:last-child {
+  border-right: none;
+}
+
 @media (max-width: 640px) {
-  .stat-block { border-right: none; border-bottom: 1px solid var(--border); }
-  .stat-block:last-child { border-bottom: none; }
+  .stat-block {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-block:last-child {
+    border-bottom: none;
+  }
 }
 
 .stat-value {
@@ -286,6 +337,7 @@ function copyEmail() {
   font-size: 32px;
   color: var(--text-1);
 }
+
 .stat-label {
   font-family: var(--mono);
   font-size: 10.5px;
@@ -297,11 +349,15 @@ function copyEmail() {
 /* ============ AUDIENCE SECTION ============ */
 .audience-section {
   max-width: 1120px;
-  margin: 0 auto;
+  margin: 0 auto 64px;
   padding: 96px 44px 64px;
+  background-color: var(--surface);
 }
+
 @media (max-width: 720px) {
-  .audience-section { padding: 64px 20px 40px; }
+  .audience-section {
+    padding: 64px 20px 40px;
+  }
 }
 
 .section-eyebrow {
@@ -312,6 +368,7 @@ function copyEmail() {
   color: var(--text-3);
   margin-bottom: 12px;
 }
+
 .section-title {
   font-family: var(--serif);
   font-size: clamp(26px, 3.4vw, 38px);
@@ -326,19 +383,23 @@ function copyEmail() {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
+
 @media (max-width: 900px) {
-  .audience-grid { grid-template-columns: 1fr; }
+  .audience-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .audience-card {
   display: flex;
   flex-direction: column;
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
+
 .audience-card:hover {
   border-color: var(--border-hi);
   transform: translateY(-2px);
@@ -355,7 +416,13 @@ function copyEmail() {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
+  transition: transform 0.4s ease;
+}
+
+.audience-card:hover .audience-image {
+  transform: scale(1.04);
 }
 
 .audience-tag {
@@ -367,9 +434,9 @@ function copyEmail() {
   text-transform: uppercase;
   padding: 3px 8px;
   border-radius: 3px;
-  background: var(--accent-dim, rgba(232,255,71,0.08));
-  color: var(--accent);
-  border: 1px solid rgba(232,255,71,0.2);
+  background: var(--accent-dim, rgba(232, 255, 71, 0.08));
+  color: var(--text-1);
+  border: 1px solid rgba(232, 255, 71, 0.2);
   margin: 20px 28px 0;
 }
 
@@ -397,6 +464,7 @@ function copyEmail() {
   border-top: 1px solid var(--border);
   margin-top: auto;
 }
+
 .send-label {
   font-family: var(--mono);
   font-size: 9.5px;
@@ -404,6 +472,7 @@ function copyEmail() {
   text-transform: uppercase;
   color: var(--text-3);
 }
+
 .send-text {
   font-size: 12.5px;
   color: var(--text-2);
@@ -411,145 +480,18 @@ function copyEmail() {
   line-height: 1.5;
 }
 
-/* ============ CONTACT SECTION ============ */
-.contact-section {
-  border-top: 1px solid var(--border);
-  padding: 96px 44px;
-}
-@media (max-width: 720px) {
-  .contact-section { padding: 64px 20px; }
-}
-
-.contact-inner {
-  max-width: 1120px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 48px;
-  align-items: center;
-}
-@media (max-width: 780px) {
-  .contact-inner {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-}
-
-.contact-title {
-  font-family: var(--serif);
-  font-size: clamp(26px, 3.6vw, 38px);
-  color: var(--text-1);
-  margin-bottom: 16px;
-}
-.contact-body {
-  font-size: 14.5px;
-  line-height: 1.75;
-  font-weight: 300;
-  color: var(--text-2);
-  max-width: 520px;
-  margin-bottom: 28px;
-}
-@media (max-width: 780px) {
-  .contact-body { margin-left: auto; margin-right: auto; }
-}
-
-.contact-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-@media (max-width: 780px) {
-  .contact-actions { justify-content: center; }
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  background: var(--accent);
-  color: var(--text-1);
-  font-weight: 600;
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  padding: 14px 24px;
-  border-radius: var(--radius);
-  text-decoration: none;
-}
-.btn-primary:hover { background: var(--surface); }
-
-.btn-secondary {
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: var(--text-2);
-  background: none;
-  border: 1px solid var(--border-hi);
-  border-radius: var(--radius);
-  padding: 14px 20px;
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
-}
-.btn-secondary:hover {
-  border-color: var(--accent);
-  color: var(--text-1);
-}
-
-/* ============ SIGNATURE ELEMENT — stamp ============ */
-.stamp-wrap {
-  display: flex;
-  justify-content: center;
-}
-@media (max-width: 780px) {
-  .stamp-wrap { margin-top: 8px; }
-}
-
-.stamp {
-  position: relative;
-  width: 140px;
-  height: 140px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: rotate(-9deg);
-  opacity: 0.92;
-}
-
-.stamp-ring {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.stamp-text {
-  font-family: var(--mono);
-  font-size: 8.4px;
-  letter-spacing: 0.12em;
-  fill: var(--accent);
-}
-
-.stamp-check {
-  font-family: var(--serif);
-  font-size: 40px;
-  color: var(--accent);
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
 /* ============ INFOGRAPHIC SECTION ============ */
 .infographic-section {
   max-width: 1120px;
-  margin: 0 auto;
-  padding: 0 44px 96px;
+  margin: 0 auto 40px;
+  padding: 35px 44px;
+  background-color: var(--surface);
 }
+
 @media (max-width: 720px) {
-  .infographic-section { padding: 0 20px 64px; }
+  .infographic-section {
+    padding: 24px 20px;
+  }
 }
 
 .infographic-sub {
@@ -572,5 +514,187 @@ function copyEmail() {
   width: 100%;
   height: auto;
   display: block;
+}
+
+/* ============ CONTACT SECTION ============ */
+.contact-section {
+  border-top: 1px solid var(--border);
+  padding: 64px 44px;
+  background-color: var(--surface);
+  margin-bottom: 25px;
+}
+
+@media (max-width: 720px) {
+  .contact-section {
+    padding: 48px 20px;
+  }
+}
+
+.contact-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 48px;
+  align-items: center;
+}
+
+@media (max-width: 780px) {
+  .contact-inner {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+}
+
+.contact-title {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.6vw, 38px);
+  color: var(--text-1);
+  margin-bottom: 16px;
+}
+
+.contact-body {
+  font-size: 14.5px;
+  line-height: 1.75;
+  font-weight: 300;
+  color: var(--text-2);
+  max-width: 520px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 780px) {
+  .contact-body {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.contact-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 780px) {
+  .contact-actions {
+    justify-content: center;
+  }
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  background: var(--accent);
+  color: var(--text-1);
+  font-weight: 600;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  padding: 14px 24px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: var(--surface);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--text-2);
+  background: none;
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--text-1);
+}
+
+/* ============ SIGNATURE ELEMENT — stamp ============ */
+.stamp-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 780px) {
+  .stamp-wrap {
+    margin-top: 8px;
+  }
+}
+
+.stamp {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-9deg);
+  opacity: 0.92;
+}
+
+.stamp-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.stamp-text {
+  font-family: var(--mono);
+  font-size: 8.4px;
+  letter-spacing: 0.12em;
+  fill: var(--accent);
+}
+
+.stamp-check {
+  font-family: var(--serif);
+  font-size: 40px;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* ============ SCROLL REVEAL ============ */
+.reveal {
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal--up {
+  transform: translateY(28px);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .reveal,
+  .audience-card,
+  .audience-image,
+  .btn-primary {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 </style>

@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
   const MAX_IMAGES = 5
     const evidenceUrls = body.evidenceUrls?.slice(0, MAX_IMAGES)
     
-  const report = await createReport(
+   const report = await createReport(
     {
       targetType: body.targetType,
       category: body.category,
@@ -74,12 +74,12 @@ export default defineEventHandler(async (event) => {
       companyName: body.companyName,
       companyAddress: body.companyAddress,
       websiteUrl: body.websiteUrl,
-      state: body.state,
       websiteName: body.websiteName,
       phoneNumber: body.phoneNumber,
       walletTag: body.walletTag,
       description: body.description,
       reason: body.reason,
+      state: body.state,
       amountInvolved: body.amountInvolved,
       contactPlatform: body.contactPlatform,
       evidenceUrls

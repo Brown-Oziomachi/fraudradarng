@@ -47,15 +47,11 @@ const headerHeight = ref(0)
 let headerResizeObserver: ResizeObserver | null = null
 const isHeaderTransparent = ref(false)
 
-// Only pages that opt in via definePageMeta({ transparentHeader: true })
-// get the see-through header.
 const hasHero = computed(() => route.meta.transparentHeader === true)
 
 function measureHeader() {
   if (!headerEl.value || typeof window === 'undefined') return
-  // getBoundingClientRect instead of offsetHeight — this naturally
-  // includes the header's own top margin (the desktop pill gap) and
-  // wherever the announcement bar has actually pushed it to.
+
   const rect = headerEl.value.getBoundingClientRect()
   headerHeight.value = Math.round(rect.bottom + window.scrollY)
 }
@@ -371,7 +367,7 @@ async function downloadImage() {
     const response = await fetch(src)
     const blob = await response.blob()
     const blobUrl = URL.createObjectURL(blob)
-    const filename = src.split('/').pop()?.split('?')[0] || 'fraud-radar-ng.png'
+    const filename = src.split('/').pop()?.split('?')[0] || 'def.png'
 
     const a = document.createElement('a')
     a.href = blobUrl
@@ -419,13 +415,12 @@ onBeforeUnmount(() => {
     <header ref="headerEl" class="site-header"
       :class="{ 'has-announcement': isAnnouncementVisible, 'site-header--transparent': isHeaderTransparent }">
       <NuxtLink to="/" class="brand">
-        <img src="/FRLOGO.png" alt="Fraud Radar NG" class="brand-logo" />
+        <img src="/logoooo.png" alt="Fraud Radar NG" class="brand-logo" />
         <span class="brand-text">
           <span class="brand-name">FRNG.</span>
           <span class="brand-subtext">Fraud Radar NIGERIA</span>
         </span>
       </NuxtLink>
-
       <!-- ===================== DESKTOP NAV ===================== -->
       <nav class="nav">
 
@@ -488,10 +483,10 @@ onBeforeUnmount(() => {
                       stroke-linejoin="round" />
                   </svg>
                 </NuxtLink>
-                <button type="button" class="mega-menu-feature-btn mega-menu-feature-btn--outline"
+                <NuxtLink to="/follow" type="button" class="mega-menu-feature-btn mega-menu-feature-btn--outline"
                   @click="openSubscribeFromDesktop">
                   Subscribe
-                </button>
+                </NuxtLink>
                 <NuxtLink to="/follow" type="button" class="mega-menu-feature-btn mega-menu-feature-btn--outline"
                   @click="closeDesktopMenu">
                   Follow FRNG
@@ -528,9 +523,9 @@ onBeforeUnmount(() => {
           </svg>
         </button>
         <WatchlistBell title="WatchList" />
-        <button type="button" class="nav-link" @click="isSubscribeOpen = true" title="Subscribe to FRNG">
+        <NuxtLink to="/follow" type="button" class="nav-link" @click="isSubscribeOpen = true" title="Subscribe to FRNG">
           Subscribe
-        </button>
+        </NuxtLink>
 
         <!-- <NuxtLink to="/report/new" class="nav-link nav-link--cta">
           File a Report
@@ -546,7 +541,7 @@ onBeforeUnmount(() => {
             <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
         </button>
-
+       <WatchlistBell title="WatchList" @click="closeMobileMenu" />
         <!-- Mobile hamburger -->
         <button type="button" class="hamburger-btn" aria-label="Open menu" @click="toggleMobileMenu">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
@@ -567,11 +562,13 @@ onBeforeUnmount(() => {
               <span class="mobile-brand-subtext">Fraud Radar NIGERIA</span>
             </span>
           </NuxtLink>
-          <button type="button" class="mobile-close-btn" aria-label="Close menu" @click="closeMobileMenu">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            </svg>
-          </button>
+          <div class="bell-svg">
+            <button type="button" class="mobile-close-btn" aria-label="Close menu" @click="closeMobileMenu">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div class="mobile-menu-body">
@@ -604,12 +601,11 @@ onBeforeUnmount(() => {
             </Transition>
           </div>
         </div>
-
         <div class="mobile-menu-footer">
-          <button type="button" class="mobile-action-row" @click="openSubscribeFromMobile">
+          <NuxtLink to="/follow" type="button" class="mobile-action-row" @click="openSubscribeFromMobile">
             <span class="mobile-action-icon">✉</span>
             <span>Subscribe for alerts</span>
-          </button>
+          </NuxtLink>
 
           <button type="button" class="mobile-action-row" @click="toggleTheme">
             <span class="mobile-action-icon">
@@ -630,7 +626,13 @@ onBeforeUnmount(() => {
           <NuxtLink to="/report/new" class="mobile-cta" @click="closeMobileMenu">
             File a Report
           </NuxtLink>
+
+          <NuxtLink to="/follow" type="button" class="mobile-cta" @click="closeMobileMenu">
+            <span class="mobile-action-icon"></span>
+            <span class="follow">Follow FRNG</span>
+          </NuxtLink> 
         </div>
+        
       </div>
     </Transition>
 

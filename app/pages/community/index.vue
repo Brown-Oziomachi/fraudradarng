@@ -7,7 +7,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  heroImage: '/com.png',
+  heroImage: '/def.png',
   heroImageAlt: 'FRNG Community Intelligence Hub',
 })
 
@@ -308,7 +308,7 @@ useHead(() => ({
   font-size: 0.8125rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--accent);
+  color: var(--text-1);
   text-decoration: none;
   background: var(--accent-dim);
   transition: background 0.15s ease, transform 0.15s ease;

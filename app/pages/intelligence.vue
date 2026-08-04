@@ -474,6 +474,8 @@ useHead({
   background: var(--surface, rgba(128, 128, 128, 0.05));
   border: 1px solid var(--border-color, rgba(128, 128, 128, 0.15));
   padding: 1.5rem 1.75rem;
+  background-image: linear-gradient(280deg, rgba(10, 10, 11, 0.15) 0%, rgba(10, 10, 11, 0.55) 55%, rgba(10, 10, 11, 0.92) 100%), url('/USE.png');
+  background-repeat: repeat;
 }
 
 .benefit-card h3 {
@@ -490,6 +492,7 @@ useHead({
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
+  color:  #faf7f7;
 }
 
 .benefit-card li {

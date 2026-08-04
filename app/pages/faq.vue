@@ -185,7 +185,7 @@ function toggle(key: string) {
               </defs>
               <text class="stamp-text">
                 <textPath href="#faq-stamp-circle" startOffset="0%">
-                  ANSWERED PLAINLY \u00b7 FRAUD RADAR NG \u00b7 ANSWERED PLAINLY \u00b7
+                  ANSWERED PLAINLY  FRAUD RADAR NG  ANSWERED PLAINLY sirBrownAD
                 </textPath>
               </text>
             </svg>
@@ -340,7 +340,7 @@ function toggle(key: string) {
   height: 26px;
   border-radius: 50%;
   background: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-1);
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 700;
@@ -378,6 +378,8 @@ function toggle(key: string) {
 .contact-section {
   border-top: 1px solid var(--border);
   padding: 80px 44px;
+  background-color: var(--surface);
+  margin-bottom: 30px;
 }
 @media (max-width: 720px) { .contact-section { padding: 56px 20px; } }
 
@@ -414,11 +416,11 @@ function toggle(key: string) {
 
 .btn-primary {
   display: inline-flex; align-items: center;
-  background: var(--accent); color: #0a0a0b; font-weight: 600;
+  background: var(--accent); color: var(--text-1); font-weight: 600;
   font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em;
   padding: 14px 24px; border-radius: var(--radius); text-decoration: none;
 }
-.btn-primary:hover { background: #d4eb3c; }
+.btn-primary:hover { background: var(--surface); }
 
 .btn-secondary {
   display: inline-flex; align-items: center;
@@ -436,7 +438,7 @@ function toggle(key: string) {
 .stamp {
   position: relative; width: 130px; height: 130px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  transform: rotate(-9deg); opacity: 0.92;
+  transform: rotate(-9deg); opacity: 0.99;
 }
 .stamp-ring { position: absolute; inset: 0; width: 100%; height: 100%; }
 .stamp-text { font-family: var(--mono); font-size: 8.4px; letter-spacing: 0.12em; fill: var(--accent); }

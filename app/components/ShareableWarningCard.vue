@@ -262,7 +262,7 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 16px;
   padding: 20px;
-  background: var(--surface);
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
@@ -312,17 +312,17 @@ onUnmounted(() => {
 }
 
 .btn-share {
-  background: #25D366; /* WhatsApp green — intentional, not your app's accent */
-  color: #0a0a0b;
+  background: var(--surface); 
+  color: var(--text-1);
 }
-.btn-share:hover { background: #1ebc59; }
+.btn-share:hover { background: var(--accent); }
 
 .btn-download {
-  background: none;
+  background: var(--surface);
   border: 1px solid var(--border-hi);
   color: var(--text-2);
 }
-.btn-download:hover { border-color: var(--accent); color: var(--text-1); }
+.btn-download:hover { border-color: var(--accent); color: var(--text-1); background-color: var(--accent);}
 
 .btn-share:disabled, .btn-download:disabled {
   opacity: 0.5;

@@ -239,6 +239,7 @@ onMounted(() => {
   margin: 0 auto;
   padding: 72px 24px 40px;
   text-align: center;
+  background-color: var(--surface);
 }
 .page-hero .eyebrow { justify-content: center; }
 
@@ -265,6 +266,7 @@ onMounted(() => {
   max-width: 900px;
   margin: 0 auto;
   padding: 8px 24px 56px;
+  background-color: var(--surface);
 }
 
 .official-frame {
@@ -278,13 +280,13 @@ onMounted(() => {
   top: 0;
   left: 28px;
   transform: translateY(-50%);
-  background: var(--bg);
+  background: var(--accent);
   border: 1px solid var(--border-hi);
   padding: 7px 16px;
   font-family: var(--serif);
   font-size: 14px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--text-1);
 }
 
 .official-grid {
@@ -292,6 +294,7 @@ onMounted(() => {
   grid-template-columns: repeat(2, 1fr);
   gap: 14px;
   margin-bottom: 18px;
+  
 }
 @media (max-width: 600px) {
   .official-grid { grid-template-columns: 1fr; }
@@ -299,13 +302,13 @@ onMounted(() => {
 
 .official-item {
   display: block;
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border);
   padding: 18px;
   text-decoration: none;
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
-.official-item:hover { border-color: var(--accent); transform: translateY(-2px); }
+.official-item:hover { border-color: var(--accent); transform: translateY(-2px); background-color: var(--surface);}
 
 .official-domain {
   font-family: var(--mono);
@@ -416,6 +419,7 @@ onMounted(() => {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   padding: 56px 24px;
+  margin-bottom: 30px;
 }
 
 .checklist-inner {
@@ -454,7 +458,7 @@ onMounted(() => {
   height: 26px;
   border-radius: 50%;
   background: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-1);
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 700;
@@ -487,10 +491,10 @@ onMounted(() => {
 .btn--accent {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-1);
   font-weight: 700;
 }
-.btn--accent:hover { background: #d4eb3c; border-color: #d4eb3c; }
+.btn--accent:hover { background: var(--surface); border-color: #d4eb3c; }
 
 .btn--outline-dark {
   background: transparent;
@@ -503,6 +507,7 @@ onMounted(() => {
   max-width: 1120px;
   margin: 0 auto;
   padding: 56px 24px;
+  background-color: var(--surface);
 }
 
 .center {
@@ -518,6 +523,8 @@ onMounted(() => {
   max-width: 900px;
   margin: 0 auto;
   padding: 8px 24px 56px;
+  background-color: var(--surface);
+  margin-top: 100px;
 }
 
 .polling-frame {
@@ -531,7 +538,7 @@ onMounted(() => {
   top: 0;
   left: 28px;
   transform: translateY(-50%);
-  background: var(--bg);
+  background: var(--accent);
   border: 1px solid var(--border-hi);
   padding: 7px 16px;
   font-family: var(--mono);
@@ -539,7 +546,7 @@ onMounted(() => {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--text-1);
 }
 
 .polling-warning {
@@ -572,7 +579,7 @@ onMounted(() => {
   height: 26px;
   border-radius: 50%;
   background: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-2);
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 700;

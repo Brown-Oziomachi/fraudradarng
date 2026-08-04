@@ -227,7 +227,7 @@ const agreedToTerms = ref(false)
   z-index: 3;
   background: repeating-linear-gradient(
     -45deg,
-    #f87171 0 10px,
+    #0ef43c 0 10px,
     #0a0a0b 10px 20px
   );
   opacity: 0.85;
@@ -247,7 +247,7 @@ const agreedToTerms = ref(false)
 }
 .radar-ring {
   fill: none;
-  stroke: #f87171;
+  stroke: #f7eeee;
   stroke-width: 1.5;
   opacity: 0;
   transform-origin: 300px 300px;
@@ -269,11 +269,13 @@ const agreedToTerms = ref(false)
 .impact-content {
   position: relative;
   z-index: 2;
-  max-width: 720px;
+  max-width: 990px;
   margin: 0 auto;
   padding: 90px 24px 100px;
   width: 100%;
   text-align: center;
+  background-image: url('/def.png');
+  background-size: cover;
 }
 
 .dot--pulse {
@@ -300,14 +302,31 @@ const agreedToTerms = ref(false)
   font-family: var(--serif);
   font-size: clamp(40px, 6.5vw, 76px);
   line-height: 1.2;
-  margin-bottom: 14px;
+  color: var(--text-2); 
+  background-color: var(--surface);
+  padding: 10px;
 }
+
 .impact-sub {
   font-size: 14px;
   line-height: 1.7;
-  font-weight: 300;
+  font-weight: 700;
   max-width: 480px;
   margin: 0 auto;
+  color: var(--text-3);
+  background-color: var(--surface);
+  padding: 5px;
+}
+
+@media (max-width: 760px) {
+ .impact-title {
+    font-family: var(--serif);
+    font-size: clamp(40px, 6.5vw, 76px);
+    line-height: 1.2;
+    color: var(--text-2);
+    margin-bottom: 20px;
+    background-color: var(--surface);
+  }
 }
 
 .impact-curve {
@@ -360,7 +379,7 @@ const agreedToTerms = ref(false)
   color: var(--text-3);
 }
 @media (max-width: 560px) {
-  .stats-strip { grid-template-columns: 1fr; }
+  .stats-strip { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* TWO-COLUMN DESKTOP LAYOUT */
@@ -611,7 +630,7 @@ const agreedToTerms = ref(false)
   font-size: 11px;
   letter-spacing: 0.04em;
   background: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-1);
   font-weight: 600;
   border: none;
   border-radius: var(--radius);
@@ -621,7 +640,7 @@ const agreedToTerms = ref(false)
   text-decoration: none;
   display: block;
 }
-.share-btn:hover { background: #d4eb3c; }
+.share-btn:hover { background: var(--surface-2); }
 .share-btn--secondary {
   background: transparent;
   border: 1px solid var(--border);

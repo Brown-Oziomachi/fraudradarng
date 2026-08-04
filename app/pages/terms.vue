@@ -34,15 +34,17 @@ function closeToc() {
   <div class="page-shell">
     <div class="page-container">
       <p class="eyebrow">Legal</p>
-      <h1 class="page-title">Terms &amp; Conditions</h1>
-      <p class="last-updated">Last updated: {{ lastUpdated }}</p>
-
-      <p class="intro">
-        These terms govern your use of Fraud Radar NG. By accessing or using
-        this platform — including submitting a report, subscribing to
-        alerts, or browsing reports — you agree to be bound by them. If you
-        do not agree, please do not use this platform.
-      </p>
+      <div class="page-contain">
+        <h1 class="page-title">Terms &amp; Conditions</h1>
+        <p class="last-updated">Last updated: {{ lastUpdated }}</p>
+  
+        <p class="intro">
+          These terms govern your use of Fraud Radar NG. By accessing or using
+          this platform — including submitting a report, subscribing to
+          alerts, or browsing reports — you agree to be bound by them. If you
+          do not agree, please do not use this platform.
+        </p>
+      </div>
 
       <!-- MOBILE / TABLET: collapsible jump-to-section dropdown -->
       <details class="toc-mobile" :open="tocOpen" @toggle="tocOpen = ($event.target as HTMLDetailsElement)?.open ?? false">
@@ -304,6 +306,8 @@ function closeToc() {
 .page-container {
   max-width: 64rem;
   margin: 0 auto;
+      background-color: var(--surface);
+      padding: 20px;
 }
 
 .eyebrow {
@@ -323,6 +327,11 @@ function closeToc() {
   letter-spacing: -0.02em;
   margin: 0 0 0.5rem;
   line-height: 1.1;
+}
+
+.page-contain {
+      background-color: var(--surface-2);
+      padding: 20px;
 }
 
 .last-updated {
@@ -448,6 +457,7 @@ function closeToc() {
     top: 2rem;
     padding: 1.25rem 0.25rem;
     border-right: 1px solid var(--border);
+        background-color: var(--surface-2);
   }
 
   .toc-desktop-label {
@@ -481,7 +491,7 @@ function closeToc() {
   .toc-desktop-num {
     font-family: var(--mono);
     font-size: 0.68rem;
-    color: var(--accent);
+    color: var(--text-1);
     flex-shrink: 0;
   }
 }

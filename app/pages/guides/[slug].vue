@@ -394,7 +394,7 @@ const siteLinks = [
   padding: 3px 8px;
   border-radius: 3px;
   background: var(--accent-dim, rgba(232,255,71,0.08));
-  color: var(--accent);
+  color: var(--text-2);
   border: 1px solid rgba(232,255,71,0.2);
 }
 
@@ -421,10 +421,11 @@ const siteLinks = [
 
 .article-title {
   font-family: var(--serif);
-  font-size: clamp(26px, 3.6vw, 36px);
+  font-size: clamp(29px, 3.1vw, 46px);
   color: var(--text-1);
   line-height: 1.25;
   margin-bottom: 14px;
+  padding: 10px;
 }
 
 .article-meta {
@@ -441,10 +442,10 @@ const siteLinks = [
 .article-image-wrap {
   width: 100%;
   height: 340px;
-  border-radius: var(--radius);
   overflow: hidden;
   background: var(--surface);
-  margin-bottom: 40px;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 .article-image {
   width: 100%;
@@ -456,6 +457,7 @@ const siteLinks = [
 .article-body {
   display: flex;
   flex-direction: column;
+  padding: 20px;
 }
 
 /* ---------- Rendered Markdown styling ---------- */
@@ -633,8 +635,8 @@ const siteLinks = [
   padding: 12px 24px; border-radius: var(--radius); border: none;
   text-decoration: none;
 }
-.btn--accent { background: var(--accent); color: #0a0a0b; }
-.btn--accent:hover { background: #d4eb3c; }
+.btn--accent { background: var(--accent); color: var(--text-1); }
+.btn--accent:hover { background: var(--accent-dim); }
 .btn--full { width: 100%; }
 
 /* ---------- Sidebar ---------- */
@@ -654,7 +656,6 @@ const siteLinks = [
 
 .side-card {
   border: 1px solid var(--border);
-  border-radius: var(--radius);
   padding: 20px;
   background: var(--surface);
 }
@@ -682,7 +683,6 @@ const siteLinks = [
 .side-guide-thumb {
   width: 56px;
   height: 56px;
-  border-radius: 6px;
   object-fit: cover;
   flex-shrink: 0;
   background: var(--surface);

@@ -45,7 +45,7 @@ const features: Feature[] = [
             <circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.4"/>
             <path d="M17 17l-3.2-3.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
           </svg>
-          <span>Search the Registry</span>
+          <span class="search-reg">Search the Registry</span>
           <svg class="cta-arrow" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -98,6 +98,8 @@ const features: Feature[] = [
   display: flex;
   justify-content: center;
   padding: 4rem 1.25rem;
+  background-image: url('/def.png');
+  margin-bottom: 50px;
 }
 
 .promo-inner {
@@ -110,6 +112,7 @@ const features: Feature[] = [
   box-shadow: 0 28px 70px color-mix(in srgb, var(--accent) 8%, transparent),
               0 10px 28px rgba(0, 0, 0, 0.16);
   overflow: hidden;
+      background: var(--surface);
 }
 @media (max-width: 640px) {
   .promo-inner { padding: 2.5rem 1.5rem; }
@@ -160,6 +163,7 @@ const features: Feature[] = [
 .tagline {
   position: relative;
   z-index: 1;
+  
 }
 
 /* ============ HEADER ============ */
@@ -195,7 +199,7 @@ const features: Feature[] = [
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--accent);
+  color: var(--text-2);
 }
 
 .promo-title {
@@ -249,11 +253,16 @@ const features: Feature[] = [
   transform: translateY(1px);
 }
 
+.search-reg {
+color: var(--text-2);
+}
+
 .cta-icon,
 .cta-arrow {
   width: 15px;
   height: 15px;
   flex-shrink: 0;
+  color: var(--text-2);
 }
 
 /* ============ FEATURE ROW ============ */

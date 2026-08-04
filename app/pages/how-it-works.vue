@@ -70,11 +70,6 @@ const faqs = [
     <!-- ===================== HERO — image first, oversized type ===================== -->
     <section class="hero">
       <div class="hero-image-wrap">
-        <img
-          src="/fraudmap.png"
-          alt="Person checking an account before sending money"
-          class="hero-image"
-        />
         <div class="hero-scrim" />
       </div>
 
@@ -106,16 +101,24 @@ const faqs = [
 
       <div class="steps-grid">
         <div v-for="step in steps" :key="step.number" class="step-card">
-          <div class="step-card-top">
-            <span class="step-number">{{ step.number }}</span>
-            <span class="step-tag">{{ step.tag }}</span>
+          <div class="step-all">
+            <div class="step-card-top">
+              <span class="step-number">{{ step.number }}</span>
+              <span class="step-tag">{{ step.tag }}</span>
+            </div>
+            <h3 class="step-title">{{ step.title }}</h3>
+            <p class="step-body">{{ step.body }}</p>
           </div>
-          <h3 class="step-title">{{ step.title }}</h3>
-          <p class="step-body">{{ step.body }}</p>
         </div>
       </div>
     </section>
 
+    <section class="ex-plain">
+      <div class="simp-step">
+        <h1 class="how-it-works">Simple Steps. Stronger Protection</h1>
+        <img src="/how.png" class="how-image"/>
+      </div>
+    </section>
     <!-- ===================== CONTACT CTA — signature stamp ===================== -->
     <section class="contact-section">
       <div class="contact-inner">
@@ -188,6 +191,12 @@ const faqs = [
   display: flex;
   align-items: flex-end;
   overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: #115d2a;
+    background-image: url('/USE.png');
+
 }
 
 .hero-image-wrap {
@@ -216,6 +225,7 @@ const faqs = [
   z-index: 1;
   padding: 0 44px 72px;
   max-width: 900px;
+
 }
 @media (max-width: 720px) {
   .hero-content { padding: 0 20px 48px; }
@@ -229,10 +239,10 @@ const faqs = [
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: white;
   margin-bottom: 20px;
 }
-.dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+.dot { width: 6px; height: 6px; background: var(--text-2); border-radius: 50%; }
 
 .hero-title {
   font-family: var(--serif);
@@ -248,7 +258,6 @@ const faqs = [
   line-height: 1.6;
   font-weight: 300;
   color: rgba(253, 253, 250, 0.82);
-  max-width: 620px;
 }
 
 /* ============ STATS STRIP ============ */
@@ -256,9 +265,15 @@ const faqs = [
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   border-bottom: 1px solid var(--border);
+  text-align: center;
+  margin-bottom: 70px;
+  background-color: var(--surface);
 }
 @media (max-width: 640px) {
-  .stats-strip { grid-template-columns: 1fr; }
+  .stats-strip {
+     grid-template-columns: repeat(2, 1fr); 
+     font-size: medium;
+    }
 }
 
 .stat-block {
@@ -292,6 +307,9 @@ const faqs = [
   max-width: 1120px;
   margin: 0 auto;
   padding: 96px 44px 64px;
+  background-color: var(--surface);
+  margin-bottom: 90px;
+  
 }
 @media (max-width: 720px) {
   .steps-section { padding: 64px 20px 40px; }
@@ -304,6 +322,7 @@ const faqs = [
   text-transform: uppercase;
   color: var(--text-3);
   margin-bottom: 12px;
+  
 }
 .section-title {
   font-family: var(--serif);
@@ -330,10 +349,17 @@ const faqs = [
   border: 1px solid var(--border);
   padding: 28px;
   transition: border-color 0.2s ease, transform 0.2s ease;
+  background-image: url('/about.png');
+    background-size: cover;
 }
 .step-card:hover {
   border-color: var(--border-hi);
   transform: translateY(-2px);
+}
+
+.step-all {
+    background: var(--surface);
+    padding: 10px;
 }
 
 .step-card-top {
@@ -341,12 +367,13 @@ const faqs = [
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  
 }
 
 .step-number {
   font-family: var(--serif);
   font-size: 30px;
-  color: var(--accent);
+  color: var(--text-2);
 }
 
 .step-tag {
@@ -359,7 +386,7 @@ const faqs = [
   padding: 3px 8px;
   border-radius: 3px;
   background: var(--accent-dim, rgba(232,255,71,0.08));
-  color: var(--accent);
+  color: var(--text-1);
   border: 1px solid rgba(232,255,71,0.2);
 }
 
@@ -374,7 +401,34 @@ const faqs = [
   font-size: 13.5px;
   line-height: 1.7;
   font-weight: 300;
-  color: var(--text-2);
+  color: var(--text-3);
+}
+.simp-step {
+  background-color: var(--surface);
+  padding: 10px;
+}
+
+.ex-plain {
+  text-align: center;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 56px 24px;
+  background-color: var(--surface);
+  font-family: 'Times New Roman', Times, serif;
+  background-image: url('/about.png');
+    background-size: cover;
+      font-size: 20px;
+}
+.how-it-works {
+  margin-bottom: 20px;
+    color: white;
+}
+
+.how-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
 }
 
 /* ============ CONTACT SECTION ============ */
@@ -393,11 +447,16 @@ const faqs = [
   grid-template-columns: 1fr auto;
   gap: 48px;
   align-items: center;
+  background-color: var(--surface);
+  padding: 20px;
 }
+
 @media (max-width: 780px) {
   .contact-inner {
     grid-template-columns: 1fr;
     text-align: center;
+      background-color: var(--surface);
+      padding: 20px;
   }
 }
 
@@ -432,7 +491,7 @@ const faqs = [
   display: inline-flex;
   align-items: center;
   background: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-1);
   font-weight: 600;
   font-family: var(--mono);
   font-size: 12px;
@@ -441,7 +500,7 @@ const faqs = [
   border-radius: var(--radius);
   text-decoration: none;
 }
-.btn-primary:hover { background: #d4eb3c; }
+.btn-primary:hover { background: var(--surface-2); }
 
 .btn-secondary {
   display: inline-flex;
@@ -461,12 +520,14 @@ const faqs = [
 .btn-secondary:hover {
   border-color: var(--accent);
   color: var(--text-1);
+  background: var(--surface-2);
 }
 
 /* ============ SIGNATURE ELEMENT — stamp ============ */
 .stamp-wrap {
   display: flex;
   justify-content: center;
+  
 }
 @media (max-width: 780px) {
   .stamp-wrap { margin-top: 8px; }
@@ -482,6 +543,7 @@ const faqs = [
   justify-content: center;
   transform: rotate(-9deg);
   opacity: 0.92;
+  
 }
 
 .stamp-ring {
@@ -517,6 +579,9 @@ const faqs = [
   margin: 0 auto;
   padding: 96px 44px;
   border-top: 1px solid var(--border);
+  background-color: var(--surface);
+    padding: 20px;
+    margin-bottom: 20px;
 }
 @media (max-width: 720px) {
   .faq-section { padding: 64px 20px; }
@@ -561,6 +626,8 @@ const faqs = [
   font-weight: 300;
   line-height: 1.75;
   margin-top: 12px;
-  max-width: 620px;
+  max-width: 720px;
+  padding: 10px;
+  background-color: var(--surface-2);
 }
 </style>

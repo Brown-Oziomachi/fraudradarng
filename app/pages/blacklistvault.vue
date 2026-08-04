@@ -1,17 +1,4 @@
 <script setup lang="ts">
-/**
- * FRNG Historical Blacklist Vault
- * -----------------------------------------------------------------------
- * A standing archive of SEC-sealed / regulator-flagged investment
- * schemes. Two tiers of data:
- *   - FEATURED CASES: fully documented (mechanism, yield promise, status)
- *   - ARCHIVE LEDGER: name/area/year only, sourced from the SEC schedule.
- *     These are intentionally marked "Unclassified" rather than guessing
- *     at a scam mechanism we don't have evidence for.
- *
- * Styling uses the site's existing --bg / --surface / --text-* / --accent
- * tokens, so this page follows the global light/dark toggle automatically.
- */
 
 interface FeaturedCase {
   id: string
@@ -410,6 +397,7 @@ const hasResults = computed(() => resultCount.value > 0)
   overflow: hidden;
   padding: 3.5rem 1.25rem 3rem;
   background: var(--surface);
+  background-image: url('/USE.png');
 }
 
 .v-hero-grid {
@@ -559,6 +547,7 @@ const hasResults = computed(() => resultCount.value > 0)
   padding: 0.4rem 0.875rem;
   cursor: pointer;
   transition: all 0.15s ease;
+  background-image: linear-gradient(to bottom, var(--surface) 0%, var(--surface-2) 100%);
 }
 
 .v-chip:hover {
@@ -578,6 +567,8 @@ const hasResults = computed(() => resultCount.value > 0)
   max-width: 64rem;
   margin: 3rem auto 0;
   padding: 0 1.25rem;
+  background: var(--surface);
+  
 }
 
 .v-section-head {
@@ -588,6 +579,8 @@ const hasResults = computed(() => resultCount.value > 0)
   margin-bottom: 1.25rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border);
+  background-image: linear-gradient(to bottom, var(--surface) 0%, var(--surface-2) 100%);
+  padding: 20px;
 }
 
 .v-section-title {
@@ -619,6 +612,7 @@ const hasResults = computed(() => resultCount.value > 0)
   flex-direction: column;
   gap: 0.875rem;
   transition: border-color 0.15s ease;
+  background-image: url('/USE.png');
 }
 
 .v-case:hover {
@@ -634,7 +628,7 @@ const hasResults = computed(() => resultCount.value > 0)
 .v-case-id {
   font-family: var(--mono);
   font-size: 0.6875rem;
-  color: var(--text-3);
+  color: white;
   letter-spacing: 0.04em;
 }
 
@@ -669,7 +663,7 @@ const hasResults = computed(() => resultCount.value > 0)
   font-family: var(--serif);
   font-size: 1.1875rem;
   font-weight: 400;
-  color: var(--text-1);
+  color: white;
   line-height: 1.3;
 }
 
@@ -678,7 +672,7 @@ const hasResults = computed(() => resultCount.value > 0)
   font-family: var(--sans);
   font-size: 0.75rem;
   font-weight: 400;
-  color: var(--text-3);
+  color: white;
   margin-top: 0.125rem;
 }
 
@@ -687,6 +681,8 @@ const hasResults = computed(() => resultCount.value > 0)
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
+    color: white;
+
 }
 
 .v-tag {
@@ -701,14 +697,15 @@ const hasResults = computed(() => resultCount.value > 0)
 }
 
 .v-tag--muted {
-  color: var(--text-3);
+  color: white;
   background: var(--surface-2);
   border-color: var(--border);
 }
 
 .v-case-area {
   font-size: 0.75rem;
-  color: var(--text-3);
+  color: white;
+  
 }
 
 .v-case-facts {
@@ -717,6 +714,7 @@ const hasResults = computed(() => resultCount.value > 0)
   gap: 0.5rem;
   border-top: 1px solid var(--border);
   padding-top: 0.75rem;
+  
 }
 
 .v-fact {
@@ -730,13 +728,13 @@ const hasResults = computed(() => resultCount.value > 0)
   font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-3);
+  color: white;
 }
 
 .v-fact dd {
   font-size: 0.8125rem;
   line-height: 1.45;
-  color: var(--text-2);
+  color: white;
 }
 
 .v-fact-loss {

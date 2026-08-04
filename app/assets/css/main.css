@@ -1,35 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-    --bg: oklch(100% 0.00011 271.152);
-    /* --radius: 12px; */
-    --surface: #ffffff;
-    --surface-2: #f0f3f0;
-    --border: #e0e1e0;
-    --border-hi: #419a5b;
-    --text-1: #18181b;
-    --text-2: #090912ec;
-    --text-3: #040405;
-    --accent: #7da186;
-    --accent-dim: rgba(184, 208, 0, 0.08);
-    --accent-bdr: rgba(184, 208, 0, 0.35);
-    --serif: 'DM Serif Display', Georgia, serif;
-    --sans: 'Inter', system-ui, sans-serif;
-    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --bg: #1f4631;
+        --surface: #183626;
+        --surface-2: #1c5e3b;
+        --border: #2d4533;
+        --border-hi: #3d673f;
+        --text-1: #f4f4f5;
+        --text-2: #d1d1dc;
+        --text-3: #e9e9f0;
+        --text-4: #070606;
+        --accent: #2f6938;
+        --accent-dim: rgba(232, 255, 71, 0.08);
+        --accent-bdr: rgba(232, 255, 71, 0.25);
+        --serif: 'DM Serif Display', Georgia, serif;
+        --sans: 'Inter', system-ui, sans-serif;
+        --mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
-[data-theme='green'] {
-    --bg: #1b4a31;
-    --surface: #193b29;
-    --surface-2: #1c5e3b;
-    --border: #2d4533;
-    --border-hi: #3d673f;
-    --text-1: #f4f4f5;
-    --text-2: #d1d1dc;
-    --text-3: #e9e9f0;
-    --accent: #2f6938;
-    --accent-dim: rgba(232, 255, 71, 0.08);
-    --accent-bdr: rgba(232, 255, 71, 0.25);
+[data-theme='light'] {
+   
+    --bg: oklch(100% 0.00011 271.152);
+        /* --radius: 12px; */
+        --surface: #ffffff;
+        --surface-2: #f0f3f0;
+        --border: #e0e1e0;
+        --border-hi: #419a5b;
+        --text-1: #18181b;
+        --text-2: #090912ec;
+        --text-3: #040405;
+        --text-4: #070606;
+        --accent: #7da186;
+        --accent-dim: rgba(184, 208, 0, 0.08);
+        --accent-bdr: rgba(184, 208, 0, 0.35);
+        --serif: 'DM Serif Display', Georgia, serif;
+        --sans: 'Inter', system-ui, sans-serif;
+        --mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 * {

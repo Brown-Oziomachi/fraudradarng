@@ -136,7 +136,6 @@ withDefaults(defineProps<{ variant?: 'banner' | 'full' }>(), {
   gap: 10px;
   background: var(--accent-dim, rgba(220, 51, 51, 0.08));
   border: 1px solid var(--accent-bdr, rgba(220, 51, 51, 0.35));
-  border-radius: var(--radius, 8px);
   padding: 12px 16px;
   max-width: 920px;
   margin: 0 auto 24px;
@@ -176,7 +175,6 @@ withDefaults(defineProps<{ variant?: 'banner' | 'full' }>(), {
 .disclaimer-card {
   background: var(--surface, #fff);
   border: 1px solid var(--border, #e2e2e2);
-  border-radius: var(--radius, 8px);
   padding: 24px;
 }
 .fade-in {

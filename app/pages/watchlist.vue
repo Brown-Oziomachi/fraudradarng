@@ -70,16 +70,18 @@ const howItWorks = [
                 <svg class="hero-icon-clock" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" />
                     <path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-                        stroke-linejoin="round" />
+                    stroke-linejoin="round" />
                 </svg>
             </div>
-
-            <p class="eyebrow">Private · Saved only on this device</p>
-            <h1 class="page-title">Your Watchlist</h1>
-            <p class="page-sub">
-                Save an account number, phone number, company, or website you care about.
-                We'll quietly keep checking, and tell you the moment anyone reports it.
-            </p>
+            
+            <div class="hero-icon-bg">
+                <p class="eyebrow">Private · Saved only on this device</p>
+                <h1 class="page-title">Your Watchlist</h1>
+                <p class="page-sub">
+                    Save an account number, phone number, company, or website you care about.
+                    We'll quietly keep checking, and tell you the moment anyone reports it.
+                </p>
+                </div>
 
             <button type="button" class="privacy-link" @click="showPrivacyInfo = !showPrivacyInfo">
                 {{ showPrivacyInfo ? 'Hide' : 'Who can see this?' }}
@@ -186,6 +188,7 @@ const howItWorks = [
     max-width: 720px;
     margin: 0 auto;
     padding: 56px 24px 90px;
+    
 }
 
 /* ============ HERO ============ */
@@ -202,6 +205,23 @@ const howItWorks = [
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.hero-icon-bg {
+    background-image:url('/USE.png');
+    width: 100%;
+    height: 100%;
+    padding: 40px;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.05) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.05) 50%,
+        rgba(255, 255, 255, 0.05) 75%,
+        transparent 75%,
+        transparent
+      );
 }
 
 .hero-icon-sweep {
@@ -411,7 +431,7 @@ const howItWorks = [
 
 .add-btn {
     background: var(--accent);
-    color: #0a0a0b;
+    color: var(--text-1);
     font-weight: 600;
     font-family: var(--mono);
     font-size: 12px;
@@ -423,7 +443,7 @@ const howItWorks = [
 }
 
 .add-btn:hover {
-    background: #d4eb3c;
+    background: var(--bg);
 }
 
 .error-text {

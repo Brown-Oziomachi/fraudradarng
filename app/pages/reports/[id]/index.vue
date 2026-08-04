@@ -263,7 +263,6 @@ function additionalSharedFields(sub: any) {
   return sharedFieldsFor(sub)
 }
 
-// --- Description clamping ("Read more") for additional reporters ---
 const expandedDescriptions = ref<Set<number>>(new Set())
 function isDescLong(desc: string | undefined) {
   return !!desc && desc.length > 180
@@ -1300,7 +1299,8 @@ useHead(() => ({
 }
 
 .lightbox-nav {
-  color: #fff;
+  color: var(--text-1);
+  background-color: var(--surface-2);
   font-size: 24px;
   display: flex;
   align-items: center;
@@ -1328,8 +1328,8 @@ useHead(() => ({
   transform: translateX(-50%);
   font-family: var(--mono);
   font-size: 11px;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-2);
+  background: var(--accent);
   padding: 4px 10px;
   border-radius: 999px;
 }
@@ -1341,9 +1341,9 @@ useHead(() => ({
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--accent);
   border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
+  color: var(--text-1);
   font-size: 18px;
   cursor: pointer;
   z-index: 101;
@@ -1450,7 +1450,7 @@ useHead(() => ({
   display: inline-flex;
   align-items: center;
   background: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-1);
   font-weight: 600;
   font-family: var(--mono);
   font-size: 12px;
@@ -1461,7 +1461,7 @@ useHead(() => ({
 }
 
 .recovery-cta-btn:hover {
-  background: #d4eb3c;
+  background: var(--surface);
 }
 
 .badge-suspicious {
@@ -1970,7 +1970,7 @@ useHead(() => ({
 .mobile-sticky-btn--primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0a0a0b;
+    color: var(--text-1);
 }
 
 .line-through {

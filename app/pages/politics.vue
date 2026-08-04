@@ -30,9 +30,9 @@ function formatDate(iso: string) {
   }
 }
 const reportLinks = [
-  { label: 'Report fraud or cyber crime', to: '/report/new?reason=other', icon: 'megaphone' },
-  { label: 'Report vote buying or an election scam', to: '/report/new?reason=other', icon: 'megaphone' },
-  { label: 'Report a cyber security incident', to: '/report/new?reason=other', icon: 'lock' },
+  { label: 'Report fraud or cyber crime', to: '/report/form?reason=other', icon: 'megaphone' },
+  { label: 'Report vote buying or an election scam', to: '/report/form?reason=other', icon: 'megaphone' },
+  { label: 'Report a cyber security incident', to: '/report/form?reason=other', icon: 'lock' },
   { label: 'Police reporting', to: 'https://police.gov.ng/contact/display', icon: 'shield', external: true }
 ]
 
@@ -216,13 +216,25 @@ const galleryImages = [
   padding: 48px 0 40px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 40px;
+  margin-top: 2px;
+  background-color: var(--surface);
+  padding: 20px;
+  
 }
 
 @media (max-width: 800px) {
   .pol-hero {
     grid-template-columns: 1fr;
     padding-top: 32px;
+    background-color: var(--surface);
+    padding: 20px;
   }
+}
+
+.pol-hero-text {
+   background-image: url('/USE.png');
+    padding: 20px;
+    background-size: cover;
 }
 
 .pol-eyebrow {
@@ -372,6 +384,7 @@ const galleryImages = [
 /* ============ GUIDES ============ */
 .pol-guides-section {
   margin-top: 8px;
+  
 }
 
 .pol-guides-head {
@@ -397,15 +410,13 @@ const galleryImages = [
   display: flex;
   gap: 18px;
   background: var(--surface);
-
-  border-radius: var(--radius);
   padding: 18px;
   text-decoration: none;
   transition: border-color 0.15s, background 0.15s;
 }
 
 .guide-card:hover {
-  border-color: var(--accent-bdr, var(--accent));
+  border-color: var(--surface, var(--bg));
   background: var(--accent-dim, rgba(232, 255, 71, 0.05));
 }
 
@@ -419,7 +430,6 @@ const galleryImages = [
   width: 140px;
   height: 100px;
   object-fit: cover;
-  border-radius: 8px;
   flex-shrink: 0;
   background: var(--surface-2);
 }
@@ -480,13 +490,13 @@ const galleryImages = [
   display: flex;
   flex-direction: column;
   gap: 20px;
+  background-color: var(--surface);
 }
 
 .report-box {
   background: var(--surface);
-  border-radius: var(--radius);
   overflow: hidden;
-}
+  }
 
 .report-box-head {
   display: block;
@@ -494,7 +504,7 @@ const galleryImages = [
   font-size: 10.5px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-1);
   padding: 16px 20px 10px;
 }
 
@@ -507,7 +517,7 @@ const galleryImages = [
   text-decoration: none;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   transition: background 0.15s;
-
+  color: var(--text-1);
 }
 
 .report-link:hover {

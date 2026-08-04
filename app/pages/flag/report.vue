@@ -833,7 +833,7 @@ label {
   justify-content: center;
   gap: 8px;
   background: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-1);
   font-weight: 700;
   font-family: var(--mono);
   font-size: 12px;
@@ -903,7 +903,7 @@ label {
   transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 .btn:hover { color: var(--text-1); border-color: var(--border-hi); transform: translateY(-2px); }
-.btn--accent { background: var(--accent); border-color: var(--accent); color: #0a0a0b; font-weight: 700; }
+.btn--accent { background: var(--accent); border-color: var(--accent); color: var(--text-2); font-weight: 700; }
 .btn--accent:hover { background: #d4eb3c; border-color: #d4eb3c; }
 
 @keyframes fadeUp {

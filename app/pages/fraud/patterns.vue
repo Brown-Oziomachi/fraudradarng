@@ -199,13 +199,15 @@ const regulators = [
       <div class="hero-content">
         <p class="hero-eyebrow"><span class="dot" /> Fraud categories</p>
         <h1 class="hero-title">Scams don't look<br />the same everywhere.<br />Here's what they<br />look like here.</h1>
-        <p class="hero-sub">
-          Four patterns account for a large share of what Nigerians actually report right now
-          not generic "online scam" advice, but the specific mechanics, red flags, and the exact
-          agency that handles each one.
-        </p>
       </div>
     </section>
+    <div>
+      <p class="hero-sub">
+        Four patterns account for a large share of what Nigerians actually report right now
+        not generic "online scam" advice, but the specific mechanics, red flags, and the exact
+        agency that handles each one.
+      </p>
+    </div>
 
     <!-- ===================== STATS STRIP ===================== -->
     <section class="stats-strip">
@@ -351,11 +353,12 @@ const regulators = [
 /* ============ HERO ============ */
 .hero {
   position: relative;
-  min-height: 90vh;
+  min-height: 70vh;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  background-color: var(--surface);
 }
 
 
@@ -364,8 +367,13 @@ const regulators = [
   position: relative;
   z-index: 1;
   padding: 0 44px 64px;
-  max-width: 900px;
   text-align: left;
+  background-color: var(--surface);
+  background-image: 
+  linear-gradient(rgba(10, 10, 11, 0.55), rgba(10, 10, 11, 0.72)),
+  url('/meme.png');
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 @media (max-width: 720px) { .hero-content { padding: 0 20px 44px; } }
 
@@ -377,26 +385,35 @@ const regulators = [
 .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
 
 .hero-title {
-  font-family: var(--serif);
+  font-family: var(--serif, serif); font-weight: 400;
   font-size: clamp(52px, 6vw, 84px);
   line-height: 1.1;
   letter-spacing: -0.02em;
-  margin-bottom: 24px;
   text-align: left;
+  color: white;
 }
 
 .hero-sub {
-  font-size: clamp(15px, 1.8vw, 18px);
-  line-height: 1.6;
-  font-weight: 300;
-  max-width: 600px;
-  text-align: left;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 72px 44px;
+  background-color: var(--surface);
+  margin-bottom: 50px;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 25px;
 }
 
 /* ============ STATS STRIP ============ */
-.stats-strip { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--border); }
-@media (max-width: 900px) { .stats-strip { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 520px) { .stats-strip { grid-template-columns: 1fr; } }
+.stats-strip { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--border);  background-color: var(--surface);
+  margin-top: 20px; margin: 10px;}
+@media (max-width: 900px) {
+   .stats-strip { grid-template-columns: repeat(2, 1fr); 
+    background-color: var(--surface);
+    margin-top: 20px;
+   } 
+  
+  }
+@media (max-width: 520px) { .stats-strip { grid-template-columns: repeat(2, 1fr); } }
 .stat-block {
   display: flex; flex-direction: column; gap: 6px; padding: 28px 32px;
   border-right: 1px solid var(--border);
@@ -417,12 +434,12 @@ const regulators = [
 }
 
 /* ============ CATEGORY SECTIONS ============ */
-.categories-section { max-width: 1000px; margin: 0 auto; padding: 72px 44px; }
-@media (max-width: 720px) { .categories-section { padding: 48px 20px; } }
+.categories-section { max-width: 1000px; margin: 0 auto; padding: 72px 44px; background-color: var(--surface); margin-bottom: 50px;}
+@media (max-width: 720px) { .categories-section { padding: 48px 20px;  margin: 20px;} }
 
 .category-block {
   padding: 56px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 3px solid var(--border);
 }
 .category-block:last-child { border-bottom: none; }
 
@@ -431,7 +448,7 @@ const regulators = [
   display: inline-block;
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
   text-transform: uppercase; padding: 4px 10px; border-radius: 3px;
-  background: var(--accent-dim, rgba(232,255,71,0.08)); color: var(--accent);
+  background: var(--accent-dim, rgba(232,255,71,0.08)); color: var(--text-1);
   border: 1px solid rgba(232,255,71,0.25); margin-bottom: 14px;
 }
 .category-title {
@@ -636,18 +653,18 @@ const regulators = [
 .contact-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 @media (max-width: 780px) { .contact-actions { justify-content: center; } }
 .btn-primary {
-  display: inline-flex; align-items: center; background: var(--accent);
-  color: #0a0a0b; font-weight: 600; font-family: var(--mono); font-size: 12px;
+  display: inline-flex; align-items: center; background: var(--surface);
+  color: var(--text-2); font-weight: 600; font-family: var(--mono); font-size: 12px;
   letter-spacing: 0.04em; padding: 14px 24px; border-radius: var(--radius); text-decoration: none;
 }
-.btn-primary:hover { background: #d4eb3c; }
+.btn-primary:hover { background: var(--accent); }
 .btn-secondary {
   display: inline-flex; align-items: center; font-family: var(--mono); font-size: 12px;
   letter-spacing: 0.04em; color: var(--text-2); background: none;
   border: 1px solid var(--border-hi); border-radius: var(--radius); padding: 14px 20px;
   cursor: pointer; text-decoration: none; transition: border-color 0.15s, color 0.15s;
 }
-.btn-secondary:hover { border-color: var(--accent); color: var(--text-1); }
+.btn-secondary:hover { border-color: var(--radius); color: var(--text-1); background-color: var(--surface);}
 
 .stamp-wrap { display: flex; justify-content: center; }
 @media (max-width: 780px) { .stamp-wrap { margin-top: 8px; } }

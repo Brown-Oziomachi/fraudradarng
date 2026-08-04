@@ -9,7 +9,7 @@ useSeoMeta({
 
   ogTitle: 'Alert: Active Phishing Campaign Flagged',
   ogDescription: 'Read the structural breakdown of this scam on Fraud Radar.',
-  ogImage: 'https://fraudradar.ng/FRLOGO.png',
+  ogImage: 'https://fraudradar.ng/LOGOOO.png',
   ogType: 'website',
   ogSiteName: 'Fraud Radar NG',
   ogLocale: 'en_NG',
@@ -17,7 +17,7 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
   twitterTitle: 'Alert: Active Phishing Campaign Flagged — FRNG',
   twitterDescription: 'Help protect citizens by flagging ongoing internet fraud immediately.',
-  twitterImage: 'https://fraudradar.ng/FRLOGO.png',
+  twitterImage: 'https://fraudradar.ng/LOGOOO.png',
   twitterCreator: '@FraudRadarNG',
 
   robots: 'index, follow',
@@ -96,6 +96,16 @@ const stats = [
   { target: 900, label: 'Accounts flagged', suffix: '+' },
   { target: 24, label: 'Hour monitoring', suffix: '/7' }
 ]
+
+const toastReports = computed(() => {
+  return validReports.value
+    .filter(r => r?.id) 
+    .slice(0, 4)
+    .map(r => ({
+      id: r.id,
+      label: r?.companyName || r?.websiteUrl || r?.title || r?.category || 'New report filed'
+    }))
+})
 
 function animateCount(el: Element, target: number) {
   const duration = 1300
@@ -325,27 +335,29 @@ onUnmounted(() => {
     <div class="hero-bg-image" />
     <div class="hero-overlay" />
     <div class="hero-scanline" aria-hidden="true" />
-    <svg class="hero-radar" viewBox="0 0 200 200" aria-hidden="true">
-      <circle cx="100" cy="100" r="70" class="radar-ring" />
-      <circle cx="100" cy="100" r="46" class="radar-ring" />
-      <circle cx="100" cy="100" r="22" class="radar-ring" />
-      <g class="radar-sweep">
-        <path d="M100 100 L100 30 A70 70 0 0 1 149.5 129.5 Z" fill="url(#sweepGradient)" />
-      </g>
-      <defs>
-        <linearGradient id="sweepGradient" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.35" />
-          <stop offset="100%" stop-color="var(--accent)" stop-opacity="0" />
-        </linearGradient>
-      </defs>
-    </svg>
+    
 
     <div class="hero-content">
       <div class="hero-copy">
         <h1 class="hero-title">
-          <span class="hero-title-line hero-anim hero-anim--1">FRNG</span>
+          <span class="hero-title-line hero-anim hero-anim--1">FRNG.
+          </span>
           <span class="hero-title-line hero-title-line--accent hero-anim hero-anim--2">Report. Check. Protect.</span>
         </h1>
+          <svg class="hero-radar" viewBox="0 0 200 200" aria-hidden="true">
+            <circle cx="100" cy="100" r="70" class="radar-ring" />
+            <circle cx="100" cy="100" r="46" class="radar-ring" />
+            <circle cx="100" cy="100" r="22" class="radar-ring" />
+            <g class="radar-sweep">
+              <path d="M100 100 L100 30 A70 70 0 0 1 149.5 129.5 Z" fill="url(#sweepGradient)" />
+            </g>
+            <defs>
+              <linearGradient id="sweepGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.35" />
+                <stop offset="100%" stop-color="var(--accent)" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+          </svg>
 
         <p class="hero-subtext hero-anim hero-anim--3">
           The scam that hit them yesterday is coming for you today.
@@ -415,13 +427,17 @@ onUnmounted(() => {
         </div>
 
         <div class="toolkit-image-col">
-          <img src="/radar2.png" alt="Verifying a transfer before sending money" class="toolkit-image" />
+          <img src="/def.png" alt="Verifying a transfer before sending money" class="toolkit-image" />
         </div>
       </div>
     </div>
   </section>
 
-  <section class="illustration-section reveal">
+ <section class="pattern-showcase">
+    <div class="pattern-showcase-bg" aria-hidden="true" />
+
+    <section class="illustration-section reveal">
+
     <div class="eyebrow">
       <span class="eyebrow-dot" />
       How the scam usually works
@@ -430,7 +446,7 @@ onUnmounted(() => {
 
     <div class="how-layout">
       <div class="how-image-col">
-        <img src="/trusts.png" alt="How the scam pattern unfolds" class="how-image" />
+        <img src="/logoooo.png" alt="How the scam pattern unfolds" class="how-image" />
       </div>
 
       <div class="steps-list">
@@ -473,6 +489,7 @@ onUnmounted(() => {
       </div>
     </div>
   </section>
+ </section>
 
   <section class="about-section reveal">
     <div class="about-inner">
@@ -507,7 +524,7 @@ onUnmounted(() => {
           File a report now
         </NuxtLink>
       </div>
-      <div><img src="/FRLOGO.png" alt="Fraud Radar NG" class="about-art" /></div>
+      <div><img src="/logoooo.png" alt="Fraud Radar NG" class="about-art" /></div>
     </div>
   </section>
 
@@ -670,26 +687,17 @@ onUnmounted(() => {
   </Teleport>
 
   <!-- ============ LIVE-SIGNAL TOAST ============ -->
-  <Teleport to="body">
-    <div v-if="showToast" class="toast">
-      <span class="toast-dot" />
-      <div class="toast-text">
-        <div class="toast-title">New report just filed</div>
-        <div class="toast-body">{{ tickerItems[0] }}</div>
+ <Teleport to="body">
+    <div class="toast-stack">
+      <div v-for="report in toastReports" :key="report.id" v-show="showToast" class="toast">
+        <span class="toast-dot" />
+        <div class="toast-text">
+          <div class="toast-title">New report just filed</div>
+          <div class="toast-body">{{ report.label }}</div>
+        </div>
+        <NuxtLink :to="`/reports/${report.id}`" class="toast-link">View</NuxtLink>
+        <button type="button" class="toast-close" @click="dismissToast" aria-label="Dismiss">×</button>
       </div>
-      <NuxtLink :to="`/reports/${validReports[0]?.id}`" class="toast-link">View</NuxtLink>
-      <button type="button" class="toast-close" @click="dismissToast" aria-label="Dismiss">×</button>
-    </div>
-  </Teleport>
-    <Teleport to="body">
-    <div v-if="showToast" class="toast">
-      <span class="toast-dot" />
-      <div class="toast-text">
-        <div class="toast-title">New report just filed</div>
-        <div class="toast-body">{{ tickerItems[0] }}</div>
-      </div>
-      <NuxtLink :to="`/reports/${validReports[1]?.id}`" class="toast-link">View</NuxtLink>
-      <button type="button" class="toast-close" @click="dismissToast" aria-label="Dismiss">×</button>
     </div>
   </Teleport>
 </template>
@@ -703,7 +711,9 @@ onUnmounted(() => {
   font-size: 20px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  margin-bottom: 16px;
+  margin-bottom: 16px ;
+  padding-left: 90px;
+  margin-top: 15px;
 }
 
 .eyebrow-dot {
@@ -748,23 +758,28 @@ onUnmounted(() => {
 .hero-bg-image {
   position: absolute;
   inset: 0;
-  background-image: url('/ngf.png');
+  background-image: url('/def.png');
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
   z-index: 0;
-  filter: brightness(0.5) saturate(0.85);
-  animation: heroKenBurns 22s ease-in-out infinite alternate;
+  filter: brightness(0.5) saturate(0.8);
+  animation: heroKenBurns 30s ease-in-out infinite;
+  transform-origin: center center;
   will-change: transform;
 }
 
 @keyframes heroKenBurns {
   0% {
-    transform: scale(1);
+    transform: scale(1) translate(0%, 0%);
+  }
+
+  50% {
+    transform: scale(1.15) translate(-2%, -1.5%);
   }
 
   100% {
-    transform: scale(1.48);
+    transform: scale(1) translate(0%, 0%);
   }
 }
 
@@ -774,7 +789,15 @@ onUnmounted(() => {
   }
 }
 
-
+.toast-stack {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 9999;
+}
 
 .hero-scanline {
   position: absolute;
@@ -829,13 +852,14 @@ onUnmounted(() => {
 
 .radar-ring {
   fill: none;
-  stroke: color-mix(in srgb, var(--accent) 45%, transparent);
-  stroke-width: 1;
+  stroke: color-mix(in srgb, var(--surface) 100%, transparent);
+  stroke-width: 5;
 }
 
 .radar-sweep {
   transform-origin: 100px 100px;
-  animation: radarSpin 4.5s linear infinite;
+  animation: radarSpin 2.5s linear infinite;
+    stroke: color-mix(in srgb, var(--border-hi) 100%, transparent);
 }
 
 @keyframes radarSpin {
@@ -914,7 +938,7 @@ onUnmounted(() => {
 }
 
 .hero-copy {
-  max-width: 780px;
+  max-width: 980px;
   width: 100%;
   margin: 0 auto;
   display: flex;
@@ -925,7 +949,7 @@ onUnmounted(() => {
 
 .hero-title {
   width: 100%;
-  line-height: 1.05;
+  line-height: 1.10;
 }
 
 .hero-title-line {
@@ -933,10 +957,10 @@ onUnmounted(() => {
   width: 100%;
   text-align: center;
   font-family: var(--serif);
-  font-size: clamp(48px, 6vw, 70px);
-  font-weight: 700;
+  font-size: clamp(8px, 6vw, 7px);
+  font-weight: 90;
   color: #ffffff;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 20px 2px rgba(0, 0, 0, 0.5);
 }
 
 .hero-title-line--accent {
@@ -946,7 +970,7 @@ onUnmounted(() => {
 .hero-subtext {
   width: 100%;
   max-width: 620px;
-  margin: 20px auto 0;
+  margin: 10px auto 0;
   text-align: center;
   font-size: 17px;
   color: rgba(255, 255, 255, 0.9);
@@ -973,11 +997,23 @@ onUnmounted(() => {
 }
 
 .hero-anim--1 {
-  animation-delay: 0.05s;
+  animation-delay: 2.05s;
+  font-size: 90px;
+    font-weight: 900;
+}
+
+@media (max-width: 720px) {
+ .hero-anim--1 {
+    animation-delay: 2.05s;
+    font-size: 90px;
+    font-weight: 900;
+    margin: 30px;
+  }
 }
 
 .hero-anim--2 {
   animation-delay: 0.2s;
+    font-size: 30px
 }
 
 .hero-anim--3 {
@@ -1113,9 +1149,9 @@ onUnmounted(() => {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--text-1);
   border-right: 1px solid var(--border);
-  background: var(--surface-2, var(--surface));
+  background: var(--surface-2);
 }
 
 .ticker-dot {
@@ -1198,11 +1234,13 @@ onUnmounted(() => {
 .stats-strip {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 8px 24px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   text-align: center;
+    background-color: var(--surface);
+    margin-bottom: 90px;
 }
 
 @media (max-width: 720px) {
@@ -1231,6 +1269,7 @@ onUnmounted(() => {
   font-size: clamp(30px, 4vw, 42px);
   color: var(--accent);
   line-height: 1;
+  
 }
 
 .stat-suffix {
@@ -1251,6 +1290,8 @@ onUnmounted(() => {
   max-width: 1120px;
   margin: 0 auto;
   padding: 56px 24px;
+  background-color: var(--surface);
+  margin-bottom: 50px;
 }
 
 .toolkit-frame {
@@ -1350,12 +1391,52 @@ onUnmounted(() => {
   display: block;
 }
 
-/* ILLUSTRATION SECTION */
-.illustration-section {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 56px 24px;
-  border-bottom: 1px solid var(--border);
+.pattern-showcase {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.pattern-showcase-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  /* was -1 */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.pattern-showcase-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/USE.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+}
+
+.pattern-showcase-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg) 58%, transparent);
+}
+
+.illustration-section,
+.scam-callout-section {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 640px) {
+  .pattern-showcase-bg {
+    max-height: 1980px;
+  }
+
+  .pattern-showcase-bg::before {
+    background-position: center top;
+  }
 }
 
 .how-title {
@@ -1365,6 +1446,7 @@ onUnmounted(() => {
   line-height: 1.3;
   margin-bottom: 36px;
   max-width: 600px;
+  padding-left: 90px;
 }
 
 .how-layout {
@@ -1395,7 +1477,6 @@ onUnmounted(() => {
 .how-image {
   width: 100%;
   height: 20em;
-  border: 1px solid var(--border-hi);
   display: block;
   object-fit: contain;
   transition: transform 0.4s ease;
@@ -1424,6 +1505,7 @@ onUnmounted(() => {
 .step-row:first-child {
   border-top: none;
   padding-top: 0;
+  color: var(--text-1);
 }
 
 .step-row:hover .step-number {
@@ -1433,10 +1515,11 @@ onUnmounted(() => {
 .step-number {
   font-family: var(--serif);
   font-size: 26px;
-  color: var(--accent);
+  color: var(--text-1);
   flex-shrink: 0;
   width: 44px;
   transition: color 0.2s ease;
+  padding: 20px;
 }
 
 .step-title {
@@ -1450,7 +1533,7 @@ onUnmounted(() => {
   font-size: 13px;
   color: var(--text-3);
   line-height: 1.7;
-  font-weight: 300;
+  font-weight: 200;
 }
 
 /* ============ SCAM CALLOUT ============ */
@@ -1669,9 +1752,24 @@ onUnmounted(() => {
 
   .about-art {
     order: -1;
+    max-width: 600px;
+    max-height: 600px;
+    border: 2px solid var(--border);
+    border-color: var(--accent);
+    background-color: var(--surface);
   }
 }
 
+@media (min-width: 1020px) {
+  .about-art {
+      order: -1;
+      max-width: 900px;
+      max-height: 900px;
+      border: 2px solid var(--border);
+      border-color: var(--accent);
+      background-color: var(--surface);
+    }
+}
 .about-title {
   font-family: var(--serif);
   font-size: clamp(26px, 3.4vw, 38px);
@@ -1709,7 +1807,7 @@ onUnmounted(() => {
 }
 
 .map-section {
-  background: var(--bg);
+  background: var(--surface);
   padding: 56px 24px;
 }
 
@@ -1896,15 +1994,17 @@ onUnmounted(() => {
 }
 
 .registry-context {
-  max-width: 920px;
+  max-width: 1920px;
   margin: 0 auto;
   padding: 0 1.25rem;
 }
 
 .context-intro {
-  max-width: 640px;
-  margin: 0 auto 2rem;
+  max-width: 950px;
+  margin: 0 auto;
   text-align: center;
+  background-color: var(--surface);
+  padding: 30px;
 }
 
 .context-eyebrow {
@@ -2027,7 +2127,6 @@ onUnmounted(() => {
   color: var(--text-2);
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 12px;
   padding: 18px;
   margin-bottom: 24px;
 }

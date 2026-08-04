@@ -208,25 +208,31 @@ onMounted(() => {
   margin: 0 auto;
   padding: 72px 24px 40px;
   text-align: center;
+  background-color: var(--surface);
+  background-image: url('/USE.png');
+  background-size: cover;
+  background-repeat: no-repeat;
 }
-.page-hero .eyebrow { justify-content: center; }
+
+.page-hero .eyebrow { justify-content: center; color: white; }
 
 .page-title {
   font-family: var(--serif);
   font-size: clamp(30px, 4.5vw, 46px);
   font-weight: 700;
-  color: var(--text-1);
+  color: white;
   line-height: 1.25;
   margin-bottom: 20px;
 }
 
 .page-subtitle {
   font-size: 15.5px;
-  color: var(--text-3);
+  color: white;
   line-height: 1.75;
   font-weight: 300;
   max-width: 660px;
   margin: 0 auto;
+  text-shadow: 5px 5px 5px #0ee323;
 }
 
 /* HOW SECTION */
@@ -334,6 +340,8 @@ onMounted(() => {
   position: relative;
   border: 1px solid var(--border-hi);
   padding: 44px 28px 28px;
+    background-color: var(--surface);
+
 }
 
 .pattern-tab {
@@ -341,7 +349,6 @@ onMounted(() => {
   top: 0;
   left: 28px;
   transform: translateY(-50%);
-  background: var(--bg);
   border: 1px solid var(--border-hi);
   padding: 7px 16px;
   font-family: var(--mono);
@@ -350,6 +357,8 @@ onMounted(() => {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--accent);
+    background-color: var(--surface);
+
 }
 
 .pattern-body {
@@ -357,6 +366,7 @@ onMounted(() => {
   color: var(--text-2);
   line-height: 1.8;
   font-weight: 300;
+  
 }
 
 /* CHECKLIST */
@@ -365,6 +375,7 @@ onMounted(() => {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   padding: 56px 24px;
+  margin-bottom: 60px;
 }
 
 .checklist-inner { max-width: 780px; margin: 0 auto; }

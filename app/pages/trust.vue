@@ -54,7 +54,7 @@ const stats = [
     <section class="hero">
       <div class="hero-image-wrap">
         <img
-          src="/fraudmap.png"
+          src="/USE.png"
           alt="A shared, transparent record of reported fraud"
           class="hero-image"
         />
@@ -154,6 +154,9 @@ const stats = [
   display: flex;
   align-items: flex-end;
   overflow: hidden;
+  align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .hero-image-wrap {
@@ -182,6 +185,7 @@ const stats = [
   z-index: 1;
   padding: 0 44px 72px;
   max-width: 900px;
+ 
 }
 @media (max-width: 720px) {
   .hero-content { padding: 0 20px 48px; }
@@ -195,14 +199,14 @@ const stats = [
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 20px;
+  color: #fdfdfa;
+    margin-bottom: 20px;
 }
 .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
 
 .hero-title {
   font-family: var(--serif);
-  font-size: clamp(40px, 7.5vw, 92px);
+  font-size: clamp(60px, 8.5vw, 99px);
   line-height: 1.05;
   letter-spacing: -0.02em;
   color: #fdfdfa;
@@ -257,7 +261,8 @@ const stats = [
 .steps-section {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 96px 44px 64px;
+  padding: 76px 24px 64px;
+  background-image: url('/USE.png');
 }
 @media (max-width: 720px) {
   .steps-section { padding: 64px 20px 40px; }
@@ -268,13 +273,13 @@ const stats = [
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: white;
   margin-bottom: 12px;
 }
 .section-title {
   font-family: var(--serif);
   font-size: clamp(26px, 3.4vw, 38px);
-  color: var(--text-1);
+  color: white;
   line-height: 1.2;
   max-width: 680px;
   margin-bottom: 48px;
@@ -326,7 +331,7 @@ const stats = [
   padding: 3px 8px;
   border-radius: 3px;
   background: var(--accent-dim, rgba(232,255,71,0.08));
-  color: var(--accent);
+  color: var(--text-1);
   border: 1px solid rgba(232,255,71,0.2);
 }
 
@@ -399,7 +404,7 @@ const stats = [
   display: inline-flex;
   align-items: center;
   background: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-1);
   font-weight: 600;
   font-family: var(--mono);
   font-size: 12px;
@@ -408,7 +413,7 @@ const stats = [
   border-radius: var(--radius);
   text-decoration: none;
 }
-.btn-primary:hover { background: #d4eb3c; }
+.btn-primary:hover { background: var(--surface); }
 
 .btn-secondary {
   display: inline-flex;
@@ -428,6 +433,7 @@ const stats = [
 .btn-secondary:hover {
   border-color: var(--accent);
   color: var(--text-1);
+  background-color: var(--surface);
 }
 
 /* ============ SIGNATURE ELEMENT — stamp ============ */

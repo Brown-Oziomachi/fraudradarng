@@ -20,6 +20,7 @@ defineProps({
   display: inline-flex;
   align-items: center;
   justify-content: center;
+    background: var(--surface);
 }
 
 .frng-wordmark__text {
@@ -48,11 +49,12 @@ defineProps({
 
 /* Text color cycles through accent-adjacent hues — used by both variants */
 @keyframes frng-color-cycle-text {
-  0%   { color: #d63447; }
-  25%  { color: #d68334; }
-  50%  { color: #34a0d6; }
+  /* 0%   { color: #d63447; } */
+  55%  {color: var(--surface); }
+  60%  { color: #06e733; }
+  /* 60% {color: #d68334;}
   75%  { color: #7a34d6; }
-  100% { color: #d63447; }
+  100% { color: #d63447; } */ 
 }
 
 /* Respect users who've asked for reduced motion */

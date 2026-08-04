@@ -229,7 +229,6 @@ const editLink = computed(() => {
       <span class="tag">{{ displayChip }}</span>
     </div>
 
-    <!-- ACTION BAR — edit (main reporter only), report, share -->
     <div class="action-bar">
       <NuxtLink v-if="isOwner" :to="editLink" class="action-btn">
         <svg viewBox="0 0 24 24" width="15" height="15">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onBeforeUpdate } from 'vue'
 
 useHead({ title: 'About Us — Fraud Radar NG' })
 
@@ -14,6 +14,12 @@ const founderLinks = [
 
 const headline = "Built because silence protects scammers, not victims."
 const headlineWords = headline.split(' ')
+
+const principles = [
+  { label: 'Live in seconds', body: 'No approval queue. A report is searchable the moment it\u2019s submitted.' },
+  { label: 'Free, always', body: 'No account, no fee. Protection shouldn\u2019t be gated behind either.' },
+  { label: 'Community-flagged', body: 'Anyone can flag a report as inaccurate, keeping the radar honest.' },
+]
 
 const flowCards = [
   {
@@ -41,9 +47,21 @@ function setSectionRef(el: any) {
   if (el) sectionRefs.value.push(el as HTMLElement)
 }
 
+// Refs get re-collected on every render; without this, toggling the
+// founder modal (or any reactive change) would keep appending duplicate
+// entries to sectionRefs.
+onBeforeUpdate(() => {
+  sectionRefs.value = []
+})
+
 let observer: IntersectionObserver | null = null
 
 onMounted(() => {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    sectionRefs.value.forEach((el) => el.classList.add('is-visible'))
+    return
+  }
+
   observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -90,26 +108,23 @@ onBeforeUnmount(() => {
           About us
         </div>
 
-        <h1 class="page-title">
-          <span v-for="(word, i) in headlineWords" :key="i" class="word" :style="{ animationDelay: `${i * 0.06}s` }">{{
-            word }}&nbsp;</span>
-        </h1>
-
-        <p class="page-sub">
-          Fraud Radar NG is Nigeria's community-powered fraud detection and
-          awareness platform — helping people identify, report, and avoid
-          scams before they become victims.
-        </p>
-
-        <div class="hero-scroll-cue">
-          <span>Scroll to read more</span>
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" class="scroll-arrow">
-            <path d="M12 4v16M6 14l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
+        <div class="page-main">
+          <h1 class="page-title">
+            <span v-for="(word, i) in headlineWords" :key="i" class="word"
+              :style="{ animationDelay: `${i * 0.06}s` }">{{
+                word }}&nbsp;</span>
+          </h1>
         </div>
       </div>
     </section>
+
+    <div>
+      <p class="page-sub">
+        Fraud Radar NG is Nigeria's community-powered fraud detection and
+        awareness platform — helping people identify, report, and avoid
+        scams before they become victims.
+      </p>
+    </div>
 
     <section :ref="setSectionRef" class="content-block reveal">
       <div class="signal-tag"><span class="signal-dot" /> SIGNAL DETECTED — WHY WE EXIST</div>
@@ -153,14 +168,6 @@ onBeforeUnmount(() => {
             uncertainty into thirty seconds of verification instead of a
             leap of faith.
           </p>
-          <p class="block-body">
-            The platform runs on three principles: reports go live
-            instantly so warnings reach people while they still matter,
-            submission stays free and requires no account so nobody is
-            priced or gated out of protecting themselves, and every report
-            can be flagged by others if it's inaccurate — keeping the
-            radar honest without slowing it down.
-          </p>
 
           <ul class="deep-dive-points">
             <li>
@@ -183,6 +190,14 @@ onBeforeUnmount(() => {
     <section :ref="setSectionRef" class="flow-section reveal">
       <div class="flow-inner">
         <h2 class="flow-heading">The power of one report</h2>
+
+        <ul class="principle-strip">
+          <li v-for="p in principles" :key="p.label" class="principle-chip">
+            <span class="principle-label">{{ p.label }}</span>
+            <span class="principle-body">{{ p.body }}</span>
+          </li>
+        </ul>
+
         <div class="flow-grid">
           <article v-for="card in flowCards" :key="card.title" class="flow-card">
             <div class="flow-image-wrap">
@@ -217,11 +232,8 @@ onBeforeUnmount(() => {
       <h2 class="block-title">Who's behind this</h2>
       <p class="block-body">
         Fraud Radar NG is built and maintained by
-
-        <a href="#" class="highlight" @click.prevent="showFounderModal = true"> {{ founderName }}
-        </a>,
-        a
-        full-stack developer based in Abuja. It's an independent project
+        <a href="#" class="highlight" @click.prevent="showFounderModal = true"> {{ founderName }}</a>,
+        a full-stack developer based in Abuja. It's an independent project
         built to give ordinary Nigerians a place to warn each other,
         without needing a government office or a corporation's permission.
       </p>
@@ -234,7 +246,6 @@ onBeforeUnmount(() => {
       <NuxtLink to="/reports" class="btn">Browse reports</NuxtLink>
     </section>
   </div>
-
 </template>
 
 <style scoped>
@@ -250,13 +261,13 @@ onBeforeUnmount(() => {
   position: relative;
   min-height: 100vh;
   min-height: 100dvh;
-  /* accounts for mobile browser chrome */
   display: flex;
   align-items: center;
   overflow: hidden;
-  margin: -56px -24px 0;
-  /* cancels out .page-shell's own padding so this section is truly full-bleed */
+  background-image: url('/def.png');
   padding: 0 24px;
+  background-size: cover;
+  background-position: center;
 }
 
 .page-hero-inner {
@@ -279,27 +290,49 @@ onBeforeUnmount(() => {
   opacity: 0.5;
 }
 
+.page-main {
+  background-color: var(--surface);
+  padding: 50px;
+}
+
 .page-title {
   position: relative;
   z-index: 1;
   font-family: var(--serif);
   font-weight: 700;
-  font-size: clamp(48px, 9vw, 104px);
+  font-size: clamp(36px, 9vw, 104px);
   color: var(--text-1);
-  line-height: 1.02;
+  line-height: 1.05;
   letter-spacing: -0.02em;
-  margin-bottom: 28px;
+  margin-bottom: 0;
 }
 
 .page-sub {
-  position: relative;
   z-index: 1;
-  font-size: clamp(17px, 2vw, 20px);
+  font-size: 16px;
   color: var(--text-2);
   line-height: 1.75;
   font-weight: 300;
-  max-width: 580px;
-  margin-bottom: 56px;
+  text-align: center;
+  background-color: var(--surface);
+  padding: 50px;
+}
+
+@media (max-width: 720px) {
+  .page-hero {
+    min-height: 90vh;
+    min-height: 90dvh;
+    padding: 0 16px;
+  }
+
+  .page-main {
+    padding: 28px 20px;
+  }
+
+  .page-sub {
+    padding: 32px 20px;
+    font-size: 15px;
+  }
 }
 
 .hero-scroll-cue {
@@ -330,13 +363,6 @@ onBeforeUnmount(() => {
   50% {
     transform: translateY(6px);
     opacity: 1;
-  }
-}
-
-@media (max-width: 720px) {
-  .page-hero {
-    min-height: 90vh;
-    min-height: 90dvh;
   }
 }
 
@@ -427,7 +453,6 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Pill eyebrow badge */
 .eyebrow-pill {
   position: relative;
   z-index: 1;
@@ -453,18 +478,6 @@ onBeforeUnmount(() => {
   color: var(--accent);
 }
 
-.page-title {
-  position: relative;
-  z-index: 1;
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: clamp(58px, 9.4vw, 88px);
-  color: var(--text-1);
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-  margin-bottom: 22px;
-}
-
 .word {
   display: inline-block;
   opacity: 0;
@@ -479,27 +492,8 @@ onBeforeUnmount(() => {
   }
 }
 
-.page-sub {
-  position: relative;
-  z-index: 1;
-  font-size: 16px;
-  color: var(--text-2);
-  line-height: 1.75;
-  font-weight: 300;
-  max-width: 540px;
-}
-
-/* ---------- Content sections ---------- */
-.content-block {
-  margin-top: 56px;
-}
-
+/* ---------- Scroll reveal ---------- */
 .reveal {
-  opacity: 1;
-  transform: none;
-}
-
-.reveal.will-animate {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity 0.6s ease, transform 0.6s ease;
@@ -508,6 +502,11 @@ onBeforeUnmount(() => {
 .reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ---------- Content sections ---------- */
+.content-block {
+  margin-top: 56px;
 }
 
 .signal-tag {
@@ -572,8 +571,9 @@ onBeforeUnmount(() => {
   margin-left: -50vw;
   margin-right: -50vw;
   margin-top: 64px;
-  padding: 0 32px;
+  padding: 56px 32px;
   box-sizing: border-box;
+  background-color: var(--surface);
 }
 
 .flow-inner {
@@ -587,7 +587,46 @@ onBeforeUnmount(() => {
   font-weight: 700;
   color: var(--text-1);
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
+}
+
+.principle-strip {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 0 0 36px;
+  padding: 0;
+}
+
+.principle-chip {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.principle-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.principle-body {
+  font-size: 12.5px;
+  color: var(--text-3);
+  line-height: 1.55;
+  font-weight: 300;
+}
+
+@media (max-width: 720px) {
+  .principle-strip {
+    grid-template-columns: 1fr;
+  }
 }
 
 .flow-grid {
@@ -599,7 +638,6 @@ onBeforeUnmount(() => {
 .flow-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: calc(var(--radius) + 6px);
   overflow: hidden;
   transition: transform 0.25s ease, border-color 0.25s ease;
 }
@@ -613,12 +651,13 @@ onBeforeUnmount(() => {
   aspect-ratio: 1 / 1;
   background: var(--surface-2);
   overflow: hidden;
+  margin-top: 20px;
 }
 
 .flow-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -679,17 +718,18 @@ onBeforeUnmount(() => {
   color: var(--text-1);
   border-color: var(--border-hi);
   transform: translateY(-2px);
+  border-color: #d4eb3c;
 }
 
 .btn--accent {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-1);
   font-weight: 700;
 }
 
 .btn--accent:hover {
-  background: #d4eb3c;
+  background: var(--surface);
   border-color: #d4eb3c;
   box-shadow: 0 6px 24px color-mix(in srgb, var(--accent) 45%, transparent);
 }
@@ -724,7 +764,7 @@ onBeforeUnmount(() => {
   }
 
   .flow-section {
-    padding: 0 20px;
+    padding: 40px 20px;
   }
 }
 
@@ -769,6 +809,7 @@ onBeforeUnmount(() => {
 .deep-dive-points {
   list-style: none;
   margin-top: 24px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;

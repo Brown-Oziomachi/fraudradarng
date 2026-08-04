@@ -5,15 +5,35 @@ const name = ref('')
 const email = ref('')
 const message = ref('')
 const wantsUpdates = ref(false)
+const honeypot = ref('') // hidden spam trap — real users never fill this in
+
 const isSubmitting = ref(false)
 const isSuccess = ref(false)
 const errorMessage = ref('')
+const fieldErrors = reactive<{ name?: string; email?: string; message?: string }>({})
+
+const MESSAGE_MAX = 2000
+
+function validate() {
+  fieldErrors.name = name.value.trim() ? undefined : 'Please enter your name.'
+  fieldErrors.email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())
+    ? undefined
+    : 'Enter a valid email address.'
+  fieldErrors.message = message.value.trim() ? undefined : 'Please enter a message.'
+  return !fieldErrors.name && !fieldErrors.email && !fieldErrors.message
+}
 
 async function submitContact() {
   errorMessage.value = ''
 
-  if (!name.value || !email.value || !message.value) {
-    errorMessage.value = 'Please fill in all fields.'
+  // Silently "succeed" for bots without hitting the API
+  if (honeypot.value) {
+    isSuccess.value = true
+    return
+  }
+
+  if (!validate()) {
+    errorMessage.value = 'Please fix the highlighted fields.'
     return
   }
 
@@ -40,6 +60,12 @@ async function submitContact() {
     isSubmitting.value = false
   }
 }
+
+const quickFacts = [
+  { label: 'Usually replies within', value: '48 hrs' },
+  { label: 'States covered', value: '36' },
+  { label: 'Account required', value: 'None' }
+]
 
 const helpCards = [
   {
@@ -87,6 +113,11 @@ onMounted(() => {
     const targets = pageRoot.value?.querySelectorAll('.reveal')
     if (!targets || !targets.length) return
 
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      targets.forEach((t) => t.classList.add('is-visible'))
+      return
+    }
+
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -109,7 +140,6 @@ onMounted(() => {
     <!-- ============ HERO: two-column contact panel ============ -->
     <section class="hero-panel">
       <div class="hero-left">
-        <div class="hero-left-overlay" />
         <div class="hero-left-content">
           <div class="eyebrow hero-anim" style="animation-delay: 0.05s">
             <span class="eyebrow-dot" /> Contact
@@ -126,13 +156,23 @@ onMounted(() => {
 
           <div class="social-row hero-anim" style="animation-delay: 0.35s">
             <a href="#" class="social-link" aria-label="Fraud Radar NG on X">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-7-6.2 7H1.6l8.1-9.3L1 2h7l4.9 6.4L18.9 2Zm-1.2 18h1.9L7.4 4H5.4l12.3 16Z"/></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                <path
+                  d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-7-6.2 7H1.6l8.1-9.3L1 2h7l4.9 6.4L18.9 2Zm-1.2 18h1.9L7.4 4H5.4l12.3 16Z" />
+              </svg>
             </a>
             <a href="#" class="social-link" aria-label="Fraud Radar NG on Instagram">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="3" width="18" height="18" rx="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.2" cy="6.8" r="1" />
+              </svg>
             </a>
             <a href="#" class="social-link" aria-label="Fraud Radar NG on WhatsApp">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20Zm4.4-6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1s-.6.8-.8 1c-.1.1-.3.2-.5.1-.2-.1-1-.4-2-1.2-.7-.6-1.2-1.4-1.4-1.6-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.1 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 3.9 3.4.5.2 1 .4 1.3.5.5.2 1 .1 1.4.1.4-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3Z"/></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                <path
+                  d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20Zm4.4-6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1s-.6.8-.8 1c-.1.1-.3.2-.5.1-.2-.1-1-.4-2-1.2-.7-.6-1.2-1.4-1.4-1.6-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.1 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 3.9 3.4.5.2 1 .4 1.3.5.5.2 1 .1 1.4.1.4-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3Z" />
+              </svg>
             </a>
           </div>
         </div>
@@ -140,24 +180,39 @@ onMounted(() => {
 
       <div class="hero-right">
         <template v-if="!isSuccess">
-          <form class="contact-form hero-anim" style="animation-delay: 0.2s" @submit.prevent="submitContact">
+          <form class="contact-form hero-anim" style="animation-delay: 0.2s" novalidate @submit.prevent="submitContact">
+            <!-- honeypot: hidden from real users via CSS, bots tend to fill every field -->
+            <div class="honeypot" aria-hidden="true">
+              <label for="website">Website</label>
+              <input id="website" v-model="honeypot" type="text" tabindex="-1" autocomplete="off" />
+            </div>
+
             <div class="form-group">
               <label for="name">Full name *</label>
-              <input id="name" v-model="name" class="input" placeholder="Your name" />
+              <input id="name" v-model="name" class="input" placeholder="Your name" :aria-invalid="!!fieldErrors.name"
+                aria-describedby="name-error" />
+              <p v-if="fieldErrors.name" id="name-error" class="field-error" role="alert">{{ fieldErrors.name }}</p>
             </div>
+
             <div class="form-group">
               <label for="email">Email address *</label>
-              <input id="email" v-model="email" type="email" class="input" placeholder="you@example.com" />
+              <input id="email" v-model="email" type="email" class="input" placeholder="you@example.com"
+                :aria-invalid="!!fieldErrors.email" aria-describedby="email-error" />
+              <p v-if="fieldErrors.email" id="email-error" class="field-error" role="alert">{{ fieldErrors.email }}</p>
             </div>
+
             <div class="form-group">
-              <label for="message">Message *</label>
-              <textarea
-                id="message"
-                v-model="message"
-                class="input textarea"
-                rows="5"
-                placeholder="Tell us what this is about"
-              />
+              <div class="label-row">
+                <label for="message">Message *</label>
+                <span class="char-count" :class="{ 'char-count--near': message.length > MESSAGE_MAX * 0.9 }">
+                  {{ message.length }}/{{ MESSAGE_MAX }}
+                </span>
+              </div>
+              <textarea id="message" v-model="message" class="input textarea" rows="5" :maxlength="MESSAGE_MAX"
+                placeholder="Tell us what this is about" :aria-invalid="!!fieldErrors.message"
+                aria-describedby="message-error" />
+              <p v-if="fieldErrors.message" id="message-error" class="field-error" role="alert">{{ fieldErrors.message
+                }}</p>
             </div>
 
             <label class="checkbox-row">
@@ -165,7 +220,7 @@ onMounted(() => {
               <span>I'd like to receive occasional fraud alerts and updates by email</span>
             </label>
 
-            <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
+            <p v-if="errorMessage" class="error-text" role="alert">{{ errorMessage }}</p>
 
             <button type="submit" class="btn-submit" :disabled="isSubmitting">
               {{ isSubmitting ? 'Sending…' : 'Submit' }}
@@ -181,7 +236,7 @@ onMounted(() => {
           </form>
         </template>
 
-        <div v-else class="success-panel">
+        <div v-else class="success-panel" role="status" aria-live="polite">
           <div class="success-icon">
             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4">
               <path class="success-check" d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round" />
@@ -193,29 +248,37 @@ onMounted(() => {
       </div>
     </section>
 
+    <!-- ============ QUICK FACTS ============ -->
+    <section class="facts-strip reveal reveal--up">
+      <div v-for="fact in quickFacts" :key="fact.label" class="fact-block">
+        <div class="fact-value">{{ fact.value }}</div>
+        <div class="fact-label">{{ fact.label }}</div>
+      </div>
+    </section>
+
     <!-- ============ HOW CAN WE HELP — 3 cards ============ -->
     <section class="help-section">
       <h2 class="help-heading reveal reveal--up">How can we help?</h2>
       <div class="help-grid">
-        <div
-          v-for="(card, i) in helpCards"
-          :key="card.title"
-          class="help-card reveal reveal--up"
-          :style="{ transitionDelay: `${i * 0.12}s` }"
-        >
+        <div v-for="(card, i) in helpCards" :key="card.title" class="help-card reveal reveal--up"
+          :style="{ transitionDelay: `${i * 0.12}s` }">
           <div class="help-card-split" />
           <div class="help-card-content">
             <div class="help-icon">
-              <svg v-if="card.icon === 'flag'" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+              <svg v-if="card.icon === 'flag'" viewBox="0 0 24 24" width="20" height="20" fill="none"
+                stroke="currentColor" stroke-width="1.8">
                 <path d="M5 3v18M5 4h11l-2 4 2 4H5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-              <svg v-else-if="card.icon === 'megaphone'" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+              <svg v-else-if="card.icon === 'megaphone'" viewBox="0 0 24 24" width="20" height="20" fill="none"
+                stroke="currentColor" stroke-width="1.8">
                 <path d="M3 11v2a2 2 0 0 0 2 2h1l3 6V9L6 9a2 2 0 0 0-2 2Z" stroke-linejoin="round" />
                 <path d="M9 9l10-5v16L9 15" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-              <svg v-else viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+              <svg v-else viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                stroke-width="1.8">
                 <path d="M12 9v4M12 17h.01" stroke-linecap="round" />
-                <path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0Z" stroke-linejoin="round" />
+                <path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0Z"
+                  stroke-linejoin="round" />
               </svg>
             </div>
             <h3 class="help-title">{{ card.title }}</h3>
@@ -231,12 +294,8 @@ onMounted(() => {
 
     <!-- ============ IMAGE + TEXT STORY BLOCKS ============ -->
     <section class="story-section">
-      <div
-        v-for="block in storyBlocks"
-        :key="block.title"
-        class="story-row reveal"
-        :class="block.reverse ? 'story-row--reverse reveal--right' : 'reveal--left'"
-      >
+      <div v-for="block in storyBlocks" :key="block.title" class="story-row reveal"
+        :class="block.reverse ? 'story-row--reverse reveal--right' : 'reveal--left'">
         <div class="story-image-wrap">
           <img :src="block.image" :alt="block.title" class="story-image" loading="lazy" />
         </div>
@@ -268,11 +327,23 @@ onMounted(() => {
 }
 
 .eyebrow {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--text-3); margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 20px;
 }
-.eyebrow-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; }
+
+.eyebrow-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--accent);
+  border-radius: 50%;
+}
 
 /* ============ HERO PANEL ============ */
 .hero-panel {
@@ -283,6 +354,7 @@ onMounted(() => {
   border-radius: calc(var(--radius) + 10px);
   overflow: hidden;
 }
+
 @media (max-width: 900px) {
   .hero-panel {
     grid-template-columns: 1fr;
@@ -291,21 +363,36 @@ onMounted(() => {
 
 .hero-left {
   position: relative;
-  padding: 56px;
-  background-color: #0a0a0b; /* fallback while image loads */
-  background-image: url('/FRLOGO.png');
+  min-height: 420px;
+  /* tint baked directly into the image so text stays readable
+     regardless of what the photo looks like, on any screen size */
+  background-image:
+    linear-gradient(rgba(10, 10, 11, 0.55), rgba(10, 10, 11, 0.72)),
+    url('/def.png');
   background-size: cover;
-  background-position: center top;
+  background-position: center 20%;
   background-repeat: no-repeat;
   display: flex;
   align-items: flex-end;
-  min-height: 420px;
-  filter: saturate(1.05) contrast(1.03);
 }
 
 @media (max-width: 900px) {
   .hero-left {
-    background-position: center 20%;
+    min-height: 320px;
+  }
+}
+
+.hero-left-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 44px;
+}
+
+@media (max-width: 900px) {
+  .hero-left-content {
+    padding: 32px 28px;
   }
 }
 
@@ -316,35 +403,15 @@ onMounted(() => {
   }
 }
 
-.hero-left-overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(120% 90% at 20% 100%, rgba(10,10,11,0.15) 0%, transparent 55%),
-    linear-gradient(
-      120deg,
-      rgba(51, 65, 59, 0.35) 0%,
-      rgba(7, 187, 61, 0.55) 5%,
-      rgba(10, 10, 11, 0.9) 100%
-    );
-}
-
-.hero-left-content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.hero-left .eyebrow { color: rgba(255,255,255,0.75); }
-
 .hero-title {
   font-family: var(--serif);
-  font-size: clamp(38px, 3.6vw, 42px);
-  color: white;
+  font-size: clamp(30px, 3.6vw, 42px);
+  color: #fff;
   line-height: 1.2;
   margin-bottom: 18px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
+
 .underline {
   border-bottom: 3px solid var(--accent);
   padding-bottom: 2px;
@@ -352,7 +419,7 @@ onMounted(() => {
 
 .hero-sub {
   font-size: 14.5px;
-  color: white;
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.75;
   font-weight: 300;
   max-width: 400px;
@@ -363,17 +430,18 @@ onMounted(() => {
   display: flex;
   gap: 10px;
 }
+
 .social-link {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: var(--radius);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: rgba(255,255,255,0.85);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
   transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
+
 .social-link:hover {
   border-color: var(--accent);
   color: #0a0a0b;
@@ -384,12 +452,15 @@ onMounted(() => {
 /* Right side keeps the plain surface color */
 .hero-right {
   background: var(--surface);
-  padding: 56px;
+  padding: 44px;
   display: flex;
   align-items: center;
 }
+
 @media (max-width: 900px) {
-  .hero-right { padding: 36px 24px; }
+  .hero-right {
+    padding: 32px 24px;
+  }
 }
 
 /* Form */
@@ -398,12 +469,29 @@ onMounted(() => {
   flex-direction: column;
   width: 100%;
 }
+
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .form-group {
   margin-bottom: 16px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
+
+.label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
 label {
   font-family: var(--mono);
   font-size: 10px;
@@ -411,6 +499,17 @@ label {
   text-transform: uppercase;
   color: var(--text-3);
 }
+
+.char-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+.char-count--near {
+  color: var(--accent);
+}
+
 .input {
   background: var(--bg);
   border: 1px solid var(--border);
@@ -421,13 +520,30 @@ label {
   font-size: 13.5px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.input::placeholder { color: var(--text-3); }
+
+.input::placeholder {
+  color: var(--text-3);
+}
+
 .input:focus {
   outline: none;
   border-color: var(--accent-bdr, var(--accent));
-  box-shadow: 0 0 0 3px rgba(232,255,71,0.12);
+  box-shadow: 0 0 0 3px rgba(232, 255, 71, 0.12);
 }
-.textarea { resize: vertical; }
+
+.input[aria-invalid="true"] {
+  border-color: #f87171;
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.field-error {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: #f87171;
+}
 
 .checkbox-row {
   display: flex;
@@ -440,6 +556,7 @@ label {
   margin: 4px 0 18px;
   cursor: pointer;
 }
+
 .checkbox {
   margin-top: 2px;
   accent-color: var(--accent);
@@ -462,7 +579,7 @@ label {
   justify-content: center;
   gap: 8px;
   background: var(--accent);
-  color: #0a0a0b;
+  color: var(--text-1);
   font-weight: 700;
   font-family: var(--mono);
   font-size: 12px;
@@ -473,15 +590,30 @@ label {
   cursor: pointer;
   transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
+
 .btn-submit:hover:not(:disabled) {
-  background: #d4eb3c;
+  background: var(--bg);
+  border: 1px solid #d4eb3c;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(232,255,71,0.25);
+  box-shadow: 0 8px 20px rgba(232, 255, 71, 0.25);
 }
-.btn-submit:active:not(:disabled) { transform: translateY(0); }
-.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-.btn-submit svg { transition: transform 0.2s ease; }
-.btn-submit:hover:not(:disabled) svg { transform: translateX(3px); }
+
+.btn-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-submit svg {
+  transition: transform 0.2s ease;
+}
+
+.btn-submit:hover:not(:disabled) svg {
+  transform: translateX(3px);
+}
 
 .form-note {
   font-family: var(--mono);
@@ -490,9 +622,14 @@ label {
   line-height: 1.7;
   margin-top: 16px;
 }
+
 .inline-link {
   color: var(--text-2);
   text-decoration: underline;
+}
+
+.inline-link:hover {
+  color: var(--accent);
 }
 
 /* Success panel */
@@ -505,6 +642,7 @@ label {
   padding: 20px 0;
   animation: fadeUp 0.5s ease both;
 }
+
 .success-icon {
   width: 48px;
   height: 48px;
@@ -517,27 +655,81 @@ label {
   margin-bottom: 16px;
   animation: popIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
+
 .success-check {
   stroke-dasharray: 30;
   stroke-dashoffset: 30;
   animation: drawCheck 0.5s ease 0.2s forwards;
 }
+
 .success-title {
   font-family: var(--serif);
   font-size: 22px;
   color: var(--text-1);
   margin-bottom: 8px;
 }
+
 .success-body {
   font-size: 14px;
   color: var(--text-2);
   font-weight: 300;
 }
 
+/* ============ QUICK FACTS ============ */
+.facts-strip {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.fact-block {
+  padding: 20px;
+  text-align: center;
+  border-left: 1px solid var(--border);
+}
+
+.fact-block:first-child {
+  border-left: none;
+}
+
+.fact-value {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--accent);
+}
+
+.fact-label {
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+@media (max-width: 560px) {
+  .facts-strip {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .fact-block {
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .fact-block:first-child {
+    border-top: none;
+  }
+}
+
 /* ============ HOW CAN WE HELP ============ */
 .help-section {
   margin-top: 72px;
 }
+
 .help-heading {
   font-family: var(--serif);
   font-size: clamp(24px, 3vw, 32px);
@@ -545,14 +737,19 @@ label {
   text-align: center;
   margin-bottom: 32px;
 }
+
 .help-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
+
 @media (max-width: 800px) {
-  .help-grid { grid-template-columns: 1fr; }
+  .help-grid {
+    grid-template-columns: 1fr;
+  }
 }
+
 .help-card {
   position: relative;
   overflow: hidden;
@@ -562,23 +759,27 @@ label {
   min-height: 240px;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
+
 .help-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 34px 30px rgba(3, 114, 39, 0.25);
   border-color: var(--border-hi);
 }
 
-/* Diagonal green/plain split */
+/* Diagonal accent — capped so it stays behind the icon only.
+   Title/body live outside this shape at every state, so contrast
+   never depends on where the text happens to fall. */
 .help-card-split {
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg, #1e6b3f 0%, #2f8f57 100%);
-  clip-path: polygon(0 0, 62% 0, 0 78%);
+  clip-path: polygon(0 0, 42% 0, 0 50%);
   transition: clip-path 0.4s ease;
   z-index: 0;
 }
+
 .help-card:hover .help-card-split {
-  clip-path: polygon(0 0, 72% 0, 0 90%);
+  clip-path: polygon(0 0, 50% 0, 0 60%);
 }
 
 .help-card-content {
@@ -589,6 +790,7 @@ label {
   flex-direction: column;
   height: 100%;
 }
+
 .help-icon {
   width: 40px;
   height: 40px;
@@ -596,37 +798,49 @@ label {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius);
-  background: rgba(255,255,255,0.14);
+  background: rgba(255, 255, 255, 0.14);
   color: #fff;
   margin-bottom: 18px;
   transition: transform 0.25s ease;
 }
-.help-card:hover .help-icon { transform: scale(1.08) rotate(-4deg); }
+
+.help-card:hover .help-icon {
+  transform: scale(1.08) rotate(-4deg);
+}
+
 .help-title {
   font-family: var(--serif);
-  font-size: 27px;
+  font-size: 20px;
+  color: var(--text-1);
   margin-bottom: 10px;
   line-height: 1.3;
 }
+
 .help-body {
   font-size: 13px;
   line-height: 1.65;
-  font-weight: 500;
+  font-weight: 400;
+  color: var(--text-3);
   flex: 1;
   margin-bottom: 18px;
 }
+
 .help-action {
   font-family: var(--mono);
   font-size: 12px;
-  color: var(--accent);
+  color: var(--accent-bdr);
   text-decoration: underline;
   width: fit-content;
   transition: color 0.2s ease;
 }
-.help-action:hover { color: var(--accent); }
+
+.help-action:hover {
+  color: var(--border-hi);
+}
+
 .help-action--btn {
   text-decoration: none;
-  color: var(--accent);
+  color: var(--accent-bdr);
   font-weight: 600;
 }
 
@@ -636,24 +850,33 @@ label {
   display: flex;
   flex-direction: column;
   gap: 64px;
+  background-color: var(--surface);
+  padding: 40px 20px;
+  border-radius: calc(var(--radius) + 8px);
 }
+
 .story-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 48px;
   align-items: center;
 }
+
 .story-row--reverse .story-image-wrap {
   order: 2;
 }
+
 .story-row--reverse .story-text {
   order: 1;
 }
+
 @media (max-width: 800px) {
+
   .story-row,
   .story-row--reverse {
     grid-template-columns: 1fr;
   }
+
   .story-row--reverse .story-image-wrap,
   .story-row--reverse .story-text {
     order: initial;
@@ -667,6 +890,7 @@ label {
   background: var(--surface-2, var(--surface));
   border: 1px solid var(--border);
 }
+
 .story-image {
   width: 100%;
   height: 100%;
@@ -674,7 +898,10 @@ label {
   display: block;
   transition: transform 0.5s ease;
 }
-.story-row:hover .story-image { transform: scale(1.04); }
+
+.story-row:hover .story-image {
+  transform: scale(1.04);
+}
 
 .story-eyebrow {
   display: block;
@@ -685,6 +912,7 @@ label {
   color: var(--accent);
   margin-bottom: 12px;
 }
+
 .story-title {
   font-family: var(--serif);
   font-size: clamp(21px, 2.6vw, 27px);
@@ -692,6 +920,7 @@ label {
   line-height: 1.3;
   margin-bottom: 14px;
 }
+
 .story-body {
   font-size: 14px;
   color: var(--text-3);
@@ -708,79 +937,147 @@ label {
   border-radius: calc(var(--radius) + 8px);
   background: var(--surface);
 }
+
 .cta-title {
   font-family: var(--serif);
   font-size: clamp(20px, 2.6vw, 26px);
   color: var(--text-1);
   margin-bottom: 8px;
 }
+
 .cta-sub {
   font-size: 13.5px;
   color: var(--text-3);
   font-weight: 300;
   margin-bottom: 26px;
 }
+
 .cta-actions {
   display: flex;
   justify-content: center;
   gap: 12px;
   flex-wrap: wrap;
 }
+
 .btn {
-  display: inline-flex; align-items: center; font-family: var(--mono);
-  font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 13px 26px; border-radius: var(--radius); border: 1px solid var(--border);
-  background: var(--bg); color: var(--text-2); text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 13px 26px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-2);
+  text-decoration: none;
   transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
-.btn:hover { color: var(--text-1); border-color: var(--border-hi); transform: translateY(-2px); }
-.btn--accent { background: var(--accent); border-color: var(--accent); color: #0a0a0b; font-weight: 700; }
-.btn--accent:hover { background: #d4eb3c; border-color: #d4eb3c; }
+
+.btn:hover {
+  color: var(--text-1);
+  border-color: var(--border-hi);
+  transform: translateY(-2px);
+}
+
+.btn--accent {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-1);
+  font-weight: 700;
+}
+
+.btn--accent:hover {
+  background: var(--bg);
+  border-color: var(--surface);
+}
 
 /* ============ ANIMATIONS ============ */
-
-/* Hero: entrance animation on load, no scroll trigger needed (above the fold) */
 .hero-anim {
   opacity: 0;
   animation: fadeUp 0.6s ease forwards;
 }
 
-/* Scroll-triggered reveals: default hidden, IntersectionObserver adds .is-visible */
 .reveal {
   opacity: 0;
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
-.reveal--up { transform: translateY(28px); }
-.reveal--left { transform: translateX(-40px); }
-.reveal--right { transform: translateX(40px); }
+
+.reveal--up {
+  transform: translateY(28px);
+}
+
+.reveal--left {
+  transform: translateX(-40px);
+}
+
+.reveal--right {
+  transform: translateX(40px);
+}
+
 .reveal.is-visible {
   opacity: 1;
   transform: translate(0, 0);
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes popIn {
-  0% { opacity: 0; transform: scale(0.5); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes drawCheck {
-  to { stroke-dashoffset: 0; }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-4px); }
-  40% { transform: translateX(4px); }
-  60% { transform: translateX(-3px); }
-  80% { transform: translateX(3px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-4px);
+  }
+
+  40% {
+    transform: translateX(4px);
+  }
+
+  60% {
+    transform: translateX(-3px);
+  }
+
+  80% {
+    transform: translateX(3px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .hero-anim,
   .reveal,
   .success-panel,

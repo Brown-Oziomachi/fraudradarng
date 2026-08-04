@@ -393,6 +393,23 @@ section {
   text-align: center;
   padding-top: 5rem;
   padding-bottom: 3.5rem;
+  background-color: var(--surface);
+  background-image:
+    linear-gradient(rgba(10, 10, 11, 0.55), rgba(10, 10, 11, 0.72)),
+    url('/meme.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  min-height: 60vh;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    background-size: contain;
+    min-height: 45vh;
+    padding-top: 3rem;
+    padding-bottom: 2.5rem;
+  }
 }
 
 .eyebrow {
@@ -400,7 +417,7 @@ section {
   font-size: 0.8rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-2);
+  color: white;
   margin-bottom: 1rem;
 }
 
@@ -410,10 +427,12 @@ section {
   line-height: 1.15;
   max-width: 28ch;
   margin: 0 auto 1.25rem;
+  color: white;
+
 }
 
 .hero-sub {
-  color: var(--text-2);
+  color: white;
   max-width: 56ch;
   margin: 0 auto 2rem;
   font-size: 1.05rem;
@@ -488,6 +507,10 @@ section {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  background-image:
+  linear-gradient(rgba(10, 10, 11, 0.55), rgba(10, 10, 11, 0.72)),
+  url('/USE.png');
+  background-size: cover;
 }
 
 .why-tag {
@@ -502,10 +525,12 @@ section {
   font-size: 1.15rem;
   line-height: 1.35;
   margin: 0;
+    color: white;
+
 }
 
 .why-card p {
-  color: var(--text-2);
+  color: white;
   font-size: 0.92rem;
   line-height: 1.6;
   flex: 1;
@@ -520,6 +545,8 @@ section {
 .closing-cta {
   text-align: center;
   border-top: 1px solid var(--border);
+  background-color: var(--surface);
+  margin-bottom: 20px;
 }
 
 .closing-cta h2 {
@@ -554,7 +581,7 @@ section {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   width: 100%;
-  max-width: 560px;
+  max-width: 960px;
   max-height: 90vh;
   overflow-y: auto;
   padding: 2rem 1.75rem;

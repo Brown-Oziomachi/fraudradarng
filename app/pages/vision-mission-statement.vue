@@ -78,15 +78,21 @@ const branches = [
 
 <style scoped>
 .page-shell {
-  min-height: 100vh;
+  max-height: 100vh;
   padding: 4rem 1.5rem 6rem;
   background: var(--bg);
   color: var(--text-1);
+  background-image: url('/USE.png');
+  background-repeat: no-repeat;
+  overflow: auto;
+  background-position: center;
 }
 
 .page-container {
   max-width: 1100px;
   margin: 0 auto;
+    background-color: var(--surface);
+    padding: 20px;
 }
 
 .page-title {
@@ -104,10 +110,13 @@ const branches = [
   background: var(--accent);
   opacity: 0.6;
   margin: 1.75rem 0;
+  
 }
 
 .statement-block {
   padding: 0.5rem 0;
+    background-color: var(--surface-2);
+    padding: 10px;
 }
 
 .block-heading {
@@ -116,6 +125,8 @@ const branches = [
   font-weight: 600;
   color: var(--text-1);
   margin-bottom: 1rem;
+    background-color: var(--surface);
+    padding: 5px;
 }
 
 .block-body {
@@ -125,6 +136,7 @@ const branches = [
   font-weight: 300;
   max-width: 760px;
   margin-bottom: 1rem;
+  
 }
 
 .highlight {

@@ -1,12 +1,20 @@
 <script setup lang="ts">
 useHead({title: 'Look-up-search'})
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import type { LookupResult } from '#shared/types/report'
 
 const query = ref('')
 const result = ref<LookupResult | null>(null)
 const loading = ref(false)
 const errorMessage = ref<string | null>(null)
+
+const hasEntered = ref(false)
+
+onMounted(() => {
+  setTimeout(() => {
+    hasEntered.value = true
+  }, 2000)
+})
 
 async function runLookup() {
   const trimmed = query.value.trim()
@@ -57,11 +65,11 @@ function formatDate(iso: string | null) {
 <template>
   <section
     class="lookup-section"
-    :style="{ backgroundImage: `url('/com.png')` }"
+    :style="{ backgroundImage: `url('/def.png')` }"
   >
-    <div class="lookup-overlay" aria-hidden="true" />
+   <div class="lookup-overlay" aria-hidden="true" />
 
-    <div class="lookup-inner">
+    <div class="lookup-inner" :class="{ 'card-enter': hasEntered }">
       <div class="glow-orb" aria-hidden="true" />
 
       <header class="lookup-header">
@@ -224,7 +232,17 @@ function formatDate(iso: string | null) {
     0 30px 70px rgba(0, 0, 0, 0.45),
     0 8px 24px color-mix(in srgb, var(--accent) 12%, transparent);
   overflow: hidden;
+  opacity: 0;
+  transform: translateX(-160%);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+  will-change: transform, opacity;
 }
+
+.lookup-inner.card-enter {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 @media (max-width: 560px) {
   .lookup-inner { padding: 2rem 1.5rem; }
 }
@@ -270,7 +288,7 @@ function formatDate(iso: string | null) {
   background: var(--accent-dim);
   border-radius: 999px;
   padding: 0.4rem 0.9rem 0.4rem 0.7rem;
-  color: var(--accent);
+  color: var(--text-1);
 }
 
 .badge-icon {
@@ -285,7 +303,7 @@ function formatDate(iso: string | null) {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--accent);
+  color: var(--text-2 );
 }
 
 .lookup-title {
@@ -372,7 +390,7 @@ function formatDate(iso: string | null) {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--accent-contrast, #08120a);
+  color: var(--accent-contrast);
   cursor: pointer;
   box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 35%, transparent);
   transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;

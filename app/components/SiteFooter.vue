@@ -36,7 +36,7 @@ const quickLinks = [
   { label: 'Contact', to: '/contact' },
   { label: 'Privacy Notice', to: '/privacy-notice' },
   { label: 'Terms & Conditions', to: '/terms' },
-  { label: 'Politics', to: '/politics' },
+  { label: 'Civic & Election Fraud', to: '/politics' },
   { label: 'Disclaimer', to: '/disclaimer' },
   { label: 'Help Center', to: '/help' },
   { label: 'Naira Recovery Pipeline', to: '/recovery' },
@@ -60,7 +60,7 @@ const emergencyContacts = [
         <div class="footer-brand-block">
           <div class="brand-row">
             <NuxtLink to="/" class="brand-logo-link">
-              <img src="/FRLOGO.png" alt="Fraud Radar NG" class="brand-logo" />
+              <img src="/logoooo.png" alt="Fraud Radar NG" class="brand-logo" />
             </NuxtLink>
             <span class="brand-wordmark">Fraud Radar NG</span>
           </div>
@@ -75,21 +75,18 @@ const emergencyContacts = [
           <h4 class="contact-heading">Emergency &amp; Reporting</h4>
           <div class="contact-list">
 
-             <a v-for="contact in emergencyContacts"
-              :key="contact.label"
-              :href="contact.href"
-              target="_blank"
-              rel="noopener"
-              class="contact-row"
-            >
+            <a v-for="contact in emergencyContacts" :key="contact.label" :href="contact.href" target="_blank"
+              rel="noopener" class="contact-row">
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1.1.4 2.1.8 3.1a2 2 0 0 1-.4 2.1L8.1 10.3a16 16 0 0 0 6 6l1.4-1.4a2 2 0 0 1 2.1-.4c1 .4 2 .7 3.1.8a2 2 0 0 1 1.7 2Z"/>
+                <path
+                  d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1.1.4 2.1.8 3.1a2 2 0 0 1-.4 2.1L8.1 10.3a16 16 0 0 0 6 6l1.4-1.4a2 2 0 0 1 2.1-.4c1 .4 2 .7 3.1.8a2 2 0 0 1 1.7 2Z" />
               </svg>
               {{ contact.label }}
             </a>
             <button type="button" class="contact-row contact-row--btn" @click="isSubscribeOpen = true">
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8">
-                <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7 10-7"/>
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="m2 6 10 7 10-7" />
               </svg>
               Get scam alerts by email
             </button>
@@ -116,19 +113,30 @@ const emergencyContacts = [
           <h4 class="col-heading">Follow</h4>
           <div class="social-row">
             <a href="#" class="social-link" aria-label="Fraud Radar NG on X">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-7-6.2 7H1.6l8.1-9.3L1 2h7l4.9 6.4L18.9 2Zm-1.2 18h1.9L7.4 4H5.4l12.3 16Z"/></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                <path
+                  d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-7-6.2 7H1.6l8.1-9.3L1 2h7l4.9 6.4L18.9 2Zm-1.2 18h1.9L7.4 4H5.4l12.3 16Z" />
+              </svg>
             </a>
             <a href="#" class="social-link" aria-label="Fraud Radar NG on Instagram">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="3" width="18" height="18" rx="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.2" cy="6.8" r="1" />
+              </svg>
             </a>
             <a href="#" class="social-link" aria-label="Fraud Radar NG on WhatsApp">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20Zm4.4-6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1s-.6.8-.8 1c-.1.1-.3.2-.5.1-.2-.1-1-.4-2-1.2-.7-.6-1.2-1.4-1.4-1.6-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.1 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 3.9 3.4.5.2 1 .4 1.3.5.5.2 1 .1 1.4.1.4-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3Z"/></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                <path
+                  d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20Zm4.4-6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1s-.6.8-.8 1c-.1.1-.3.2-.5.1-.2-.1-1-.4-2-1.2-.7-.6-1.2-1.4-1.4-1.6-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.1 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 3.9 3.4.5.2 1 .4 1.3.5.5.2 1 .1 1.4.1.4-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3Z" />
+              </svg>
             </a>
           </div>
 
           <div class="app-badge" aria-disabled="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-              <path d="M3.6 2.3 13.9 12 3.6 21.7c-.4-.2-.6-.6-.6-1.1V3.4c0-.5.2-.9.6-1.1Zm11.2 10.6 2.6-2.6 3.2 1.8c.8.5.8 1.5 0 2l-3.2 1.8-2.6-2.6Zm-.9-.9L4.5 2.5l9-5 3.4 1.9-9 5Zm0 1.8 9 5-3.4 1.9-9-5 3.4-1.9Z"/>
+              <path
+                d="M3.6 2.3 13.9 12 3.6 21.7c-.4-.2-.6-.6-.6-1.1V3.4c0-.5.2-.9.6-1.1Zm11.2 10.6 2.6-2.6 3.2 1.8c.8.5.8 1.5 0 2l-3.2 1.8-2.6-2.6Zm-.9-.9L4.5 2.5l9-5 3.4 1.9-9 5Zm0 1.8 9 5-3.4 1.9-9-5 3.4-1.9Z" />
             </svg>
             <div class="app-badge-text">
               <span class="app-badge-small">Coming soon to</span>
@@ -177,7 +185,7 @@ const emergencyContacts = [
         EFCC through their official channels.
       </p>
     </div>
-   <AboutFounderModal v-model="showFounderModal" :founder-name="founderName" :links="founderLinks" />
+    <AboutFounderModal v-model="showFounderModal" :founder-name="founderName" :links="founderLinks" />
     <SubscribeModal v-model="isSubscribeOpen" privacy-notice-url="/privacy-notice" />
   </footer>
   <FrngWordmark block />
@@ -204,15 +212,27 @@ const emergencyContacts = [
   align-items: start;
   margin-bottom: 56px;
 }
+
 @media (max-width: 900px) {
-  .footer-top { grid-template-columns: 1fr 1fr; }
-  .footer-vdivider { display: none; }
-}
-@media (max-width: 560px) {
-  .footer-top { grid-template-columns: 1fr; }
+  .footer-top {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footer-vdivider {
+    display: none;
+  }
 }
 
-.footer-brand-block { display: flex; flex-direction: column; }
+@media (max-width: 560px) {
+  .footer-top {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer-brand-block {
+  display: flex;
+  flex-direction: column;
+}
 
 .brand-row {
   display: flex;
@@ -220,10 +240,15 @@ const emergencyContacts = [
   gap: 10px;
   margin-bottom: 10px;
 }
-.brand-logo-link { display: flex; align-items: center; }
+
+.brand-logo-link {
+  display: flex;
+  align-items: center;
+}
+
 .brand-logo {
-  width: 84px;
-  height: 84px;
+  width: 94px;
+  height: 94px;
   object-fit: cover;
   border-radius: 50%;
   box-shadow: 0 4px 12px rgba(9, 229, 90, 0.807);
@@ -257,7 +282,11 @@ const emergencyContacts = [
   margin-bottom: 12px;
 }
 
-.contact-list { display: flex; flex-direction: column; gap: 10px; }
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
 .contact-row {
   display: flex;
@@ -273,8 +302,15 @@ const emergencyContacts = [
   text-align: left;
   font-family: inherit;
 }
-.contact-row:hover { color: var(--accent); }
-.contact-row svg { flex-shrink: 0; color: var(--text-3); }
+
+.contact-row:hover {
+  color: var(--accent);
+}
+
+.contact-row svg {
+  flex-shrink: 0;
+  color: var(--text-3);
+}
 
 .footer-vdivider {
   width: 1px;
@@ -282,8 +318,15 @@ const emergencyContacts = [
   background: var(--border);
 }
 
-.footer-col { display: flex; flex-direction: column; gap: 12px; }
-.footer-col--social { align-items: flex-start; }
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-col--social {
+  align-items: flex-start;
+}
 
 .col-heading {
   font-size: 17px;
@@ -298,29 +341,66 @@ const emergencyContacts = [
   text-decoration: none;
   transition: color 0.15s;
 }
-.footer-link:hover { color: var(--accent); }
 
-.social-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.footer-link:hover {
+  color: var(--accent);
+}
+
+.social-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
 .social-link {
-  display: flex; align-items: center; justify-content: center;
-  width: 32px; height: 32px; border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
   border: 1px solid var(--border);
   color: var(--text-3);
   transition: border-color 0.15s, color 0.15s;
 }
-.social-link:hover { border-color: var(--border-hi); color: var(--text-1); }
+
+.social-link:hover {
+  border-color: var(--border-hi);
+  color: var(--text-1);
+}
 
 .app-badge {
-  display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px;
-  border: 1px solid var(--border); border-radius: 6px;
-  color: var(--text-3); opacity: 0.85;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-3);
+  opacity: 0.85;
 }
-.app-badge-text { display: flex; flex-direction: column; line-height: 1.2; }
-.app-badge-small { font-size: 9px; letter-spacing: 0.02em; }
-.app-badge-big { font-size: 12px; font-weight: 600; color: var(--text-2); }
+
+.app-badge-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.app-badge-small {
+  font-size: 9px;
+  letter-spacing: 0.02em;
+}
+
+.app-badge-big {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+}
 
 /* Quick links row */
-.quick-links-block { margin-bottom: 20px; }
+.quick-links-block {
+  margin-bottom: 20px;
+}
 
 .quick-links-grid {
   display: grid;
@@ -351,7 +431,10 @@ const emergencyContacts = [
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.quick-link:hover { color: var(--accent); }
+
+.quick-link:hover {
+  color: var(--accent);
+}
 
 /* Coverage */
 .coverage-text {
@@ -370,11 +453,13 @@ const emergencyContacts = [
   gap: 16px;
   margin-bottom: 28px;
 }
+
 .dot-divider-line {
   flex: 1;
   height: 1px;
   background: var(--accent);
 }
+
 .dot-divider-dot {
   width: 9px;
   height: 9px;
@@ -392,9 +477,9 @@ const emergencyContacts = [
 }
 
 .highlight {
-      font-size: 13px;
-      color: var(--text-2);
-      margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--text-2);
+  margin-bottom: 20px;
 }
 
 .disclaimer {
