@@ -282,6 +282,9 @@ const siteLinks = [
         <div class="article-image-wrap">
           <img :src="guide.image" :alt="guide.title" class="article-image" />
         </div>
+        <div>
+          <p class="article-sub">FRAUD RADAR NIGERIA</p>
+        </div>
 
         <div class="article-body md-content" v-html="renderedContent" />
 
@@ -445,13 +448,21 @@ const siteLinks = [
   overflow: hidden;
   background: var(--surface);
   padding: 10px;
-  margin-bottom: 10px;
 }
 .article-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+.article-sub {
+  text-align: center;
+  background-color: var(--surface);
+  max-width: 300px;
+  margin: 0 auto;
+  font-family: 'Times New Roman', Times, serif;
+  border: 3px solid #2f552f;
+  border-top: 0;
 }
 
 .article-body {

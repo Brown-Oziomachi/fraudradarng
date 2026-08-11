@@ -280,7 +280,7 @@ const howItWorks = [
 
 .page-title {
     font-family: var(--serif);
-    font-size: clamp(78px, 4vw, 26px);
+    font-size: clamp(68px, 4vw, 26px);
     color: var(--text-1);
     margin-bottom: 12px;
 }

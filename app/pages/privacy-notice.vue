@@ -283,6 +283,7 @@ useHead({
   margin: 0 auto;
   background-color: var(--surface);
   padding: 25px;
+  
 }
 
 .eyebrow {
@@ -309,6 +310,14 @@ useHead({
 .page-contain {
   background-color: var(--surface-2);
   padding: 20px;
+    /* background-image: url('/USE.png'); */
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  z-index: 0;
+  animation: heroKenBurns 22s ease-in-out infinite alternate;
+  transform-origin: center center;
+  will-change: transform;
 }
 
 .last-updated {

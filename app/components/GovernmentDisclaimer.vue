@@ -170,6 +170,8 @@ withDefaults(defineProps<{ variant?: 'banner' | 'full' }>(), {
   font-family: var(--serif, serif);
   font-size: 22px;
   color: var(--text-1, #111);
+  background-color: var(--surface);
+  padding: 10px;
 }
 
 .disclaimer-card {

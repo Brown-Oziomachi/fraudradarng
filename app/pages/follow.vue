@@ -17,7 +17,7 @@ useHead({
   <div class="follow-page">
     <FollowFrng
       illustration="/follow.png"
-      hashtag="#StopScamsNG"
+      hashtag="#StopScamsNG | fraudradar.ng | frng.ng"
       :handles="{
         instagram: '@fraudradarng',
         twitter: '@fraudradarng',

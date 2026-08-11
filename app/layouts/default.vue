@@ -508,7 +508,7 @@ onBeforeUnmount(() => {
           <kbd class="search-trigger-kbd">⌘K</kbd>
         </button>
 
-        <button type="button" class="theme-toggle"
+        <!-- <button type="button" class="theme-toggle"
           :aria-label="theme === 'light' ? 'Switch to NG mode' : 'Switch to light mode'" @click="toggleTheme"
           title="switch Mode">
           <svg v-if="theme === 'light'" viewBox="0 0 24 24" width="15" height="15" fill="none">
@@ -521,7 +521,7 @@ onBeforeUnmount(() => {
               d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
-        </button>
+        </button> -->
         <WatchlistBell title="WatchList" />
         <NuxtLink to="/follow" type="button" class="nav-link" @click="isSubscribeOpen = true" title="Subscribe to FRNG">
           Subscribe
@@ -606,7 +606,7 @@ onBeforeUnmount(() => {
             <span class="mobile-action-icon">✉</span>
             <span>Subscribe for alerts</span>
           </NuxtLink>
-
+<!-- 
           <button type="button" class="mobile-action-row" @click="toggleTheme">
             <span class="mobile-action-icon">
               <svg v-if="theme === 'light'" viewBox="0 0 24 24" width="15" height="15" fill="none">
@@ -621,7 +621,7 @@ onBeforeUnmount(() => {
               </svg>
             </span>
             <span>{{ theme === 'light' ? 'Switch to NG mode' : 'Switch to light mode' }}</span>
-          </button>
+          </button> -->
 
           <NuxtLink to="/report/new" class="mobile-cta" @click="closeMobileMenu">
             File a Report

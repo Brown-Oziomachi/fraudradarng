@@ -1,7 +1,19 @@
 export default defineNuxtConfig({
+  ssr: process.env.NODE_ENV === 'production',
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
+  devtools: { enabled: false }, 
   css: ['~/assets/css/main.css'],
+
+  vite: {
+    optimizeDeps: {
+      include: [
+        'firebase/app',
+        'firebase/auth',
+        'firebase/firestore'
+      ]
+    }
+  },
+
   runtimeConfig: {
     telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
     telegramWebhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET,

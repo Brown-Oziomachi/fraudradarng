@@ -132,7 +132,7 @@ watch(
 
                 <p v-if="error" class="error-text">{{ error }}</p>
 
-                <p class="consent-text">
+                <h6 class="consent-text">
                   By submitting this form, you agree to receive fraud alert
                   communications at the email address you provided.
                   <template v-if="privacyNoticeUrl">
@@ -141,7 +141,8 @@ watch(
                       the Privacy Notice
                     </NuxtLink>.
                   </template>
-                </p>
+                  <p class="consent-sub">#StopScamsNG | fraudradar.ng | frng.ng </p>
+                </h6>
               </form>
             </template>
 
@@ -319,6 +320,13 @@ watch(
   line-height: 1.5;
   color: var(--text-muted, #666666);
   margin: 0.5rem 0 0;
+}
+
+.consent-sub {
+  margin-top: 30px;
+  border: 2px solid #1e9e5a;
+  color: white;
+  background-color: #1e9e5a;
 }
 
 .privacy-link {

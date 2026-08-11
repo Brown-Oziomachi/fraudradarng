@@ -1,17 +1,10 @@
 <!-- app/components/IntroSplash.vue -->
 <script setup lang="ts">
 import { useIntroSplash } from '~/composables/useIntroSplash'
-import type { ComponentPublicInstance } from 'vue'
 const SESSION_KEY = 'frng_splash_seen_v1'
-const AUTO_DISMISS_MS = 4200
 
 const introActive = useIntroSplash()
 const visible = ref(true)
-const imageLoaded = ref(false)
-const imageFailed = ref(false)
-
-let dismissTimer: ReturnType<typeof setTimeout> | null = null
-let safetyTimer: ReturnType<typeof setTimeout> | null = null
 
 function lockScroll() {
     document.documentElement.style.overflow = 'hidden'
@@ -20,10 +13,9 @@ function unlockScroll() {
     document.documentElement.style.overflow = ''
 }
 
-function dismiss() {
+function proceed() {
     if (!visible.value) return
     visible.value = false
-    if (dismissTimer) clearTimeout(dismissTimer)
     try {
         sessionStorage.setItem(SESSION_KEY, '1')
     } catch {
@@ -35,41 +27,7 @@ function onAfterLeave() {
     unlockScroll()
 }
 
-function handleKeydown(e: KeyboardEvent) {
-    if (!visible.value) return
-    if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        dismiss()
-    }
-}
-
-function handleImageLoad() {
-    imageLoaded.value = true
-}
-function handleImageError() {
-    imageFailed.value = true
-}
-
-function onImgRef(el: Element | ComponentPublicInstance | null, _refs: Record<string, any>) {
-    if (!el) return
-    const imgEl = el as HTMLImageElement
-    if (imgEl.complete && imgEl.naturalWidth > 0) {
-        imageLoaded.value = true
-    } else if (imgEl.complete && imgEl.naturalWidth === 0) {
-        imageFailed.value = true
-    }
-}
-
 onMounted(() => {
-    lockScroll()
-    window.addEventListener('keydown', handleKeydown)
-
-    safetyTimer = setTimeout(() => {
-        if (!imageLoaded.value && !imageFailed.value) {
-            imageLoaded.value = true
-        }
-    }, 800)
-
     let alreadySeen = false
     try {
         alreadySeen = !!sessionStorage.getItem(SESSION_KEY)
@@ -77,22 +35,15 @@ onMounted(() => {
     }
 
     if (alreadySeen) {
-        dismiss()
+        visible.value = false
+        introActive.value = false
         return
     }
 
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduceMotion) {
-        dismiss()
-    } else {
-        dismissTimer = setTimeout(dismiss, AUTO_DISMISS_MS)
-    }
+    lockScroll()
 })
 
 onUnmounted(() => {
-    window.removeEventListener('keydown', handleKeydown)
-    if (dismissTimer) clearTimeout(dismissTimer)
-    if (safetyTimer) clearTimeout(safetyTimer)
     unlockScroll()
 })
 </script>
@@ -100,8 +51,8 @@ onUnmounted(() => {
 <template>
     <Teleport to="body">
         <Transition name="splash-fade" @after-leave="onAfterLeave">
-            <div v-if="visible" class="splash-overlay" role="dialog" aria-modal="true" aria-label="Fraud Radar NG intro"
-                @click="dismiss">
+            <div v-if="visible" class="splash-overlay" role="dialog" aria-modal="true"
+                aria-label="Fraud Radar NG intro">
                 <div class="splash-radar" aria-hidden="true">
                     <span class="splash-ring splash-ring--1" />
                     <span class="splash-ring splash-ring--2" />
@@ -109,25 +60,28 @@ onUnmounted(() => {
                     <span class="splash-sweep" />
                 </div>
 
-                <button type="button" class="splash-skip" @click.stop="dismiss">
-                    Skip <span aria-hidden="true">→</span>
-                </button>
-
                 <div class="splash-content">
-                    <img :ref="onImgRef" v-show="!imageLoaded" src="/guard-shield.png"
-                        alt="A man holds up a radar shield, warning viewers to verify before trusting"
-                        class="splash-image" :class="{ 'is-loaded': !imageLoaded }" @load="handleImageLoad"
-                        @error="handleImageError" />
-                    <div v-if="imageLoaded && imageFailed" class="splash-placeholder" />
-                    <p v-if="!imageFailed" class="splash-fallback">Fraud Radar NG</p>
+                    <img src="/LOGOOO.png" alt="Fraud Radar NG" class="splash-logo" />
 
                     <p class="splash-eyebrow"><span class="splash-dot" /> Fraud Radar NG</p>
-                    <h1 class="splash-title">Report. Check. Protect.</h1>
-                    <p class="splash-sub">Tap anywhere to continue</p>
-                </div>
 
-                <div class="splash-progress" aria-hidden="true">
-                    <div class="splash-progress-bar" />
+                    <p class="splash-title">Report. Check. Protect.</p>
+
+                    <button type="button" class="splash-cta" @click="proceed">
+                        <svg class="splash-cta-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M12 2L20 5.5V11C20 16.5 16.5 20.7 12 22C7.5 20.7 4 16.5 4 11V5.5L12 2Z"
+                                fill="currentColor" />
+                        </svg>
+                        Proceed
+                    </button>
+
+                    <p class="splash-legal">
+                        By tapping Proceed you agree to have read our
+                        <NuxtLink to="/privacy-notice" class="splash-legal-link" target="_blank">Privacy Policy
+                        </NuxtLink>
+                        and
+                        <NuxtLink to="/terms" class="splash-legal-link" target="_blank">Terms of Service</NuxtLink>.
+                    </p>
                 </div>
             </div>
         </Transition>
@@ -144,8 +98,7 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: radial-gradient(circle at 50% 40%, #10241a 0%, #060807 70%);
-    cursor: pointer;
+    background: radial-gradient(circle at 50% 42%, #123322 0%, #081b12 45%, #05090a 85%);
 }
 
 .splash-radar {
@@ -156,7 +109,7 @@ onUnmounted(() => {
     height: min(90vw, 720px);
     transform: translate(-50%, -50%);
     pointer-events: none;
-    opacity: 0.35;
+    opacity: 0.3;
 }
 
 .splash-ring {
@@ -199,45 +152,26 @@ onUnmounted(() => {
     align-items: center;
     text-align: center;
     padding: 24px;
-    max-width: 520px;
+    max-width: 480px;
 }
 
-.splash-image {
-    width: min(78vw, 400px);
+.splash-logo {
+    width: min(70vw, 260px);
     height: auto;
     object-fit: contain;
-    filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.55));
-    opacity: 0;
-    transform: scale(0.94) translateY(10px);
-    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-
-.splash-image.is-loaded {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-}
-
-.splash-placeholder {
-    width: min(78vw, 400px);
-    aspect-ratio: 3 / 4;
-}
-
-.splash-fallback {
-    font-family: var(--serif, serif);
-    font-size: 22px;
-    color: rgba(255, 255, 255, 0.7);
+    filter: drop-shadow(0 0 22px color-mix(in srgb, var(--accent, #4ade80) 45%, transparent));
 }
 
 .splash-eyebrow {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-top: 24px;
+    margin-top: 14px;
     font-family: var(--mono, monospace);
     font-size: 11px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--accent, #4ade80);
+    color: rgba(255, 255, 255, 0.55);
 }
 
 .splash-dot {
@@ -248,69 +182,62 @@ onUnmounted(() => {
 }
 
 .splash-title {
-    margin-top: 14px;
+    margin-top: 22px;
     font-family: var(--serif, serif);
-    font-size: clamp(28px, 5vw, 44px);
-    line-height: 1.15;
+    font-size: clamp(18px, 3.4vw, 22px);
     color: #fff;
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
 
-.splash-sub {
-    margin-top: 14px;
-    font-family: var(--mono, monospace);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.splash-skip {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    z-index: 2;
+.splash-cta {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    color: #fff;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 28px;
+    padding: 15px 32px;
+    border: none;
+    border-radius: 999px;
+    background: var(--accent, #4ade80);
+    color: #06210f;
+    font-family: var(--mono, monospace);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: 0 8px 28px color-mix(in srgb, var(--accent, #4ade80) 45%, transparent);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.splash-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 34px color-mix(in srgb, var(--accent, #4ade80) 60%, transparent);
+}
+
+.splash-cta-icon {
+    width: 16px;
+    height: 16px;
+    color: #06210f;
+}
+
+.splash-legal {
+    margin-top: 16px;
+    max-width: 320px;
     font-family: var(--mono, monospace);
     font-size: 11px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 9px 16px;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: border-color 0.15s ease, background 0.15s ease;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    color: rgba(255, 255, 255, 0.45);
 }
 
-.splash-skip:hover {
-    border-color: var(--accent, #4ade80);
-    background: rgba(255, 255, 255, 0.14);
+.splash-legal-link {
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }
 
-.splash-progress {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.splash-progress-bar {
-    height: 100%;
-    width: 0%;
-    background: var(--accent, #4ade80);
-    animation: splash-progress 4.2s linear forwards;
-}
-
-@keyframes splash-progress {
-    to {
-        width: 100%;
-    }
+.splash-legal-link:hover {
+    color: var(--accent, #4ade80);
 }
 
 .splash-fade-enter-active {
@@ -327,12 +254,8 @@ onUnmounted(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-    .splash-sweep,
-    .splash-progress-bar,
-    .splash-image {
+    .splash-sweep {
         animation: none !important;
-        transition: none !important;
     }
 }
 </style>

@@ -736,20 +736,20 @@ onBeforeUnmount(() => {
 .section-tag {
   display: inline-block;
   font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+  text-transform: uppercase; color: white; margin-bottom: 12px;
 }
 .section-head h2 {
   font-family: var(--serif);
   font-size: clamp(24px, 3.4vw, 34px);
   line-height: 1.25;
   margin-bottom: 12px;
-    color: var(--text-1);
+    color: white;
 
 }
 .section-sub {
   font-size: 14.5px;
   line-height: 1.7;
-  color: var(--text-2);
+  color: white;
   font-weight: 300;
 }
 
@@ -910,7 +910,7 @@ onBeforeUnmount(() => {
   color: var(--accent);
   margin-bottom: 6px;
 }
-.trick-lesson p { font-size: 13px; line-height: 1.65; color: var(--text-2); font-weight: 300; }
+.trick-lesson p { font-size: 13px; line-height: 1.65; color: white; font-weight: 300; }
 
 /* ============ REGISTRY ============ */
 .registry-section { padding: 72px 0; border-top: 1px solid var(--border); background: var(--surface);   background-image: url('/USE.png');

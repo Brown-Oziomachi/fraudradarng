@@ -314,7 +314,7 @@ export default { data: () => ({ icons }) }
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;

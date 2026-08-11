@@ -379,7 +379,7 @@ onBeforeUnmount(() => {
   font-size: 15px;
   color: rgba(230,230,230,0.92);
   line-height: 1.75;
-  font-weight: 300;
+  font-weight: 500;
   align-items: center;
   justify-content: center;
   text-align: center;

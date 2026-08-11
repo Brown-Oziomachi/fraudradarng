@@ -282,7 +282,7 @@ onMounted(() => {
   font-size: clamp(48px, 9vw, 108px);
   line-height: 0.98;
   letter-spacing: -0.02em;
-  color: var(--accent);
+  color: var(--text-1);
   margin-bottom: 28px;
 }
 

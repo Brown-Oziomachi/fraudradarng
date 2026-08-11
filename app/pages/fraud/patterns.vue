@@ -405,7 +405,7 @@ const regulators = [
 
 /* ============ STATS STRIP ============ */
 .stats-strip { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--border);  background-color: var(--surface);
-  margin-top: 20px; margin: 10px;}
+  margin-top: 20px; margin: 10px; }
 @media (max-width: 900px) {
    .stats-strip { grid-template-columns: repeat(2, 1fr); 
     background-color: var(--surface);

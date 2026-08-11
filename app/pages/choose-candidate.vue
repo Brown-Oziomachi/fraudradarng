@@ -235,26 +235,49 @@ onMounted(() => {
 
 /* HERO */
 .page-hero {
+  position: relative;
   max-width: 860px;
   margin: 0 auto;
-  padding: 72px 24px 40px;
+  margin-bottom: 5px;
+  padding: 72px 54px 40px;
   text-align: center;
-  background-color: var(--surface);
+  overflow: hidden; /* Ensures the blur doesn't bleed outside the edges */
+  color: #fff; 
 }
-.page-hero .eyebrow { justify-content: center; }
+
+.page-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/adt.png');
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.4); 
+  background-blend-mode: darken; 
+  z-index: 1;
+}
+
+.page-hero > * {
+  position: relative;
+  z-index: 2;
+  color: white;
+}
+
+.page-hero .eyebrow { justify-content: center; color: white; }
 
 .page-title {
   font-family: var(--serif);
   font-size: clamp(30px, 4.5vw, 46px);
   font-weight: 700;
-  color: var(--text-1);
+  color: white;
   line-height: 1.25;
   margin-bottom: 20px;
 }
 
 .page-subtitle {
   font-size: 15.5px;
-  color: var(--text-3);
+  color: white-smoke;
   line-height: 1.75;
   font-weight: 300;
   max-width: 620px;

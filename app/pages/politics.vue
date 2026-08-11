@@ -57,7 +57,6 @@ const tactics = [
 // Extra supporting images for this page. Replace the src values with your
 // actual filenames from /public — each needs only a path and an alt text.
 const galleryImages = [
-  { src: '/vote2.png', alt: 'Voters queueing at a polling unit in Nigeria' },
   { src: '/vote1.png', alt: 'Cash changing hands near a polling location' },
 ]
 </script>
@@ -245,7 +244,7 @@ const galleryImages = [
   font-size: 10.5px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: white;
   margin-bottom: 16px;
 }
 
@@ -260,14 +259,14 @@ const galleryImages = [
   font-family: var(--serif);
   font-size: clamp(38px, 5vw, 58px);
   font-weight: 700;
-  color: var(--text-1);
+  color: white;
   line-height: 1.08;
   margin-bottom: 16px;
 }
 
 .pol-lede {
   font-size: 15px;
-  color: var(--text-2);
+  color: white;
   line-height: 1.75;
   font-weight: 300;
   max-width: 480px;
@@ -365,7 +364,6 @@ const galleryImages = [
 .pol-gallery {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
   margin-bottom: 36px;
 }
 

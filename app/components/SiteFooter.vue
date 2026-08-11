@@ -26,7 +26,7 @@ const reportsLinks = [
   { label: 'Safety guides', to: '/guides' },
   { label: 'Flag a reports on FRNG', to: '/flag/report' },
   { label: 'Most flagged Accounts', to: '/most-flagged' },
-  { label: 'Check Before You Pay', to: '/lookupsearch' },
+  { label: 'Threat Registry', to: '/lookupsearch' },
   { label: 'BlackList Vault', to: '/blacklistvault' },
   { label: 'Government Escalation Desk', to: '/fraud/patterns' },
 ]
@@ -96,7 +96,7 @@ const emergencyContacts = [
         <div class="footer-vdivider" />
 
         <div class="footer-col">
-          <h4 class="col-heading">About Us</h4>
+          <h4 class="col-heading">Navigations</h4>
           <NuxtLink v-for="link in aboutLinks" :key="link.to" :to="link.to" class="footer-link">
             {{ link.label }}
           </NuxtLink>
@@ -104,7 +104,10 @@ const emergencyContacts = [
 
         <div class="footer-col">
           <h4 class="col-heading">Reports</h4>
-          <NuxtLink v-for="link in reportsLinks" :key="link.to" :to="link.to" class="footer-link">
+          <NuxtLink v-for="link in reportsLinks" 
+          :key="link.to" 
+          :to="link.to" 
+          class="footer-link">
             {{ link.label }}
           </NuxtLink>
         </div>
@@ -171,7 +174,7 @@ const emergencyContacts = [
 
       <!-- Centered copyright -->
       <p class="copyright">
-        Copyright © {{ currentYear }} Fraud Radar NG. Built by <a href="#" class="highlight"
+        Copyright © {{ currentYear }} Fraud Radar Nigeria Limited. Built by <a href="#" class="highlight"
           @click.prevent="showFounderModal = true"> {{ founderName }}
         </a>.
         &nbsp;|&nbsp; All rights reserved.
@@ -331,7 +334,7 @@ const emergencyContacts = [
 .col-heading {
   font-size: 17px;
   font-weight: 700;
-  color: var(--text-1);
+  color: var(--text-3);
   margin-bottom: 4px;
 }
 
@@ -404,7 +407,7 @@ const emergencyContacts = [
 
 .quick-links-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px 24px;
   margin-top: 16px;
 }
@@ -438,7 +441,7 @@ const emergencyContacts = [
 
 /* Coverage */
 .coverage-text {
-  font-size: 12.5px;
+  font-size: 10.5px;
   color: var(--text-3);
   line-height: 1.6;
   font-weight: 300;

@@ -397,7 +397,37 @@ const hasResults = computed(() => resultCount.value > 0)
   overflow: hidden;
   padding: 3.5rem 1.25rem 3rem;
   background: var(--surface);
+  color: white;
+}
+
+/* .page-hero {
+  position: relative;
+  max-width: 860px;
+  margin: 0 auto;
+  margin-bottom: 5px;
+  padding: 72px 54px 40px;
+  text-align: center;
+  overflow: hidden; 
+  color: #fff; 
+} */
+
+.v-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   background-image: url('/USE.png');
+  background-size: cover;
+  background-position: center;
+  filter: blur(3px); /* Adjust the blur intensity here */
+  background-color: rgba(0, 0, 0, 0.4); /* Adjust the black tint opacity here */
+  background-blend-mode: darken; /* Blends the black color with the image */
+  z-index: 1;
+}
+
+/* Ensures your actual content stays on top of the blurred background */
+.v-hero > * {
+  position: relative;
+  z-index: 2;
 }
 
 .v-hero-grid {
@@ -440,7 +470,7 @@ const hasResults = computed(() => resultCount.value > 0)
 .v-divider {
   width: 1px;
   height: 16px;
-  background: var(--border);
+  background: white;
 }
 
 .v-kicker {
@@ -448,7 +478,7 @@ const hasResults = computed(() => resultCount.value > 0)
   font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-3);
+  color: white;
 }
 
 .v-title {
@@ -456,14 +486,14 @@ const hasResults = computed(() => resultCount.value > 0)
   font-weight: 400;
   font-size: clamp(2rem, 4.5vw, 3rem);
   letter-spacing: -0.01em;
-  color: var(--text-1);
+  color: white;
 }
 
 .v-sub {
   max-width: 40rem;
   font-size: 0.9375rem;
   line-height: 1.6;
-  color: var(--text-2);
+  color: whitesmoke;
 }
 
 .v-count {
@@ -471,7 +501,7 @@ const hasResults = computed(() => resultCount.value > 0)
   margin-left: 0.5rem;
   font-family: var(--mono);
   font-size: 0.8125rem;
-  color: var(--accent);
+  color: var(--surface-2);
 }
 
 /* ---------- Search / filters ---------- */

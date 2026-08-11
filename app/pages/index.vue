@@ -97,16 +97,6 @@ const stats = [
   { target: 24, label: 'Hour monitoring', suffix: '/7' }
 ]
 
-const toastReports = computed(() => {
-  return validReports.value
-    .filter(r => r?.id) 
-    .slice(0, 4)
-    .map(r => ({
-      id: r.id,
-      label: r?.companyName || r?.websiteUrl || r?.title || r?.category || 'New report filed'
-    }))
-})
-
 function animateCount(el: Element, target: number) {
   const duration = 1300
   const start = performance.now()
@@ -342,7 +332,11 @@ onUnmounted(() => {
         <h1 class="hero-title">
           <span class="hero-title-line hero-anim hero-anim--1">FRNG.
           </span>
-          <span class="hero-title-line hero-title-line--accent hero-anim hero-anim--2">Report. Check. Protect.</span>
+          <span class="hero-title-line hero-title-line--accent hero-anim hero-anim--2"> 
+            <span class="report">Report.</span>
+            <span class="check">Check.</span>
+            <span class="protect">Protect.</span>
+          </span>
         </h1>
           <svg class="hero-radar" viewBox="0 0 200 200" aria-hidden="true">
             <circle cx="100" cy="100" r="70" class="radar-ring" />
@@ -364,10 +358,10 @@ onUnmounted(() => {
         </p>
 
         <div class="hero-actions hero-anim hero-anim--4">
-          <NuxtLink to="/report/new" class="btn btn--pill btn--accent">
+          <NuxtLink to="/report/new" class="btn btn--pill btn--accent btn--ghosts">
             File a Report
           </NuxtLink>
-          <NuxtLink to="/lookupsearch" class="btn btn--pill btn--outline">
+          <NuxtLink to="/lookupsearch" class="btn btn--pill btn--outline btn--ghost">
             Search Registry
           </NuxtLink>
           <button type="button" class="btn btn--pill btn--ghost" @click="openScamModal">
@@ -524,7 +518,7 @@ onUnmounted(() => {
           File a report now
         </NuxtLink>
       </div>
-      <div><img src="/logoooo.png" alt="Fraud Radar NG" class="about-art" /></div>
+      <div><img src="/repnow.png" alt="Fraud Radar NG" class="about-art" /></div>
     </div>
   </section>
 
@@ -687,17 +681,26 @@ onUnmounted(() => {
   </Teleport>
 
   <!-- ============ LIVE-SIGNAL TOAST ============ -->
- <Teleport to="body">
-    <div class="toast-stack">
-      <div v-for="report in toastReports" :key="report.id" v-show="showToast" class="toast">
-        <span class="toast-dot" />
-        <div class="toast-text">
-          <div class="toast-title">New report just filed</div>
-          <div class="toast-body">{{ report.label }}</div>
-        </div>
-        <NuxtLink :to="`/reports/${report.id}`" class="toast-link">View</NuxtLink>
-        <button type="button" class="toast-close" @click="dismissToast" aria-label="Dismiss">×</button>
+  <Teleport to="body">
+    <div v-if="showToast" class="toast">
+      <span class="toast-dot" />
+      <div class="toast-text">
+        <div class="toast-title">New report just filed</div>
+        <div class="toast-body">{{ tickerItems[0] }}</div>
       </div>
+      <NuxtLink :to="`/reports/${validReports[0]?.id}`" class="toast-link">View</NuxtLink>
+      <button type="button" class="toast-close" @click="dismissToast" aria-label="Dismiss">×</button>
+    </div>
+  </Teleport>
+    <Teleport to="body">
+    <div v-if="showToast" class="toast">
+      <span class="toast-dot" />
+      <div class="toast-text">
+        <div class="toast-title">New report just filed</div>
+        <div class="toast-body">{{ tickerItems[1] }}</div>
+      </div>
+      <NuxtLink :to="`/reports/${validReports[1]?.id}`" class="toast-link">View</NuxtLink>
+      <button type="button" class="toast-close" @click="dismissToast" aria-label="Dismiss">×</button>
     </div>
   </Teleport>
 </template>
@@ -747,7 +750,7 @@ onUnmounted(() => {
 .hero {
   position: relative;
   overflow: hidden;
-  min-height: 640px;
+  min-height: 840px;
   display: flex;
   align-items: center;
   border-radius: 0 0 48px 48px;
@@ -763,23 +766,19 @@ onUnmounted(() => {
   background-position: center center;
   background-size: cover;
   z-index: 0;
-  filter: brightness(0.5) saturate(0.8);
-  animation: heroKenBurns 30s ease-in-out infinite;
+  filter: brightness(0.8) saturate(0.8);
+  animation: heroKenBurns 22s ease-in-out infinite alternate;
   transform-origin: center center;
   will-change: transform;
 }
 
 @keyframes heroKenBurns {
   0% {
-    transform: scale(1) translate(0%, 0%);
-  }
-
-  50% {
-    transform: scale(1.15) translate(-2%, -1.5%);
+    transform: scale(1);
   }
 
   100% {
-    transform: scale(1) translate(0%, 0%);
+    transform: scale(1.80);
   }
 }
 
@@ -789,24 +788,16 @@ onUnmounted(() => {
   }
 }
 
-.toast-stack {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  z-index: 9999;
-}
+
 
 .hero-scanline {
   position: absolute;
   inset: 0;
   z-index: 1;
   background: linear-gradient(to bottom,
-      transparent 0%,
-      color-mix(in srgb, var(--accent) 10%, transparent) 50%,
-      transparent 100%);
+  transparent 10%,
+  color-mix(in srgb, var(--surface) 10%, transparent) 50%,
+  transparent 100%);
   height: 40%;
   animation: scanDrift 7s linear infinite;
   pointer-events: none;
@@ -815,27 +806,27 @@ onUnmounted(() => {
 @keyframes scanDrift {
   0% {
     transform: translateY(-100%);
-    opacity: 0;
+    opacity: 70;
   }
 
   10% {
-    opacity: 1;
+    opacity: 65;
   }
 
   90% {
-    opacity: 1;
+    opacity: 85;
   }
 
   100% {
     transform: translateY(250%);
-    opacity: 0;
+    opacity: 50;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-scanline {
     animation: none;
-    opacity: 0;
+    opacity: 50;
   }
 }
 
@@ -852,7 +843,7 @@ onUnmounted(() => {
 
 .radar-ring {
   fill: none;
-  stroke: color-mix(in srgb, var(--surface) 100%, transparent);
+  stroke: color-mix(in srgb, var(--surface) 15%, transparent);
   stroke-width: 5;
 }
 
@@ -945,6 +936,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  margin-top: 100px;
 }
 
 .hero-title {
@@ -960,7 +952,7 @@ onUnmounted(() => {
   font-size: clamp(8px, 6vw, 7px);
   font-weight: 90;
   color: #ffffff;
-  text-shadow: 0 20px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 20px 2px rgba(0, 0, 0, 0.9);
 }
 
 .hero-title-line--accent {
@@ -984,7 +976,6 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 14px;
   margin-top: 32px;
   flex-wrap: wrap;
   width: 100%;
@@ -1014,6 +1005,19 @@ onUnmounted(() => {
 .hero-anim--2 {
   animation-delay: 0.2s;
     font-size: 30px
+}
+
+.report {
+  color: green;
+  font-weight: 900
+}
+.check {
+  color: white;
+  font-weight: 900;
+}
+.protect {
+  color: green;
+  font-weight: 900;
 }
 
 .hero-anim--3 {
@@ -1072,13 +1076,21 @@ onUnmounted(() => {
   box-shadow: 0 12px 28px rgba(255, 255, 255, 0.08);
 }
 
-.btn--pill.btn--ghost {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px dashed rgba(255, 255, 255, 0.4);
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-}
+  .btn--pill.btn--ghost {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px dashed rgba(255, 255, 255, 0.4);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+    .btn--pill.btn--ghosts {
+      background: var(--surface);
+      border: 1px dashed rgba(255, 255, 255, 0.4);
+      color: var(--text-1);
+      font-weight: 600;
+      cursor: pointer;
+    }
 
 .btn--pill.btn--ghost:hover {
   border-color: var(--accent);
@@ -1808,7 +1820,17 @@ onUnmounted(() => {
 
 .map-section {
   background: var(--surface);
-  padding: 56px 24px;
+  padding: 56px;
+
+}
+
+@media (min-width: 1040px) {
+    .map-section {
+      background: var(--surface);
+      padding: 56px;
+      margin-left: 200px;
+      margin-right: 200px;
+    }
 }
 
 .map-inner {
@@ -1994,7 +2016,7 @@ onUnmounted(() => {
 }
 
 .registry-context {
-  max-width: 1920px;
+  max-width: 920px;
   margin: 0 auto;
   padding: 0 1.25rem;
 }
@@ -2046,8 +2068,9 @@ onUnmounted(() => {
 .threat-body {
   font-family: sans-serif;
   text-decoration: underline;
-  text-decoration-color: var(--accent);
+  text-decoration-color: var(--text-2);
   text-decoration-thickness: 2px;
+  color: red;
 }
 
 .context-body:last-child {

@@ -274,7 +274,7 @@ const agreedToTerms = ref(false)
   padding: 90px 24px 100px;
   width: 100%;
   text-align: center;
-  background-image: url('/def.png');
+  background-image: url('/repnow.png');
   background-size: cover;
 }
 

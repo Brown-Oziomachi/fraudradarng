@@ -251,7 +251,7 @@ onBeforeUnmount(() => {
     line-height: 1.65;
     color: var(--text-1);
     font-weight: 300;
-    margin-bottom: clamp(8px, 1.4vh, 12px);
+    margin-bottom: clamp(8px, 1.4vh, 12px);  
 }
 
 .modal-links {
@@ -341,9 +341,12 @@ onBeforeUnmount(() => {
         font-size: 20px;
     }
     .modal-bio {
-        font-size: 12px;
-        line-height: 1.5;
-        margin-bottom: 6px;
+        font-size: clamp(12px, 1.6vh, 14px);
+            line-height: 1.65;
+            color: var(--text-1);
+            font-weight: 300;
+            margin-bottom: clamp(8px, 1.4vh, 12px);
+            text-align: left;
     }
 }
 </style>

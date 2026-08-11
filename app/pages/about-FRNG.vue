@@ -148,7 +148,7 @@ onBeforeUnmount(() => {
     <section :ref="setSectionRef" class="deep-dive-section reveal">
       <div class="deep-dive-grid">
         <div class="deep-dive-image-wrap">
-          <img src="/FRLOGO.png" alt="Fraud Radar NG platform showing community-submitted fraud reports"
+          <img src="/repnow.png" alt="Fraud Radar NG platform showing community-submitted fraud reports"
             class="deep-dive-image" loading="lazy" />
         </div>
 
@@ -264,7 +264,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   overflow: hidden;
-  background-image: url('/def.png');
+  background-image: url('/report.png');
   padding: 0 24px;
   background-size: cover;
   background-position: center;
@@ -275,7 +275,7 @@ onBeforeUnmount(() => {
   z-index: 1;
   max-width: 760px;
   margin: 0 auto;
-  width: 100%;
+  max-width: 100%;
 }
 
 .radar-field {
@@ -309,13 +309,15 @@ onBeforeUnmount(() => {
 
 .page-sub {
   z-index: 1;
-  font-size: 16px;
+  font-size: 20px;
   color: var(--text-2);
   line-height: 1.75;
-  font-weight: 300;
+  font-weight: 500;
   text-align: center;
   background-color: var(--surface);
   padding: 50px;
+  margin-top: 40px;
+  font-family: 'Times New Roman', Times, serif;
 }
 
 @media (max-width: 720px) {
@@ -460,7 +462,6 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 8px;
   padding: 9px 18px 9px 14px;
-  border-radius: 999px;
   background: color-mix(in srgb, var(--accent) 16%, var(--surface));
   border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
   color: var(--text-1);
@@ -789,10 +790,9 @@ onBeforeUnmount(() => {
 .deep-dive-image-wrap {
   position: sticky;
   top: 32px;
-  border-radius: calc(var(--radius) + 8px);
   overflow: hidden;
   border: 1px solid var(--border);
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 7 / 7;
 }
 
 .deep-dive-image {
