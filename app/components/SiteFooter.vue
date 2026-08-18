@@ -41,7 +41,7 @@ const quickLinks = [
   { label: 'Help Center', to: '/help' },
   { label: 'Naira Recovery Pipeline', to: '/recovery' },
   { label: 'Community Awareness', to: '/community' },
-  { label: 'FRNG Intelligence', to: '/intelligence' },
+  // { label: 'FRNG Intelligence', to: '/intelligence' },
 ]
 
 const emergencyContacts = [
@@ -196,7 +196,7 @@ const emergencyContacts = [
 
 <style scoped>
 .site-footer {
-  background: var(--surface);
+  background: var(--bg);
   color: var(--text-2);
   border-top: 1px solid var(--border);
   padding: 64px 24px 40px;

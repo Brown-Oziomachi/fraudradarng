@@ -111,79 +111,87 @@ const categories = [
   }
 ]
 
-// A wider directory of Nigerian regulatory and enforcement bodies —
-// shown below the four main categories, since a report can involve
-// more than one of these depending on what actually happened.
 const regulators = [
   {
     name: 'EFCC',
     full: 'Economic and Financial Crimes Commission',
     desc: 'Nigeria\u2019s lead agency for investigating and prosecuting fraud, advance-fee scams, and money laundering. Reporting is free — through efccnigeria.org or the Eagle Eye App.',
     url: 'https://www.efcc.gov.ng/',
-    domain: 'efcc.gov.ng'
+    domain: 'efcc.gov.ng',
+    image: '/EFCC.jpeg'
   },
   {
     name: 'CBN',
     full: 'Central Bank of Nigeria',
     desc: 'Regulates banks and fintechs, and runs consumer-protection and fraud-awareness programs for the financial sector.',
     url: 'https://www.cbn.gov.ng/',
-    domain: 'cbn.gov.ng'
+    domain: 'cbn.gov.ng',
+    image: '/CPN.jpeg'
   },
   {
     name: 'SEC',
     full: 'Securities and Exchange Commission',
     desc: 'Regulates the capital market and enforces the Investments and Securities Act 2025 against unregistered investment and Ponzi schemes.',
     url: 'https://sec.gov.ng/',
-    domain: 'sec.gov.ng'
+    domain: 'sec.gov.ng',
+    image: '/SEC.png'
   },
   {
     name: 'FCCPC',
     full: 'Federal Competition & Consumer Protection Commission',
     desc: 'Handles complaints against merchants, vendors, and digital platforms for unfair or deceptive business practices.',
     url: 'https://fccpc.gov.ng/',
-    domain: 'fccpc.gov.ng'
+    domain: 'fccpc.gov.ng',
+    image: '/FCCPC.png'
   },
   {
     name: 'NCC',
     full: 'Nigerian Communications Commission',
     desc: 'Regulates telecoms and SIM registration. Its Consumer Affairs Bureau handles SIM-swap and telecom-fraud complaints.',
     url: 'https://consumer.ncc.gov.ng/',
-    domain: 'consumer.ncc.gov.ng'
+    domain: 'consumer.ncc.gov.ng',
+    image: '/NCC.jpeg'
   },
   {
     name: 'NITDA',
     full: 'National Information Technology Development Agency',
     desc: 'Oversees IT policy and data protection — relevant when a scam involves a data breach or unlawful use of personal data.',
     url: 'https://nitda.gov.ng/',
-    domain: 'nitda.gov.ng'
+    domain: 'nitda.gov.ng',
+    image: '/NITDA.jpg'
   },
   {
     name: 'NPF',
     full: 'Nigeria Police Force',
     desc: 'Its cybercrime unit investigates online fraud reported through local police divisions or the force\u2019s official channels.',
     url: 'https://npf.gov.ng/',
-    domain: 'npf.gov.ng'
+    domain: 'npf.gov.ng',
+    image: '/NPF.jpg'
   },
   {
     name: 'NDIC',
     full: 'Nigeria Deposit Insurance Corporation',
     desc: 'Protects bank depositors and manages claims when a licensed deposit-taking institution is closed or fails.',
     url: 'https://ndic.gov.ng/',
-    domain: 'ndic.gov.ng'
+    domain: 'ndic.gov.ng',
+    image: '/FCCPC.png'
   },
   {
     name: 'ICPC',
     full: 'Independent Corrupt Practices Commission',
     desc: 'Investigates corruption-linked fraud, particularly where a public official or public funds are involved.',
     url: 'https://icpc.gov.ng/',
-    domain: 'icpc.gov.ng'
+    domain: 'icpc.gov.ng',
+    image: '/ICPC.jpeg'
+
   },
   {
     name: 'NFIU',
     full: 'Nigerian Financial Intelligence Unit',
     desc: 'Receives suspicious-transaction reports from banks and other institutions as part of the national anti-money-laundering system.',
     url: 'https://nfiu.gov.ng/',
-    domain: 'nfiu.gov.ng'
+    domain: 'nfiu.gov.ng',
+    image: '/NFIU.jpeg'
   }
 ]
 </script>
@@ -292,6 +300,9 @@ const regulators = [
 
         <ul class="regulator-grid">
           <li v-for="r in regulators" :key="r.name" class="regulator-card">
+            <div class="regilator-image-wrap">
+              <img :src="r.image" :alt="r.name" class="regulator-image" loading="lazy"/>
+            </div>
             <div class="regulator-top">
               <span class="regulator-name">{{ r.name }}</span>
               <span class="regulator-verified" title="Official .gov.ng or recognized national body">✓ verified</span>
@@ -581,6 +592,20 @@ const regulators = [
 }
 .regulator-card:hover { border-color: var(--border-hi); }
 
+.regulator-image-wrap {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.regulator-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+    background: var(--surface);
+    padding: 10px;
+}
 .regulator-top {
   display: flex;
   align-items: center;

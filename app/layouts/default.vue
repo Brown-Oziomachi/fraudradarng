@@ -298,7 +298,7 @@ const mobileSections = [
       { label: 'Community Awareness', to: '/community', icon: 'megaphone', desc: 'Campaigns to spread scam awareness.' },
       { label: 'Threat Registry', to: '/lookupsearch', icon: 'search', desc: 'Look up a number before sending money.' },
       { label: 'My Watchlist', to: '/watchlist', icon: 'bell', desc: 'Get notified if a saved account or number is ever reported.' },
-      { label: 'FRNG Intelligence(Coming Soon)', to: '/intelligence', icon: 'cpu', desc: 'Proactive cyber-threat analytics and real-time fraud prevention engines.' },
+      // { label: 'FRNG Intelligence(Coming Soon)', to: '/intelligence', icon: 'cpu', desc: 'Proactive cyber-threat analytics and real-time fraud prevention engines.' },
     ]
   },
 ]
@@ -698,8 +698,8 @@ onBeforeUnmount(() => {
   gap: 16px;
   flex-wrap: wrap;
   padding: 1px 44px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  border-bottom: 1px solid var(--bg);
+  background: var(--bg);
   transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -1011,7 +1011,7 @@ onBeforeUnmount(() => {
   transform: translateX(-50%);
   width: 900px;
   max-width: 92vw;
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.16);
   border-radius: var(--radius);
@@ -1236,6 +1236,7 @@ onBeforeUnmount(() => {
 @media (max-width: 790px) {
   .nav {
     display: none;
+      background: var(--bg);
   }
 
   .hamburger-btn {
