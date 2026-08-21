@@ -1,33 +1,18 @@
 <script setup lang="ts">
 /**
- * pages/admin/announcements.vue
+ * pages/fraud/announcements.vue
  * Publish / hide the site-wide announcement bar.
- * Writes to Firestore doc: siteSettings/announcement
- *
- * ⚠️ This page has no auth guard yet. Wrap it with your admin middleware, e.g.:
- * definePageMeta({ middleware: 'admin' })
+ * Writes via server route: POST /api/obelisk/announcement
+ * Reads via server route: GET /api/obelisk/announcement
  */
 
-import { ref, onMounted, onUnmounted } from 'vue'
-import { initializeApp, getApps } from 'firebase/app'
-import { doc, getFirestore, onSnapshot, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
-import { useRuntimeConfig } from '#imports'
-
-const config = useRuntimeConfig()
-const firebaseApp = getApps().length
-  ? getApps()[0]!
-  : initializeApp({
-      apiKey: config.public.firebaseApiKey,
-      authDomain: config.public.firebaseAuthDomain,
-      projectId: config.public.firebaseProjectId,
-      storageBucket: config.public.firebaseStorageBucket,
-      appId: config.public.firebaseAppId
-    })
-const db = getFirestore(firebaseApp)
+import { ref, onMounted } from 'vue'
 
 definePageMeta({ middleware: 'admin-only', hideFooter: true })
 
 useHead({ title: 'Announcement Bar — FRNG Admin' })
+
+const { getAuthHeader } = useAuth()
 
 const current = ref<any>(null)
 const loading = ref(true)
@@ -45,13 +30,11 @@ const PRESET_LABELS = ['NOTICE', 'NEW', 'UPDATE', 'ALERT', 'ADVISORY', 'PARTNER'
 const BG_SWATCHES = ['#0d1b12', '#12331f', '#1a1a1a', '#3a1414', '#0d2244']
 const TEXT_SWATCHES = ['#e8ff47', '#ffffff', '#fbbf24', '#86efac', '#f5f0e8']
 
-let unsub: (() => void) | null = null
-
-onMounted(() => {
-  const announcementRef = doc(db, 'siteSettings', 'announcement')
-  unsub = onSnapshot(announcementRef, (snap) => {
-    if (snap.exists()) {
-      const data = snap.data()
+onMounted(async () => {
+  try {
+    const headers = await getAuthHeader()
+    const data: any = await $fetch('/api/obelisk/announcement', { headers })
+    if (data) {
       current.value = data
       message.value = data.message || ''
       label.value = data.label || 'NOTICE'
@@ -61,11 +44,12 @@ onMounted(() => {
       textColor.value = data.textColor || '#e8ff47'
       active.value = data.active !== false
     }
+  } catch (e) {
+    console.error('Failed to load announcement', e)
+  } finally {
     loading.value = false
-  })
+  }
 })
-
-onUnmounted(() => unsub?.())
 
 async function handleSave() {
   if (!message.value.trim()) {
@@ -74,20 +58,24 @@ async function handleSave() {
   }
   saving.value = true
   try {
-    await setDoc(doc(db, 'siteSettings', 'announcement'), {
-      message: message.value.trim(),
-      label: (label.value.trim() || 'NOTICE').toUpperCase(),
-      linkUrl: linkUrl.value.trim(),
-      linkText: linkText.value.trim(),
-      bgColor: bgColor.value,
-      textColor: textColor.value,
-      active: active.value,
-      updatedAt: serverTimestamp(),
-      // updatedBy: wire this to your admin auth/user state
+    const headers = await getAuthHeader()
+    await $fetch('/api/obelisk/announcement', {
+      method: 'POST',
+      headers,
+      body: {
+        message: message.value.trim(),
+        label: (label.value.trim() || 'NOTICE').toUpperCase(),
+        linkUrl: linkUrl.value.trim(),
+        linkText: linkText.value.trim(),
+        bgColor: bgColor.value,
+        textColor: textColor.value,
+        active: active.value
+      }
     })
+    current.value = { ...current.value, active: active.value }
     alert('✅ Announcement published!')
   } catch (e: any) {
-    alert('❌ Failed: ' + e.message)
+    alert('❌ Failed: ' + (e?.data?.statusMessage ?? e.message))
   } finally {
     saving.value = false
   }
@@ -96,9 +84,24 @@ async function handleSave() {
 async function handleDeactivate() {
   if (!confirm('Hide the announcement bar from the site?')) return
   try {
-    await updateDoc(doc(db, 'siteSettings', 'announcement'), { active: false })
+    const headers = await getAuthHeader()
+    await $fetch('/api/obelisk/announcement', {
+      method: 'POST',
+      headers,
+      body: {
+        message: message.value.trim(),
+        label: label.value,
+        linkUrl: linkUrl.value,
+        linkText: linkText.value,
+        bgColor: bgColor.value,
+        textColor: textColor.value,
+        active: false
+      }
+    })
+    active.value = false
+    current.value = { ...current.value, active: false }
   } catch (e: any) {
-    alert('Failed: ' + e.message)
+    alert('Failed: ' + (e?.data?.statusMessage ?? e.message))
   }
 }
 </script>
@@ -135,35 +138,20 @@ async function handleDeactivate() {
       <div class="form-card">
         <div class="field">
           <label for="message">Announcement Message *</label>
-          <textarea
-            id="message"
-            v-model="message"
-            rows="3"
-            placeholder="e.g. New scam pattern flagged in Lagos — check the latest guide before you send money."
-          ></textarea>
+          <textarea id="message" v-model="message" rows="3"
+            placeholder="e.g. New scam pattern flagged in Lagos — check the latest guide before you send money."></textarea>
           <div class="hint">Scrolls across the top of every page. Keep it under 150 characters.</div>
         </div>
 
         <div class="field">
           <label>Label Badge</label>
           <div class="preset-row">
-            <button
-              v-for="l in PRESET_LABELS"
-              :key="l"
-              type="button"
-              class="preset-btn"
-              :class="{ active: label === l }"
-              @click="label = l"
-            >
+            <button v-for="l in PRESET_LABELS" :key="l" type="button" class="preset-btn"
+              :class="{ active: label === l }" @click="label = l">
               {{ l }}
             </button>
-            <input
-              v-model="label"
-              maxlength="10"
-              placeholder="CUSTOM"
-              class="preset-input"
-              @input="label = label.toUpperCase()"
-            />
+            <input v-model="label" maxlength="10" placeholder="CUSTOM" class="preset-input"
+              @input="label = label.toUpperCase()" />
           </div>
         </div>
 
@@ -186,14 +174,8 @@ async function handleDeactivate() {
               <input v-model="bgColor" class="color-text" />
             </div>
             <div class="swatch-row">
-              <button
-                v-for="c in BG_SWATCHES"
-                :key="c"
-                type="button"
-                class="swatch"
-                :style="{ background: c, borderColor: bgColor === c ? '#fff' : 'transparent' }"
-                @click="bgColor = c"
-              />
+              <button v-for="c in BG_SWATCHES" :key="c" type="button" class="swatch"
+                :style="{ background: c, borderColor: bgColor === c ? '#fff' : 'transparent' }" @click="bgColor = c" />
             </div>
           </div>
           <div class="field">
@@ -203,14 +185,9 @@ async function handleDeactivate() {
               <input v-model="textColor" class="color-text" />
             </div>
             <div class="swatch-row">
-              <button
-                v-for="c in TEXT_SWATCHES"
-                :key="c"
-                type="button"
-                class="swatch"
+              <button v-for="c in TEXT_SWATCHES" :key="c" type="button" class="swatch"
                 :style="{ background: c, borderColor: textColor === c ? '#fff' : 'transparent' }"
-                @click="textColor = c"
-              />
+                @click="textColor = c" />
             </div>
           </div>
         </div>
@@ -233,10 +210,6 @@ async function handleDeactivate() {
             Hide Bar
           </button>
         </div>
-      </div>
-
-      <div v-if="current" class="meta-note">
-        Last published {{ current.updatedAt?.toDate?.()?.toLocaleString?.() || '' }}
       </div>
     </template>
   </div>

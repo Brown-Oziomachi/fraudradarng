@@ -1,18 +1,22 @@
 import { getAuth } from 'firebase-admin/auth'
+import { ensureFirebaseAdmin } from './firebase-admin'
 
 export async function requireAdmin(event: any) {
+  ensureFirebaseAdmin() // must run before any getAuth() call
+
   const sessionCookie = getCookie(event, '__session')
 
   if (sessionCookie) {
+    let decoded
     try {
-      const decoded = await getAuth().verifySessionCookie(sessionCookie, true)
-      if (decoded.admin !== true) {
-        throw createError({ statusCode: 403, statusMessage: 'Admin access required' })
-      }
-      return decoded
+      decoded = await getAuth().verifySessionCookie(sessionCookie, true)
     } catch {
       throw createError({ statusCode: 401, statusMessage: 'Invalid or expired session' })
     }
+    if (decoded.admin !== true) {
+      throw createError({ statusCode: 403, statusMessage: 'Admin access required' })
+    }
+    return decoded
   }
 
   const authHeader = getHeader(event, 'authorization')
