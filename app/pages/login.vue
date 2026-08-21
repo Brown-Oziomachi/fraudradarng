@@ -1,7 +1,6 @@
 <script setup>
 useHead({ title: 'Sign in' })
 
-const { login } = useAuth()
 const email = ref('')
 const password = ref('')
 const submitting = ref(false)
@@ -11,12 +10,15 @@ async function handleSubmit() {
   submitting.value = true
   errorMsg.value = ''
   try {
-    await login(email.value, password.value)
+    await $fetch('/api/auth/session-login', {
+      method: 'POST',
+      body: { email: email.value, password: password.value }
+    })
     await navigateTo('/obelisk')
   } catch (err) {
-  console.error('[login] Firebase error:', err)
-  errorMsg.value = `Not allowed. (${err?.code ?? 'unknown'})`
-} finally {
+    console.error('[login] error:', err)
+    errorMsg.value = err?.data?.statusMessage || err?.data?.message || 'Sign in failed'
+  } finally {
     submitting.value = false
   }
 }
@@ -44,6 +46,7 @@ async function handleSubmit() {
   justify-content: center;
   background: var(--bg, #0b0d10);
 }
+
 .login-card {
   display: flex;
   flex-direction: column;
@@ -54,11 +57,13 @@ async function handleSubmit() {
   background: var(--surface, #14171a);
   border: 1px solid var(--border, #232629);
 }
+
 .login-card h1 {
   font-size: 18px;
   margin: 0 0 6px;
   color: var(--text-1, #eee);
 }
+
 .login-card input {
   padding: 8px 10px;
   border-radius: 8px;
@@ -66,6 +71,7 @@ async function handleSubmit() {
   background: var(--bg, #0b0d10);
   color: var(--text-1, #eee);
 }
+
 .login-card button {
   padding: 9px;
   border-radius: 8px;
@@ -75,6 +81,15 @@ async function handleSubmit() {
   font-weight: 600;
   cursor: pointer;
 }
-.login-card button:disabled { opacity: 0.6; cursor: not-allowed; }
-.error { color: #d64545; font-size: 13px; margin: 0; }
+
+.login-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #d64545;
+  font-size: 13px;
+  margin: 0;
+}
 </style>
