@@ -421,9 +421,23 @@ async function handleUpdatePartnershipStatus(id, status) {
 
 const REGULATORY_STATUSES = [
   { value: null, label: 'Not set' },
+
+  // Entity/company statuses
   { value: 'unregistered', label: '🛑 Unregistered / Illegal operator' },
-  { value: 'probation', label: '🟡 Under regulatory probation' },
+  { value: 'pending', label: '🔵 Registration pending' },
+  { value: 'probation', label: '🟡 Under investigation' },
+  { value: 'suspended', label: '🟠 License suspended' },
+  { value: 'revoked', label: '⚫ License revoked' },
+  { value: 'litigation', label: '⚖️ Facing court/regulatory action' },
   { value: 'registered', label: '🟢 Currently SEC-registered' },
+
+  // Individual statuses
+  { value: 'identity_unverified', label: '❓ Identity unverified' },
+  { value: 'identity_confirmed', label: '🔎 Identity confirmed by FRNG' },
+  { value: 'police_report_filed', label: '🚨 Police report filed' },
+  { value: 'wanted', label: '🚔 Wanted by law enforcement' },
+  { value: 'prior_conviction', label: '⚫ Prior fraud conviction' },
+  { value: 'in_custody', label: '🔒 In custody / arrested' },
 ]
 
 const updatingRegStatus = ref(false)
