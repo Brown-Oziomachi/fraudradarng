@@ -1,7 +1,21 @@
 import { db } from '~~/server/utils/firebase-admin'
 import { requireAdmin } from '~~/server/utils/require-admin'
 
-const VALID_STATUSES = ['unregistered', 'probation', 'registered'] as const
+const VALID_STATUSES = [
+  'unregistered',
+  'pending',
+  'probation',
+  'suspended',
+  'revoked',
+  'litigation',
+  'registered',
+  'identity_unverified',
+  'identity_confirmed',
+  'police_report_filed',
+  'wanted',
+  'prior_conviction',
+  'in_custody',
+] as const
 type RegulatoryStatus = (typeof VALID_STATUSES)[number]
 
 export default defineEventHandler(async (event) => {
