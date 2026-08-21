@@ -127,8 +127,18 @@ const recoveryLink = computed(() => {
 
 const REGULATORY_LABELS: Record<string, { label: string; tone: string }> = {
   unregistered: { label: '🛑 Unregistered / Illegal Operator', tone: 'unregistered' },
-  probation: { label: '🟡 Under Regulatory Probation', tone: 'probation' },
+  pending: { label: '🔵 Registration Pending', tone: 'pending' },
+  probation: { label: '🟡 Under Investigation', tone: 'probation' },
+  suspended: { label: '🟠 License Suspended', tone: 'suspended' },
+  revoked: { label: '⚫ License Revoked', tone: 'revoked' },
+  litigation: { label: '⚖️ Facing Court/Regulatory Action', tone: 'litigation' },
   registered: { label: '🟢 Currently SEC-Registered', tone: 'registered' },
+  identity_unverified: { label: '❓ Identity Unverified', tone: 'unregistered' },
+  identity_confirmed: { label: '🔎 Identity Confirmed by FRNG', tone: 'registered' },
+  police_report_filed: { label: '🚨 Police Report Filed', tone: 'litigation' },
+  wanted: { label: '🚔 Wanted by Law Enforcement', tone: 'revoked' },
+  prior_conviction: { label: '⚫ Prior Fraud Conviction', tone: 'revoked' },
+  in_custody: { label: '🔒 In Custody / Arrested', tone: 'revoked' },
 }
 
 const regulatoryBadge = computed(() => {
@@ -1813,6 +1823,22 @@ useHead(() => ({
   color: #4ade80;
 }
 
+.snap-tone--pending {
+  color: #60a5fa;
+}
+
+.snap-tone--suspended {
+  color: #fb923c;
+}
+
+.snap-tone--revoked {
+  color: #a1a1aa;
+}
+
+.snap-tone--litigation {
+  color: #c084fc;
+}
+
 .widget-states-scroll-wrap {
   position: relative;
   display: flex;
@@ -1977,5 +2003,29 @@ useHead(() => ({
 background: var(--accent);
   border-color: var(--accent);
   margin-bottom: 20px;
+}
+
+.regulatory-badge--pending {
+  background: rgba(96, 165, 250, 0.06);
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  color: #60a5fa;
+}
+
+.regulatory-badge--suspended {
+  background: rgba(251, 146, 60, 0.06);
+  border: 1px solid rgba(251, 146, 60, 0.25);
+  color: #fb923c;
+}
+
+.regulatory-badge--revoked {
+  background: rgba(161, 161, 170, 0.08);
+  border: 1px solid rgba(161, 161, 170, 0.25);
+  color: #a1a1aa;
+}
+
+.regulatory-badge--litigation {
+  background: rgba(192, 132, 252, 0.06);
+  border: 1px solid rgba(192, 132, 252, 0.25);
+  color: #c084fc;
 }
 </style>
