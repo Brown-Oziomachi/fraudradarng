@@ -1,7 +1,4 @@
 export default defineNuxtRouteMiddleware(async () => {
-  // Only runs client-side — Firebase Auth state lives in the browser.
-  if (import.meta.server) return
-
   const { isAdmin } = useAuth()
   const admin = await isAdmin()
 
