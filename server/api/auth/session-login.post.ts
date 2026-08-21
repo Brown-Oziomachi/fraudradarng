@@ -1,7 +1,10 @@
 // server/api/auth/session-login.post.ts
 import { getAuth } from 'firebase-admin/auth'
+import { ensureFirebaseAdmin } from '../../utils/firebase-admin'
 
 export default defineEventHandler(async (event) => {
+  ensureFirebaseAdmin() // must run before any getAuth() call
+
   const { email, password } = await readBody<{ email: string; password: string }>(event)
 
   if (!email || !password) {

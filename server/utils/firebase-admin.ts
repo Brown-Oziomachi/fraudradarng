@@ -1,3 +1,4 @@
+// server/utils/firebase-admin.ts
 import { initializeApp, cert, getApps } from 'firebase-admin/app'
 import { getFirestore, type Firestore } from 'firebase-admin/firestore'
 
@@ -43,6 +44,13 @@ function init(): Firestore {
     throw initError
   }
 }
+
+// New: any route that needs Auth (not just Firestore) must call this first
+// to guarantee initializeApp() has run.
+export function ensureFirebaseAdmin(): void {
+  init()
+}
+
 export const db: Firestore = new Proxy({} as Firestore, {
   get(_target, prop, receiver) {
     const instance = init()
