@@ -2,7 +2,7 @@
 interface SocialLink {
     label: string
     href: string
-    icon: 'x' | 'github' | 'globe' | 'linkedin' | 'youtube'
+    icon: 'x' | 'github' | 'globe' | 'linkedin' | 'youtube' | 'substack'
 }
 
 const props = withDefaults(defineProps<{
@@ -61,7 +61,7 @@ onBeforeUnmount(() => {
                 :style="backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : undefined">
                 <div class="modal-topbar" aria-hidden="true" />
 
-              <button class="modal-close" aria-label="Close" @click="close">
+                <button class="modal-close" aria-label="Close" @click="close">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
                         <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                     </svg>
@@ -73,7 +73,8 @@ onBeforeUnmount(() => {
 
                         <div class="modal-content">
                             <div class="modal-avatar-wrap">
-                                <img :src="avatar" :alt="founderName" class="modal-avatar" loading="lazy" title="Sir Brown AD" />
+                                <img :src="avatar" :alt="founderName" class="modal-avatar" loading="lazy"
+                                    title="Sir Brown AD" />
                             </div>
 
                             <div class="modal-copy">
@@ -82,7 +83,8 @@ onBeforeUnmount(() => {
 
                                 <div v-if="links.length" class="modal-links">
                                     <a v-for="link in links" :key="link.href" :href="link.href" target="_blank"
-                                        rel="noopener noreferrer" class="modal-link-btn" :aria-label="link.label">
+                                        rel="noopener noreferrer" class="modal-link-btn"
+                                        :class="`modal-link-btn--${link.icon}`" :aria-label="link.label">
                                         <svg title="X Twitter" v-if="link.icon === 'x'" viewBox="0 0 24 24" width="16"
                                             height="16" fill="currentColor">
                                             <path
@@ -98,6 +100,13 @@ onBeforeUnmount(() => {
                                             <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
                                             <path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"
                                                 stroke="currentColor" stroke-width="1.8" />
+                                        </svg>
+                                        <svg v-else-if="link.icon === 'substack'" title="Substack" viewBox="0 0 24 24"
+                                            width="16" height="16" fill="currentColor" aria-hidden="true">
+                                            <path
+                                                d="M4.5 5.5h15v2.1h-15V5.5Zm0 5.3h15v2.1h-15v-2.1Zm0 5.3H15v2.1H4.5v-2.1Z" />
+                                            <path d="M4.5 18.2h15v1.8c0 .8-.7 1.5-1.5 1.5H6c-.8 0-1.5-.7-1.5-1.5v-1.8Z"
+                                                opacity=".8" />
                                         </svg>
                                         <svg v-else-if="link.icon === 'linkedin'" viewBox="0 0 24 24" width="16"
                                             height="16" fill="currentColor">
@@ -115,7 +124,7 @@ onBeforeUnmount(() => {
                                     {{ para }}
                                 </p>
 
-                               
+
                             </div>
                         </div>
                     </div>
@@ -171,6 +180,7 @@ onBeforeUnmount(() => {
     color: var(--accent);
     border-color: var(--accent);
 }
+
 .modal-panel {
     position: absolute;
     z-index: 1;
@@ -257,7 +267,7 @@ onBeforeUnmount(() => {
     line-height: 1.65;
     color: var(--text-1);
     font-weight: 300;
-    margin-bottom: clamp(8px, 1.4vh, 12px);  
+    margin-bottom: clamp(8px, 1.4vh, 12px);
 
 }
 
@@ -279,12 +289,45 @@ onBeforeUnmount(() => {
     border-radius: calc(var(--radius) - 2px);
     background: var(--accent);
     color: var(--text-1);
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    border: 1px solid transparent;
+    box-shadow: 0 4px 14px color-mix(in srgb, black 20%, transparent);
 }
 
 .modal-link-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px color-mix(in srgb, var(--accent) 45%, transparent);
+    filter: brightness(1.06);
+    box-shadow: 0 8px 22px color-mix(in srgb, black 22%, transparent);
+}
+
+.modal-link-btn--x {
+    background: #000000;
+    color: #ffffff;
+}
+
+.modal-link-btn--github {
+    background: #171515;
+    color: #ffffff;
+}
+
+.modal-link-btn--globe {
+    background: color-mix(in srgb, var(--accent) 75%, #ffffff 25%);
+    color: var(--text-1);
+}
+
+.modal-link-btn--substack {
+    background: #ff6719;
+    color: #fffaf5;
+}
+
+.modal-link-btn--linkedin {
+    background: #0a66c2;
+    color: #ffffff;
+}
+
+.modal-link-btn--youtube {
+    background: #ff0000;
+    color: #ffffff;
 }
 
 /* Transitions */
@@ -345,16 +388,18 @@ onBeforeUnmount(() => {
         width: 64px;
         height: 64px;
     }
+
     .modal-name {
         font-size: 20px;
     }
+
     .modal-bio {
         font-size: clamp(12px, 1.6vh, 14px);
-            line-height: 1.65;
-            color: var(--text-1);
-            font-weight: 300;
-            margin-bottom: clamp(8px, 1.4vh, 12px);
-            text-align: left;
+        line-height: 1.65;
+        color: var(--text-1);
+        font-weight: 300;
+        margin-bottom: clamp(8px, 1.4vh, 12px);
+        text-align: left;
     }
 }
 </style>

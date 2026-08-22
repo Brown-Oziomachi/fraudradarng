@@ -9,6 +9,7 @@ const founderLinks = [
   { label: 'Website', href: 'https://sirbrownad.name.ng/bc/about', icon: 'globe' as const },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/brownoziomachi72a5a3229?utm_source=share_via&utm_content=profile&utm_medium=member_android', icon: 'linkedin' as const },
   { label: 'YouTube', href: 'https://youtube.com/@fraudradarng?si=_WyyQZ0uhJddLLdr', icon: 'youtube' as const },
+  { label: 'Substack', href: 'https://substack.com/@sirbrownad?utm_source=share&utm_medium=android&r=52hnux', icon: 'substack' as const },
 ]
 
 const aboutLinks = [
