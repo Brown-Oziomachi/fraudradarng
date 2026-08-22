@@ -4,9 +4,11 @@ const isSubscribeOpen = ref(false)
 const founderName = ref('Sir Brown AD')
 const showFounderModal = ref(false)
 const founderLinks = [
-  { label: 'X (Twitter)', href: 'https://x.com/@BrownC15427449', icon: 'x' as const },
+  { label: 'X (Twitter)', href: 'https://x.com/BrownC15427449', icon: 'x' as const },
   { label: 'GitHub', href: 'https://github.com/Brown-Oziomachi', icon: 'github' as const },
   { label: 'Website', href: 'https://sirbrownad.name.ng/bc/about', icon: 'globe' as const },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/brownoziomachi72a5a3229?utm_source=share_via&utm_content=profile&utm_medium=member_android', icon: 'linkedin' as const },
+  { label: 'YouTube', href: 'https://youtube.com/@fraudradarng?si=_WyyQZ0uhJddLLdr', icon: 'youtube' as const },
 ]
 
 const aboutLinks = [

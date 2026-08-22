@@ -80,31 +80,27 @@ onBeforeUnmount(() => {
                                 <h2 class="modal-name">{{ founderName }}</h2>
                                 <p class="modal-role">{{ role }}</p>
 
-                                <p v-for="(para, i) in bio" :key="i" class="modal-bio">
-                                    {{ para }}
-                                </p>
-
                                 <div v-if="links.length" class="modal-links">
                                     <a v-for="link in links" :key="link.href" :href="link.href" target="_blank"
                                         rel="noopener noreferrer" class="modal-link-btn" :aria-label="link.label">
-                                        <svg title="X Twitter" v-if="link.icon === 'x'" viewBox="0 0 24 24" width="16" height="16"
-                                            fill="currentColor">
+                                        <svg title="X Twitter" v-if="link.icon === 'x'" viewBox="0 0 24 24" width="16"
+                                            height="16" fill="currentColor">
                                             <path
                                                 d="M18.3 2H21l-6.7 7.6L22 22h-6.6l-5.2-6.8L4.2 22H1.5l7.2-8.2L1 2h6.7l4.7 6.2L18.3 2Zm-1.2 18h1.8L7 4H5.1l12 16Z" />
                                         </svg>
-                                        <svg title="Github" v-else-if="link.icon === 'github'" viewBox="0 0 24 24" width="16" height="16"
-                                            fill="currentColor">
+                                        <svg title="Github" v-else-if="link.icon === 'github'" viewBox="0 0 24 24"
+                                            width="16" height="16" fill="currentColor">
                                             <path
                                                 d="M12 2C6.5 2 2 6.5 2 12c0 4.4 2.9 8.1 6.9 9.4.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.5-1.1-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.7.4-1.1.6-1.4-2.3-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.5-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 4.9 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7 1 .7 2v3c0 .3.2.6.7.5A10 10 0 0 0 22 12c0-5.5-4.5-10-10-10Z" />
                                         </svg>
-                                        <svg v-else-if="link.icon === 'globe'" viewBox="0 0 24 24" width="16" height="16"
-                                            fill="none">
+                                        <svg v-else-if="link.icon === 'globe'" viewBox="0 0 24 24" width="16"
+                                            height="16" fill="none">
                                             <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
-                                            <path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18" stroke="currentColor"
-                                                stroke-width="1.8" />
+                                            <path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"
+                                                stroke="currentColor" stroke-width="1.8" />
                                         </svg>
-                                        <svg  v-else-if="link.icon === 'linkedin'" viewBox="0 0 24 24" width="16" height="16"
-                                            fill="currentColor">
+                                        <svg v-else-if="link.icon === 'linkedin'" viewBox="0 0 24 24" width="16"
+                                            height="16" fill="currentColor">
                                             <path
                                                 d="M4.98 3.5a2.5 2.5 0 11-.02 5 2.5 2.5 0 01.02-5ZM3 8.98h4V21H3V8.98ZM9 8.98h3.8v1.64h.05c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.4c0-1.29-.02-2.94-1.8-2.94-1.8 0-2.08 1.4-2.08 2.85V21H9V8.98Z" />
                                         </svg>
@@ -114,6 +110,12 @@ onBeforeUnmount(() => {
                                         </svg>
                                     </a>
                                 </div>
+
+                                <p v-for="(para, i) in bio" :key="i" class="modal-bio">
+                                    {{ para }}
+                                </p>
+
+                               
                             </div>
                         </div>
                     </div>
@@ -159,7 +161,7 @@ onBeforeUnmount(() => {
     justify-content: center;
     border-radius: 50%;
     border: 1px solid color-mix(in srgb, white 25%, transparent);
-    background: color-mix(in srgb, black 35%, transparent);
+    background-color: var(--surface);
     color: #fff;
     cursor: pointer;
     transition: color 0.15s, border-color 0.15s;
@@ -193,6 +195,9 @@ onBeforeUnmount(() => {
     color: var(--text-1);
     margin-bottom: clamp(14px, 3vh, 26px);
     flex-shrink: 0;
+    text-align: center;
+    background-color: var(--border-hi);
+    padding: 8px;
 }
 
 /* Avatar sits beside the text, like the reference layout */
@@ -210,7 +215,8 @@ onBeforeUnmount(() => {
     border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
-    box-shadow: 0 8px 24px color-mix(in srgb, black 40%, transparent);
+    box-shadow: 0 8px 24px color-mix(in srgb, black 40%, transparent), 0 4px 12px color-mix(in srgb, black 30%, transparent);
+    border: 2px solid var(--surface-2);
 }
 
 .modal-avatar {
@@ -242,7 +248,7 @@ onBeforeUnmount(() => {
     font-size: clamp(14px, 1.9vh, 17px);
     font-weight: 400;
     color: var(--text-1);
-    margin-bottom: clamp(10px, 2.2vh, 18px);
+    margin-bottom: clamp(1px, 2.2vh, 1px);
     flex-shrink: 0;
 }
 
@@ -252,12 +258,14 @@ onBeforeUnmount(() => {
     color: var(--text-1);
     font-weight: 300;
     margin-bottom: clamp(8px, 1.4vh, 12px);  
+
 }
 
 .modal-links {
     display: flex;
     gap: 10px;
-    margin-top: auto;
+    margin-top: 10px;
+    margin-bottom: 15px;
     padding-top: clamp(10px, 2vh, 18px);
     flex-shrink: 0;
 }

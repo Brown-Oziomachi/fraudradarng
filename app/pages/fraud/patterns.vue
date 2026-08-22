@@ -543,7 +543,7 @@ const regulators = [
   font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.03em;
   padding: 14px 22px; border-radius: var(--radius); text-decoration: none;
 }
-.report-this-btn:hover { background: #d4eb3c; }
+.report-this-btn:hover { background: #1d2f1c; }
 
 /* ============ REGULATOR DIRECTORY ============ */
 .regulators-section {

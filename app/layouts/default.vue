@@ -312,18 +312,20 @@ const customMenu = ref({
   x: 0,
   y: 0,
   isImage: false,
-  imageSrc: null as string | null
+  imageSrc: null as string | null,
+  isText: false,
+  selectedText: ''
 })
 
 function handleContextMenu(e: MouseEvent) {
-  e.preventDefault() // stops the browser's own right-click menu from appearing
+  e.preventDefault()
 
   const target = e.target as HTMLElement
   const img = target.closest('img') as HTMLImageElement | null
+  const selection = window.getSelection()?.toString().trim() ?? ''
 
-  // Clamp so the menu never renders off the right/bottom edge of the viewport
   const menuWidth = 220
-  const menuHeight = img ? 260 : 160
+  const menuHeight = img ? 260 : selection ? 220 : 160
   const x = Math.min(e.clientX, window.innerWidth - menuWidth - 8)
   const y = Math.min(e.clientY, window.innerHeight - menuHeight - 8)
 
@@ -332,7 +334,9 @@ function handleContextMenu(e: MouseEvent) {
     x,
     y,
     isImage: !!img,
-    imageSrc: img?.src ?? null
+    imageSrc: img?.src ?? null,
+    isText: !!selection && !img,
+    selectedText: selection
   }
 }
 
@@ -406,6 +410,30 @@ onBeforeUnmount(() => {
   document.removeEventListener('contextmenu', handleContextMenu)
   document.removeEventListener('click', closeCustomMenu)
 })
+
+function copySelectedText() {
+  if (!customMenu.value.selectedText) return
+  const clipboard = globalThis.navigator?.clipboard
+  if (clipboard?.writeText) {
+    clipboard.writeText(customMenu.value.selectedText)
+  }
+  closeCustomMenu()
+}
+
+function searchSelectedTextOnFRNG() {
+  const q = customMenu.value.selectedText
+  if (!q) return
+  navigateTo(`/reports?search=${encodeURIComponent(q)}`)
+  closeCustomMenu()
+}
+
+function searchSelectedTextOnGoogle() {
+  const q = customMenu.value.selectedText
+  if (!q) return
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank', 'noopener')
+  closeCustomMenu()
+}
+
 </script>
 
 <template>
@@ -645,9 +673,24 @@ onBeforeUnmount(() => {
     <SubscribeModal v-model="isSubscribeOpen" privacy-notice-url="/privacy-notice" />
   </div>
 
-  <Teleport to="body">
+ <Teleport to="body">
     <div v-if="customMenu.visible" class="custom-context-menu"
       :style="{ top: customMenu.y + 'px', left: customMenu.x + 'px' }" @click.stop>
+
+      <!-- Text-specific actions — only shown when text is selected (and it's not an image right-click) -->
+      <template v-if="customMenu.isText">
+        <button type="button" @click="copySelectedText()">
+          📋 Copy
+        </button>
+        <button type="button" @click="searchSelectedTextOnFRNG()">
+          🔍 Search "{{ customMenu.selectedText.length > 20 ? customMenu.selectedText.slice(0, 20) + '…' :
+            customMenu.selectedText }}" on FRNG
+        </button>
+        <button type="button" @click="searchSelectedTextOnGoogle()">
+          🌐 Search on Google
+        </button>
+        <div class="custom-context-menu-divider" />
+      </template>
 
       <!-- Image-specific actions — only shown when the right-click landed on an <img> -->
       <template v-if="customMenu.isImage">
